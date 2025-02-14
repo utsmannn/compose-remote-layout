@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Monaco Editor with Custom Completion</title>
+    <style>
+        .container {
+            display: flex;
+            gap: 10px;
+            padding: 20px;
+        }
+        #editor {
+            width: 800px;
+            height: 600px;
+            border: 1px solid #ccc;
+        }
+        #compose {
+            width: 400px;
+            height: 600px;
+            border: 1px solid #ccc;
+            background: #f5f5f5;
+        }
+        #text_container {
+            display: none;
+        }
+    </style>
+    <script type="application/javascript" src="skiko.js"></script>
+</head>
+<body>
+<div class="container">
+    <div id="editor"></div>
+    <div id="text_container"></div>
+    <div id="compose"></div>
+</div>
+</body>
+<script type="application/javascript" src="remoteWeb.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.js"></script>
+<script src="index.js"></script>
+</html>
