@@ -87,7 +87,7 @@ object LayoutParser {
             "text" -> ComponentWrapper(text = json.decodeFromJsonElement(content))
             "button" -> ComponentWrapper(button = json.decodeFromJsonElement(content))
             "card" -> ComponentWrapper(card = json.decodeFromJsonElement(content))
-            else -> throw IllegalStateException("Unknown component type: $type")
+            else -> ComponentWrapper(column = LayoutComponent.Column()) // handle empty when type not found
         }
     }
 
