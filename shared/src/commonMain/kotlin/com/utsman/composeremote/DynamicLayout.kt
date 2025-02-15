@@ -1,5 +1,3 @@
-@file:Suppress("ktlint:standard:no-wildcard-imports")
-
 package com.utsman.composeremote
 
 import androidx.compose.foundation.horizontalScroll

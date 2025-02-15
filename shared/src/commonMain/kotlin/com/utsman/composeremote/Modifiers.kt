@@ -13,6 +13,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.utsman.composeremote.BaseModifier
+import com.utsman.composeremote.ModifierOrderTracker
 import com.utsman.composeremote.ScopedModifier
 
 fun applyJsonModifier(
@@ -36,27 +37,151 @@ fun applyJsonModifier(
 }
 
 private fun applyBaseModifier(mod: Modifier, base: BaseModifier): Modifier {
-    var currentMod = mod
+    // Get the order from the tracker
+    val modifierOrder = ModifierOrderTracker.getCurrentOrder()
+
+    // Create map of available modifiers
+    val modifierMap = mutableMapOf<String, Modifier>()
 
     // Size modifiers
-    base.width?.let { currentMod = currentMod.width(it.dp) }
-    base.height?.let { currentMod = currentMod.height(it.dp) }
-    base.size?.let { currentMod = currentMod.size(it.dp) }
+    if (base.width != null || base.height != null || base.size != null) {
+        var sizeModifier: Modifier = Modifier
+        base.width?.let { width ->
+            sizeModifier = sizeModifier.then(Modifier.width(width.dp))
+        }
+        base.height?.let { height ->
+            sizeModifier = sizeModifier.then(Modifier.height(height.dp))
+        }
+        base.size?.let { size ->
+            sizeModifier = sizeModifier.then(Modifier.size(size.dp))
+        }
+        if (sizeModifier != Modifier) {
+            modifierMap["width"] = sizeModifier
+            modifierMap["height"] = sizeModifier
+            modifierMap["size"] = sizeModifier
+        }
+    }
 
     // Fill modifiers
-    if (base.fillMaxWidth == true) currentMod = currentMod.fillMaxWidth()
-    if (base.fillMaxHeight == true) currentMod = currentMod.fillMaxHeight()
-    if (base.fillMaxSize == true) currentMod = currentMod.fillMaxSize()
+    if (base.fillMaxWidth == true || base.fillMaxHeight == true || base.fillMaxSize == true) {
+        var fillModifier: Modifier = Modifier
+        if (base.fillMaxWidth == true) {
+            fillModifier = fillModifier.then(Modifier.fillMaxWidth())
+        }
+        if (base.fillMaxHeight == true) {
+            fillModifier = fillModifier.then(Modifier.fillMaxHeight())
+        }
+        if (base.fillMaxSize == true) {
+            fillModifier = fillModifier.then(Modifier.fillMaxSize())
+        }
+        modifierMap["fillMaxWidth"] = fillModifier
+        modifierMap["fillMaxHeight"] = fillModifier
+        modifierMap["fillMaxSize"] = fillModifier
+    }
 
-    // Apply padding and margin
-    currentMod = applySpacingModifiers(currentMod, base)
+    // Background
+    base.background?.let { bg ->
+        bg.color?.let { colorStr ->
+            try {
+                val color = ColorParser.parseColor(colorStr)
+                modifierMap["background"] = Modifier.background(
+                    color.copy(alpha = bg.alpha ?: 1f)
+                )
+            } catch (e: Exception) {
+                // Handle invalid color string
+            }
+        }
+    }
 
-    // Apply visual styling
-    currentMod = applyVisualModifiers(currentMod, base)
+    // Shape
+    base.shape?.let { shape ->
+        val composableShape = when (shape.type.lowercase()) {
+            "circle" -> CircleShape
+            "roundedcorner" -> RoundedCornerShape(shape.cornerRadius?.dp ?: 8.dp)
+            else -> RoundedCornerShape(0.dp)
+        }
+        modifierMap["shape"] = Modifier.clip(composableShape)
+    }
 
-    // Apply behavior
+    // Border
+    base.border?.let { border ->
+        border.color?.let { colorStr ->
+            try {
+                val color = ColorParser.parseColor(colorStr)
+                modifierMap["border"] = Modifier.border(
+                    width = border.width.dp,
+                    color = color,
+                    shape = when (border.shape?.type?.lowercase()) {
+                        "circle" -> CircleShape
+                        "roundedcorner" -> RoundedCornerShape(border.shape.cornerRadius?.dp ?: 8.dp)
+                        else -> RoundedCornerShape(0.dp)
+                    }
+                )
+            } catch (e: Exception) {
+                // Handle invalid color string
+            }
+        }
+    }
+
+    // Shadow
+    base.shadow?.let { shadow ->
+        modifierMap["shadow"] = Modifier.shadow(
+            elevation = shadow.elevation.dp,
+            shape = when (shadow.shape?.type?.lowercase()) {
+                "circle" -> CircleShape
+                "roundedcorner" -> RoundedCornerShape(shadow.shape.cornerRadius?.dp ?: 8.dp)
+                else -> RoundedCornerShape(0.dp)
+            }
+        )
+    }
+
+    // Padding
+    base.padding?.let { padding ->
+        modifierMap["padding"] = when {
+            padding.all != null -> Modifier.padding(padding.all.dp)
+            else -> Modifier.padding(
+                start = padding.start?.dp ?: padding.horizontal?.dp ?: 0.dp,
+                top = padding.top?.dp ?: padding.vertical?.dp ?: 0.dp,
+                end = padding.end?.dp ?: padding.horizontal?.dp ?: 0.dp,
+                bottom = padding.bottom?.dp ?: padding.vertical?.dp ?: 0.dp
+            )
+        }
+    }
+
+    // Margin
+    base.margin?.let { margin ->
+        modifierMap["margin"] = when {
+            margin.all != null -> Modifier.padding(margin.all.dp)
+            else -> Modifier.padding(
+                start = margin.start?.dp ?: margin.horizontal?.dp ?: 0.dp,
+                top = margin.top?.dp ?: margin.vertical?.dp ?: 0.dp,
+                end = margin.end?.dp ?: margin.horizontal?.dp ?: 0.dp,
+                bottom = margin.bottom?.dp ?: margin.vertical?.dp ?: 0.dp
+            )
+        }
+    }
+
+    // Behavior modifiers
     if (base.clickable == true) {
-        currentMod = currentMod.clickable { }
+        modifierMap["clickable"] = Modifier.clickable { }
+    }
+    if (base.scrollable == true) {
+        modifierMap["scrollable"] = Modifier  // Handled elsewhere
+    }
+
+    // Apply modifiers in the order they appeared in JSON using then()
+    var currentMod = mod
+    modifierOrder.forEach { key ->
+        modifierMap[key]?.let { modifier ->
+            currentMod = currentMod.then(modifier)
+        }
+    }
+
+    // Apply any remaining modifiers that weren't in the order list
+    modifierMap.forEach { (key, modifier) ->
+        if (!modifierOrder.contains(key)) {
+            currentMod = currentMod.then(modifier)
+        }
     }
 
     return currentMod
@@ -137,7 +262,6 @@ private fun applyRowModifier(mod: Modifier, scopedMod: ScopedModifier.Row): Modi
 }
 
 private fun applyBoxModifier(mod: Modifier, scopedMod: ScopedModifier.Box): Modifier {
-    var currentMod = mod
 
     // Apply content alignment
     scopedMod.contentAlignment?.let { alignment ->
@@ -159,7 +283,7 @@ private fun applyBoxModifier(mod: Modifier, scopedMod: ScopedModifier.Box): Modi
         }
     }
 
-    return currentMod
+    return mod
 }
 
 // Helper functions from previous implementation
