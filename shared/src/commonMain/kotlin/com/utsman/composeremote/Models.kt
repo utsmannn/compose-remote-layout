@@ -1,3 +1,4 @@
+// Models.kt
 package com.utsman.composeremote
 
 import kotlinx.serialization.SerialName
@@ -13,6 +14,7 @@ sealed class LayoutComponent {
                 is Column -> modifier?.toScopedModifier("column")
                 is Row -> modifier?.toScopedModifier("row")
                 is Box -> modifier?.toScopedModifier("box")
+                is Custom -> modifier?.toScopedModifier("default")
                 else -> modifier?.toScopedModifier("default")
             }
 
@@ -38,6 +40,14 @@ sealed class LayoutComponent {
 
     @Serializable
     data class Card(override val modifier: LayoutModifier? = null, val children: List<ComponentWrapper>? = null) : LayoutComponent()
+
+    @Serializable
+    data class Custom(
+        override val modifier: LayoutModifier? = null,
+        val type: String,
+        val data: Map<String, String>,
+        val children: List<ComponentWrapper>? = null,
+    ) : LayoutComponent()
 }
 
 @Serializable
@@ -48,11 +58,19 @@ data class ComponentWrapper(
     val text: LayoutComponent.Text? = null,
     val button: LayoutComponent.Button? = null,
     val card: LayoutComponent.Card? = null,
+    val custom: LayoutComponent.Custom? = null,
 ) {
     val component: LayoutComponent
-        get() =
-            column ?: row ?: box ?: text ?: button ?: card
-                ?: throw IllegalStateException("Component wrapper must contain exactly one component")
+        get() {
+            column?.let { return it }
+            row?.let { return it }
+            box?.let { return it }
+            text?.let { return it }
+            button?.let { return it }
+            card?.let { return it }
+            custom?.let { return it }
+            throw IllegalStateException("Component wrapper must contain exactly one component")
+        }
 }
 
 @Serializable
@@ -100,40 +118,38 @@ data class LayoutModifier(
                 verticalArrangement = verticalArrangement,
                 horizontalAlignment = horizontalAlignment,
             )
+
         "row" ->
             ScopedModifier.Row(
                 base = base,
                 horizontalArrangement = horizontalArrangement,
                 verticalAlignment = verticalAlignment,
             )
+
         "box" ->
             ScopedModifier.Box(
                 base = base,
                 contentAlignment = contentAlignment,
             )
+
         else -> ScopedModifier.Default(base)
     }
 }
 
 @Serializable
 data class BaseModifier(
-    // Size modifiers
     val width: Int? = null,
     val height: Int? = null,
     val size: Int? = null,
-    // Fill modifiers
     val fillMaxWidth: Boolean? = false,
     val fillMaxHeight: Boolean? = false,
     val fillMaxSize: Boolean? = false,
-    // Padding and spacing
     val padding: PaddingValues? = null,
     val margin: MarginValues? = null,
-    // Visual styling
     val background: StyleValues? = null,
     val border: BorderValues? = null,
     val shape: ShapeValues? = null,
     val shadow: ShadowValues? = null,
-    // Basic behavior
     val scrollable: Boolean? = false,
     val clickable: Boolean? = false,
 )
@@ -171,10 +187,7 @@ data class BorderValues(
 )
 
 @Serializable
-data class ShapeValues(
-    val type: String = "rectangle", // rectangle, roundedCorner, circle
-    val cornerRadius: Int? = null,
-)
+data class ShapeValues(val type: String = "rectangle", val cornerRadius: Int? = null)
 
 @Serializable
 data class ShadowValues(val elevation: Int = 4, val shape: ShapeValues? = null)

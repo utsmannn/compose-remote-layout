@@ -1,6 +1,3 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
-
 plugins {
     alias(libs.plugins.multiplatform)
     alias(libs.plugins.compose.compiler)
@@ -21,9 +18,11 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             api(project(":shared"))
 
+            implementation(compose.ui)
             implementation(compose.material3)
 //            implementation(compose.html.core)
-        }
 
+            api("io.github.qdsfdhvh:image-loader:1.10.0")
+        }
     }
 }

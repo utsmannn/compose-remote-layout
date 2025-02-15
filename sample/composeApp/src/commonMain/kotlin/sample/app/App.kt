@@ -44,7 +44,7 @@ fun App() {
       },
       {
         "text": {
-          "text": "Hello World",
+          "text": "{counter}",
           "modifier": {
             "base": {
               "padding": {
@@ -52,6 +52,15 @@ fun App() {
               }
             }
           }
+        }
+      },
+      {
+        "text": {
+            "text": "Click me"
+        }
+      },{
+        "banner": {
+            "title": "hjabsjkhskjashkjashjlkas"
         }
       }
     ]

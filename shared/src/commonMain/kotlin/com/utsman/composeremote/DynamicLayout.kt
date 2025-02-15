@@ -44,7 +44,7 @@ val defaultComponent =
                         ),
                     ),
             ),
-    ).component
+    )
 
 @Composable
 fun DynamicLayout(
@@ -79,7 +79,7 @@ private fun ChildDynamicLayout(
     val componentToRender =
         component
             ?: DynamicLayoutRenderer.getLastValidComponent(path)
-            ?: defaultComponent
+            ?: defaultComponent.component
 
     if (component != null) {
         DynamicLayoutRenderer.saveComponent(path, component)
@@ -122,6 +122,7 @@ private fun ChildDynamicLayout(
             )
 
         is LayoutComponent.Text -> RenderText(componentToRender, currentModifier)
+
         is LayoutComponent.Button ->
             RenderButton(
                 componentToRender,
@@ -133,6 +134,15 @@ private fun ChildDynamicLayout(
 
         is LayoutComponent.Card ->
             RenderCard(
+                componentToRender,
+                currentModifier,
+                path,
+                parentScrollable,
+                onClickHandler,
+            )
+
+        is LayoutComponent.Custom ->
+            RenderCustomNode(
                 componentToRender,
                 currentModifier,
                 path,
@@ -164,7 +174,6 @@ private fun RenderColumn(
             modifier
         }
 
-    // Get arrangement and alignment from scoped modifier
     val verticalArrangement =
         scopedMod?.verticalArrangement?.let { arrangement ->
             when (arrangement.lowercase()) {
@@ -227,7 +236,6 @@ private fun RenderRow(
             modifier
         }
 
-    // Get arrangement and alignment from scoped modifier
     val horizontalArrangement =
         scopedMod?.horizontalArrangement?.let { arrangement ->
             when (arrangement.lowercase()) {
@@ -278,7 +286,6 @@ private fun RenderBox(
 ) {
     val scopedMod = component.scopedModifier as? ScopedModifier.Box
 
-    // Get content alignment from scoped modifier
     val contentAlignment =
         scopedMod?.contentAlignment?.let { alignment ->
             when (alignment.lowercase()) {
@@ -317,7 +324,6 @@ private fun RenderText(
     modifier: Modifier,
 ) {
     val bindsValue = LocalBindsValue.current
-
     val states by bindsValue.textStates.collectAsState()
 
     val text =
@@ -386,5 +392,27 @@ private fun RenderCard(
                 onClickHandler = onClickHandler,
             )
         }
+    }
+}
+
+@Composable
+private fun RenderCustomNode(
+    component: LayoutComponent.Custom,
+    modifier: Modifier,
+    path: String,
+    parentScrollable: Boolean,
+    onClickHandler: (String) -> Unit,
+) {
+    CustomNodes.get(component.type)?.let { renderer ->
+        renderer(
+            CustomNodes.NodeParam(
+                data = component.data,
+                modifier = modifier,
+                children = component.children,
+                path = path,
+                parentScrollable = parentScrollable,
+                onClickHandler = onClickHandler,
+            ),
+        )
     }
 }

@@ -8,31 +8,89 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 @OptIn(ExperimentalSerializationApi::class)
 object LayoutParser {
-    private val json =
-        Json {
-            ignoreUnknownKeys = true
-            isLenient = true
-            coerceInputValues = true
-            encodeDefaults = false
-        }
+    private val json = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+        coerceInputValues = true
+        encodeDefaults = false
+    }
 
     fun parseLayoutJson(jsonString: String): LayoutComponent? = try {
         val jsonElement = json.parseToJsonElement(jsonString)
         val modifierOrder = extractModifierOrder(jsonElement)
-
-        // Store the order in a companion object for later use
         ModifierOrderTracker.setCurrentOrder(modifierOrder)
 
-        val wrapper = json.decodeFromJsonElement<ComponentWrapper>(jsonElement)
-        wrapper.component
+        parseComponentWrapper(jsonElement).component
     } catch (e: MissingFieldException) {
         null
     } catch (e: Exception) {
-        e.printStackTrace()
         null
+    }
+
+    private fun parseComponentWrapper(element: JsonElement): ComponentWrapper {
+        val jsonObject = element.jsonObject
+        val (type, content) = jsonObject.entries.first()
+
+        // Check custom node first
+        if (CustomNodes.exists(type)) {
+            val contentObj = content.jsonObject
+            val modifier = contentObj["modifier"]?.let {
+                json.decodeFromJsonElement<LayoutModifier>(it)
+            }
+
+            val children = contentObj["children"]?.let { childrenArray ->
+                json.decodeFromJsonElement<JsonArray>(childrenArray).map {
+                    parseComponentWrapper(it)
+                }
+            }
+
+            val data = contentObj.filterKeys { it != "modifier" && it != "children" }
+                .mapValues { (_, value) ->
+                    when (value) {
+                        is JsonObject -> json.decodeFromJsonElement<String>(value)
+                        else -> value.jsonPrimitive.content
+                    }
+                }
+
+            return ComponentWrapper(
+                custom = LayoutComponent.Custom(
+                    modifier = modifier,
+                    type = type,
+                    data = data,
+                    children = children,
+                ),
+            )
+        }
+
+        // Then try standard components
+        return when (type) {
+            "column" -> {
+                val children = content.jsonObject["children"]?.let { childrenArray ->
+                    json.decodeFromJsonElement<JsonArray>(childrenArray).map {
+                        parseComponentWrapper(it)
+                    }
+                }
+                val modifier = content.jsonObject["modifier"]?.let {
+                    json.decodeFromJsonElement<LayoutModifier>(it)
+                }
+                ComponentWrapper(
+                    column = LayoutComponent.Column(
+                        modifier = modifier,
+                        children = children,
+                    ),
+                )
+            }
+            "row" -> ComponentWrapper(row = json.decodeFromJsonElement(content))
+            "box" -> ComponentWrapper(box = json.decodeFromJsonElement(content))
+            "text" -> ComponentWrapper(text = json.decodeFromJsonElement(content))
+            "button" -> ComponentWrapper(button = json.decodeFromJsonElement(content))
+            "card" -> ComponentWrapper(card = json.decodeFromJsonElement(content))
+            else -> throw IllegalStateException("Unknown component type: $type")
+        }
     }
 
     private fun extractModifierOrder(jsonElement: JsonElement): List<String> {
@@ -41,7 +99,6 @@ object LayoutParser {
         fun traverse(element: JsonElement) {
             when (element) {
                 is JsonObject -> {
-                    // Look for base modifier fields
                     element["modifier"]?.let { modifierElement ->
                         modifierElement.jsonObject["base"]?.let { baseElement ->
                             baseElement.jsonObject.keys.forEach { key ->
@@ -51,11 +108,10 @@ object LayoutParser {
                             }
                         }
                     }
-                    // Continue traversing
                     element.jsonObject.values.forEach { traverse(it) }
                 }
                 is JsonArray -> element.forEach { traverse(it) }
-                else -> {} // Do nothing for primitive values
+                else -> {}
             }
         }
 
@@ -64,7 +120,6 @@ object LayoutParser {
     }
 }
 
-// Object to track modifier order across the parsing process
 object ModifierOrderTracker {
     private var currentOrder: List<String> = emptyList()
 

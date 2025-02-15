@@ -12,14 +12,14 @@ kotlin {
 
     androidTarget()
     jvm()
-    js  {
+    js {
         browser()
         binaries.executable()
     }
     listOf(
         iosX64(),
         iosArm64(),
-        iosSimulatorArm64()
+        iosSimulatorArm64(),
     ).forEach {
         it.binaries.framework {
             baseName = "ComposeApp"
@@ -31,6 +31,8 @@ kotlin {
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
+            implementation(compose.ui)
+            implementation(compose.material)
             implementation(project(":shared"))
         }
 
@@ -41,7 +43,6 @@ kotlin {
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
         }
-
     }
 }
 
