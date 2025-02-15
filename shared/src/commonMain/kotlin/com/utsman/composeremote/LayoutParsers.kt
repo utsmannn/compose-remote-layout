@@ -35,7 +35,6 @@ object LayoutParser {
         val jsonObject = element.jsonObject
         val (type, content) = jsonObject.entries.first()
 
-        // Check custom node first
         if (CustomNodes.exists(type)) {
             val contentObj = content.jsonObject
             val modifier = contentObj["modifier"]?.let {
@@ -66,7 +65,6 @@ object LayoutParser {
             )
         }
 
-        // Then try standard components
         return when (type) {
             "column" -> {
                 val children = content.jsonObject["children"]?.let { childrenArray ->

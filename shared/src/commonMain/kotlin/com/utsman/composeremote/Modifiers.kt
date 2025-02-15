@@ -26,10 +26,8 @@ fun applyJsonModifier(
 ): Modifier {
     if (scopedModifier == null) return base
 
-    // Apply base modifiers first
     var mod = applyBaseModifier(base, scopedModifier.base)
 
-    // Apply scope-specific modifiers
     mod =
         when (scopedModifier) {
             is ScopedModifier.Column -> applyColumnModifier(mod, scopedModifier)
@@ -45,13 +43,9 @@ private fun applyBaseModifier(
     mod: Modifier,
     base: BaseModifier,
 ): Modifier {
-    // Get the order from the tracker
     val modifierOrder = ModifierOrderTracker.getCurrentOrder()
-
-    // Create map of available modifiers
     val modifierMap = mutableMapOf<String, Modifier>()
 
-    // Size modifiers
     if (base.width != null || base.height != null || base.size != null) {
         var sizeModifier: Modifier = Modifier
         base.width?.let { width ->
@@ -70,7 +64,6 @@ private fun applyBaseModifier(
         }
     }
 
-    // Fill modifiers
     if (base.fillMaxWidth == true || base.fillMaxHeight == true || base.fillMaxSize == true) {
         var fillModifier: Modifier = Modifier
         if (base.fillMaxWidth == true) {
@@ -87,7 +80,6 @@ private fun applyBaseModifier(
         modifierMap["fillMaxSize"] = fillModifier
     }
 
-    // Background
     base.background?.let { bg ->
         bg.color?.let { colorStr ->
             try {
@@ -97,12 +89,11 @@ private fun applyBaseModifier(
                         color.copy(alpha = bg.alpha ?: 1f),
                     )
             } catch (e: Exception) {
-                // Handle invalid color string
+                e.printStackTrace()
             }
         }
     }
 
-    // Shape
     base.shape?.let { shape ->
         val composableShape =
             when (shape.type.lowercase()) {
@@ -113,7 +104,6 @@ private fun applyBaseModifier(
         modifierMap["shape"] = Modifier.clip(composableShape)
     }
 
-    // Border
     base.border?.let { border ->
         border.color?.let { colorStr ->
             try {
@@ -130,12 +120,11 @@ private fun applyBaseModifier(
                             },
                     )
             } catch (e: Exception) {
-                // Handle invalid color string
+                e.printStackTrace()
             }
         }
     }
 
-    // Shadow
     base.shadow?.let { shadow ->
         modifierMap["shadow"] =
             Modifier.shadow(
@@ -149,7 +138,6 @@ private fun applyBaseModifier(
             )
     }
 
-    // Padding
     base.padding?.let { padding ->
         modifierMap["padding"] =
             when {
@@ -164,7 +152,6 @@ private fun applyBaseModifier(
             }
     }
 
-    // Margin
     base.margin?.let { margin ->
         modifierMap["margin"] =
             when {
@@ -179,15 +166,13 @@ private fun applyBaseModifier(
             }
     }
 
-    // Behavior modifiers
     if (base.clickable == true) {
         modifierMap["clickable"] = Modifier.clickable { }
     }
     if (base.scrollable == true) {
-        modifierMap["scrollable"] = Modifier // Handled elsewhere
+        modifierMap["scrollable"] = Modifier
     }
 
-    // Apply modifiers in the order they appeared in JSON using then()
     var currentMod = mod
     modifierOrder.forEach { key ->
         modifierMap[key]?.let { modifier ->
@@ -195,7 +180,6 @@ private fun applyBaseModifier(
         }
     }
 
-    // Apply any remaining modifiers that weren't in the order list
     modifierMap.forEach { (key, modifier) ->
         if (!modifierOrder.contains(key)) {
             currentMod = currentMod.then(modifier)
@@ -209,9 +193,6 @@ private fun applyColumnModifier(
     mod: Modifier,
     scopedMod: ScopedModifier.Column,
 ): Modifier {
-    var currentMod = mod
-
-    // Apply vertical arrangement
     scopedMod.verticalArrangement?.let { arrangement ->
         val verticalArrangement =
             when (arrangement.lowercase()) {
@@ -223,13 +204,9 @@ private fun applyColumnModifier(
                 "spaceevenly" -> Arrangement.SpaceEvenly
                 else -> null
             }
-        verticalArrangement?.let {
-            // The arrangement will be applied in the Column composable
-            // We store it to be used later
-        }
+        verticalArrangement
     }
 
-    // Apply horizontal alignment
     scopedMod.horizontalAlignment?.let { alignment ->
         val horizontalAlignment =
             when (alignment.lowercase()) {
@@ -238,22 +215,16 @@ private fun applyColumnModifier(
                 "center" -> Alignment.CenterHorizontally
                 else -> null
             }
-        horizontalAlignment?.let {
-            // The alignment will be applied in the Column composable
-            // We store it to be used later
-        }
+        horizontalAlignment
     }
 
-    return currentMod
+    return mod
 }
 
 private fun applyRowModifier(
     mod: Modifier,
     scopedMod: ScopedModifier.Row,
 ): Modifier {
-    var currentMod = mod
-
-    // Apply horizontal arrangement
     scopedMod.horizontalArrangement?.let { arrangement ->
         val horizontalArrangement =
             when (arrangement.lowercase()) {
@@ -265,13 +236,9 @@ private fun applyRowModifier(
                 "spaceevenly" -> Arrangement.SpaceEvenly
                 else -> null
             }
-        horizontalArrangement?.let {
-            // The arrangement will be applied in the Row composable
-            // We store it to be used later
-        }
+        horizontalArrangement
     }
 
-    // Apply vertical alignment
     scopedMod.verticalAlignment?.let { alignment ->
         val verticalAlignment =
             when (alignment.lowercase()) {
@@ -280,20 +247,16 @@ private fun applyRowModifier(
                 "center" -> Alignment.CenterVertically
                 else -> null
             }
-        verticalAlignment?.let {
-            // The alignment will be applied in the Row composable
-            // We store it to be used later
-        }
+        verticalAlignment
     }
 
-    return currentMod
+    return mod
 }
 
 private fun applyBoxModifier(
     mod: Modifier,
     scopedMod: ScopedModifier.Box,
 ): Modifier {
-    // Apply content alignment
     scopedMod.contentAlignment?.let { alignment ->
         val boxAlignment =
             when (alignment.lowercase()) {
@@ -308,121 +271,10 @@ private fun applyBoxModifier(
                 "bottomend" -> Alignment.BottomEnd
                 else -> null
             }
-        boxAlignment?.let {
-            // The alignment will be applied in the Box composable
-            // We store it to be used later
-        }
+        boxAlignment
     }
 
     return mod
-}
-
-// Helper functions from previous implementation
-private fun applySpacingModifiers(
-    mod: Modifier,
-    base: BaseModifier,
-): Modifier {
-    var currentMod = mod
-
-    base.padding?.let { padding ->
-        currentMod =
-            when {
-                padding.all != null -> currentMod.padding(padding.all.dp)
-                else ->
-                    currentMod.padding(
-                        start = padding.start?.dp ?: padding.horizontal?.dp ?: 0.dp,
-                        top = padding.top?.dp ?: padding.vertical?.dp ?: 0.dp,
-                        end = padding.end?.dp ?: padding.horizontal?.dp ?: 0.dp,
-                        bottom = padding.bottom?.dp ?: padding.vertical?.dp ?: 0.dp,
-                    )
-            }
-    }
-
-    base.margin?.let { margin ->
-        currentMod =
-            when {
-                margin.all != null -> currentMod.padding(margin.all.dp)
-                else ->
-                    currentMod.padding(
-                        start = margin.start?.dp ?: margin.horizontal?.dp ?: 0.dp,
-                        top = margin.top?.dp ?: margin.vertical?.dp ?: 0.dp,
-                        end = margin.end?.dp ?: margin.horizontal?.dp ?: 0.dp,
-                        bottom = margin.bottom?.dp ?: margin.vertical?.dp ?: 0.dp,
-                    )
-            }
-    }
-
-    return currentMod
-}
-
-private fun applyVisualModifiers(
-    mod: Modifier,
-    base: BaseModifier,
-): Modifier {
-    var currentMod = mod
-
-    // Apply background
-    base.background?.let { bg ->
-        bg.color?.let { colorStr ->
-            try {
-                val color = ColorParser.parseColor(colorStr)
-                currentMod =
-                    currentMod.background(
-                        color = color.copy(alpha = bg.alpha ?: 1f),
-                    )
-            } catch (e: Exception) {
-                // Handle invalid color string
-            }
-        }
-    }
-
-    // Apply shape
-    base.shape?.let { shape ->
-        val composableShape =
-            when (shape.type.lowercase()) {
-                "circle" -> CircleShape
-                "roundedcorner" -> RoundedCornerShape(shape.cornerRadius?.dp ?: 8.dp)
-                else -> RoundedCornerShape(0.dp)
-            }
-        currentMod = currentMod.clip(composableShape)
-    }
-
-    // Apply border and shadow
-    base.border?.let { border ->
-        border.color?.let { colorStr ->
-            try {
-                val color = ColorParser.parseColor(colorStr)
-                currentMod =
-                    currentMod.border(
-                        width = border.width.dp,
-                        color = color,
-                        shape =
-                            when (border.shape?.type?.lowercase()) {
-                                "circle" -> CircleShape
-                                "roundedcorner" -> RoundedCornerShape(border.shape.cornerRadius?.dp ?: 8.dp)
-                                else -> RoundedCornerShape(0.dp)
-                            },
-                    )
-            } catch (e: Exception) {
-                // Handle invalid color string
-            }
-        }
-    }
-
-    base.shadow?.let { shadow ->
-        currentMod =
-            currentMod.shadow(
-                elevation = shadow.elevation.dp,
-                shape =
-                    when (shadow.shape?.type?.lowercase()) {
-                        "circle" -> CircleShape
-                        "roundedcorner" -> RoundedCornerShape(shadow.shape.cornerRadius?.dp ?: 8.dp)
-                        else -> RoundedCornerShape(0.dp)
-                    },
-            )
-    }
-
-    return currentMod
 }
 
 object ColorParser {
