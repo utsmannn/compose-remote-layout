@@ -1,64 +1,75 @@
 package com.utsman.composeremote
 
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.utsman.composeremote.app.modifier.applyJsonModifier
-
-class DynamicLayoutRenderer {
-    companion object {
-        private val componentCache = mutableMapOf<String, LayoutComponent>()
-
-        fun saveComponent(
-            path: String,
-            component: LayoutComponent,
-        ) {
-            componentCache[path] = component
-        }
-
-        fun getLastValidComponent(path: String): LayoutComponent? = componentCache[path]
-
-        fun clearCache() {
-            componentCache.clear()
-        }
-    }
-}
 
 val defaultComponent =
     ComponentWrapper(
         column =
-        LayoutComponent.Column(
-            children =
-            listOf(
-                ComponentWrapper(
-                    button =
-                    LayoutComponent.Button(
-                        text = "Hello, Compose!",
-                        clickId = "default_button",
+            LayoutComponent.Column(
+                children =
+                    listOf(
+                        ComponentWrapper(
+                            button =
+                                LayoutComponent.Button(
+                                    text = "Hello, Compose!",
+                                    clickId = "default_button",
+                                ),
+                        ),
+                        ComponentWrapper(
+                            text =
+                                LayoutComponent.Text(
+                                    text = "Hello, Compose!",
+                                ),
+                        ),
                     ),
-                ),
-                ComponentWrapper(
-                    text =
-                    LayoutComponent.Text(
-                        text = "Hello, Compose!",
-                    ),
-                ),
             ),
-        ),
     ).component
 
 @Composable
 fun DynamicLayout(
+    component: LayoutComponent?,
+    modifier: Modifier = Modifier,
+    path: String = "root",
+    parentScrollable: Boolean = false,
+    bindValue: BindsValue = BindsValue(),
+    onClickHandler: (String) -> Unit = {},
+) {
+    CompositionLocalProvider(
+        LocalBindsValue provides bindValue,
+    ) {
+        ChildDynamicLayout(
+            component,
+            modifier,
+            path,
+            parentScrollable,
+            onClickHandler,
+        )
+    }
+}
+
+@Composable
+private fun ChildDynamicLayout(
     component: LayoutComponent?,
     modifier: Modifier = Modifier,
     path: String = "root",
@@ -83,46 +94,51 @@ fun DynamicLayout(
     val currentModifier = applyJsonModifier(modifier, componentToRender.scopedModifier)
 
     when (componentToRender) {
-        is LayoutComponent.Column -> RenderColumn(
-            componentToRender,
-            currentModifier,
-            path,
-            parentScrollable,
-            onClickHandler
-        )
+        is LayoutComponent.Column ->
+            RenderColumn(
+                componentToRender,
+                currentModifier,
+                path,
+                parentScrollable,
+                onClickHandler,
+            )
 
-        is LayoutComponent.Row -> RenderRow(
-            componentToRender,
-            currentModifier,
-            path,
-            parentScrollable,
-            onClickHandler
-        )
+        is LayoutComponent.Row ->
+            RenderRow(
+                componentToRender,
+                currentModifier,
+                path,
+                parentScrollable,
+                onClickHandler,
+            )
 
-        is LayoutComponent.Box -> RenderBox(
-            componentToRender,
-            currentModifier,
-            path,
-            parentScrollable,
-            onClickHandler
-        )
+        is LayoutComponent.Box ->
+            RenderBox(
+                componentToRender,
+                currentModifier,
+                path,
+                parentScrollable,
+                onClickHandler,
+            )
 
         is LayoutComponent.Text -> RenderText(componentToRender, currentModifier)
-        is LayoutComponent.Button -> RenderButton(
-            componentToRender,
-            currentModifier,
-            path,
-            parentScrollable,
-            onClickHandler
-        )
+        is LayoutComponent.Button ->
+            RenderButton(
+                componentToRender,
+                currentModifier,
+                path,
+                parentScrollable,
+                onClickHandler,
+            )
 
-        is LayoutComponent.Card -> RenderCard(
-            componentToRender,
-            currentModifier,
-            path,
-            parentScrollable,
-            onClickHandler
-        )
+        is LayoutComponent.Card ->
+            RenderCard(
+                componentToRender,
+                currentModifier,
+                path,
+                parentScrollable,
+                onClickHandler,
+            )
     }
 }
 
@@ -178,7 +194,7 @@ private fun RenderColumn(
         horizontalAlignment = horizontalAlignment,
     ) {
         component.children?.forEachIndexed { index, wrapper ->
-            DynamicLayout(
+            ChildDynamicLayout(
                 wrapper.component,
                 modifier = Modifier,
                 path = "$path-column-$index",
@@ -241,7 +257,7 @@ private fun RenderRow(
         verticalAlignment = verticalAlignment,
     ) {
         component.children?.forEachIndexed { index, wrapper ->
-            DynamicLayout(
+            ChildDynamicLayout(
                 wrapper.component,
                 modifier = Modifier,
                 path = "$path-row-$index",
@@ -284,7 +300,7 @@ private fun RenderBox(
         contentAlignment = contentAlignment,
     ) {
         component.children?.forEachIndexed { index, wrapper ->
-            DynamicLayout(
+            ChildDynamicLayout(
                 wrapper.component,
                 modifier = Modifier,
                 path = "$path-box-$index",
@@ -300,8 +316,21 @@ private fun RenderText(
     component: LayoutComponent.Text,
     modifier: Modifier,
 ) {
+    val bindsValue = LocalBindsValue.current
+
+    val states by bindsValue.textStates.collectAsState()
+
+    val text =
+        if (component.text.startsWith("{") && component.text.endsWith("}")) {
+            val key = component.text.replace("{", "").replace("}", "")
+            val value = states[key]
+            value?.toString()
+        } else {
+            component.text
+        }
+
     Text(
-        text = component.text,
+        text = text ?: component.text,
         modifier = modifier,
     )
 }
@@ -324,7 +353,7 @@ private fun RenderButton(
             Text(text = component.text)
         } else {
             component.children?.forEachIndexed { index, wrapper ->
-                DynamicLayout(
+                ChildDynamicLayout(
                     wrapper.component,
                     modifier = Modifier,
                     path = "$path-button-$index",
@@ -349,7 +378,7 @@ private fun RenderCard(
         elevation = 4.dp,
     ) {
         component.children?.forEachIndexed { index, wrapper ->
-            DynamicLayout(
+            ChildDynamicLayout(
                 wrapper.component,
                 modifier = Modifier,
                 path = "$path-card-$index",

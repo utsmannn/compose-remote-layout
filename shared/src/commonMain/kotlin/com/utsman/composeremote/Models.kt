@@ -17,28 +17,16 @@ sealed class LayoutComponent {
             }
 
     @Serializable
-    data class Column(
-        override val modifier: LayoutModifier? = null,
-        val children: List<ComponentWrapper>? = null,
-    ) : LayoutComponent()
+    data class Column(override val modifier: LayoutModifier? = null, val children: List<ComponentWrapper>? = null) : LayoutComponent()
 
     @Serializable
-    data class Row(
-        override val modifier: LayoutModifier? = null,
-        val children: List<ComponentWrapper>? = null,
-    ) : LayoutComponent()
+    data class Row(override val modifier: LayoutModifier? = null, val children: List<ComponentWrapper>? = null) : LayoutComponent()
 
     @Serializable
-    data class Box(
-        override val modifier: LayoutModifier? = null,
-        val children: List<ComponentWrapper>? = null,
-    ) : LayoutComponent()
+    data class Box(override val modifier: LayoutModifier? = null, val children: List<ComponentWrapper>? = null) : LayoutComponent()
 
     @Serializable
-    data class Text(
-        override val modifier: LayoutModifier? = null,
-        val text: String,
-    ) : LayoutComponent()
+    data class Text(override val modifier: LayoutModifier? = null, val text: String) : LayoutComponent()
 
     @Serializable
     data class Button(
@@ -49,10 +37,7 @@ sealed class LayoutComponent {
     ) : LayoutComponent()
 
     @Serializable
-    data class Card(
-        override val modifier: LayoutModifier? = null,
-        val children: List<ComponentWrapper>? = null,
-    ) : LayoutComponent()
+    data class Card(override val modifier: LayoutModifier? = null, val children: List<ComponentWrapper>? = null) : LayoutComponent()
 }
 
 @Serializable
@@ -92,16 +77,11 @@ sealed class ScopedModifier {
 
     @Serializable
     @SerialName("box")
-    data class Box(
-        override val base: BaseModifier = BaseModifier(),
-        val contentAlignment: String? = null,
-    ) : ScopedModifier()
+    data class Box(override val base: BaseModifier = BaseModifier(), val contentAlignment: String? = null) : ScopedModifier()
 
     @Serializable
     @SerialName("default")
-    data class Default(
-        override val base: BaseModifier = BaseModifier(),
-    ) : ScopedModifier()
+    data class Default(override val base: BaseModifier = BaseModifier()) : ScopedModifier()
 }
 
 @Serializable
@@ -113,27 +93,26 @@ data class LayoutModifier(
     val verticalAlignment: String? = null,
     val contentAlignment: String? = null,
 ) {
-    fun toScopedModifier(type: String): ScopedModifier =
-        when (type) {
-            "column" ->
-                ScopedModifier.Column(
-                    base = base,
-                    verticalArrangement = verticalArrangement,
-                    horizontalAlignment = horizontalAlignment,
-                )
-            "row" ->
-                ScopedModifier.Row(
-                    base = base,
-                    horizontalArrangement = horizontalArrangement,
-                    verticalAlignment = verticalAlignment,
-                )
-            "box" ->
-                ScopedModifier.Box(
-                    base = base,
-                    contentAlignment = contentAlignment,
-                )
-            else -> ScopedModifier.Default(base)
-        }
+    fun toScopedModifier(type: String): ScopedModifier = when (type) {
+        "column" ->
+            ScopedModifier.Column(
+                base = base,
+                verticalArrangement = verticalArrangement,
+                horizontalAlignment = horizontalAlignment,
+            )
+        "row" ->
+            ScopedModifier.Row(
+                base = base,
+                horizontalArrangement = horizontalArrangement,
+                verticalAlignment = verticalAlignment,
+            )
+        "box" ->
+            ScopedModifier.Box(
+                base = base,
+                contentAlignment = contentAlignment,
+            )
+        else -> ScopedModifier.Default(base)
+    }
 }
 
 @Serializable
@@ -182,10 +161,7 @@ data class MarginValues(
 )
 
 @Serializable
-data class StyleValues(
-    val color: String? = null,
-    val alpha: Float? = null,
-)
+data class StyleValues(val color: String? = null, val alpha: Float? = null)
 
 @Serializable
 data class BorderValues(
@@ -201,7 +177,4 @@ data class ShapeValues(
 )
 
 @Serializable
-data class ShadowValues(
-    val elevation: Int = 4,
-    val shape: ShapeValues? = null,
-)
+data class ShadowValues(val elevation: Int = 4, val shape: ShapeValues? = null)
