@@ -160,18 +160,6 @@ data class BaseModifier(
 )
 
 @Serializable
-data class LayoutNode(
-    val type: String,
-    val text: String? = null,
-    val modifier: LayoutModifier? = null,
-    val children: List<LayoutNode>? = null,
-    val clickId: String? = null,
-) {
-    val scopedModifier: ScopedModifier?
-        get() = modifier?.toScopedModifier(type)
-}
-
-@Serializable
 data class PaddingValues(
     val all: Int? = null,
     val horizontal: Int? = null,

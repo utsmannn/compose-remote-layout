@@ -9,6 +9,7 @@ import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -36,24 +37,24 @@ class DynamicLayoutRenderer {
 val defaultComponent =
     ComponentWrapper(
         column =
-            LayoutComponent.Column(
-                children =
-                    listOf(
-                        ComponentWrapper(
-                            button =
-                                LayoutComponent.Button(
-                                    text = "Hello, Compose!",
-                                    clickId = "default_button",
-                                ),
-                        ),
-                        ComponentWrapper(
-                            text =
-                                LayoutComponent.Text(
-                                    text = "Hello, Compose!",
-                                ),
-                        ),
+        LayoutComponent.Column(
+            children =
+            listOf(
+                ComponentWrapper(
+                    button =
+                    LayoutComponent.Button(
+                        text = "Hello, Compose!",
+                        clickId = "default_button",
                     ),
+                ),
+                ComponentWrapper(
+                    text =
+                    LayoutComponent.Text(
+                        text = "Hello, Compose!",
+                    ),
+                ),
             ),
+        ),
     ).component
 
 @Composable
@@ -82,12 +83,46 @@ fun DynamicLayout(
     val currentModifier = applyJsonModifier(modifier, componentToRender.scopedModifier)
 
     when (componentToRender) {
-        is LayoutComponent.Column -> RenderColumn(componentToRender, currentModifier, path, parentScrollable, onClickHandler)
-        is LayoutComponent.Row -> RenderRow(componentToRender, currentModifier, path, parentScrollable, onClickHandler)
-        is LayoutComponent.Box -> RenderBox(componentToRender, currentModifier, path, parentScrollable, onClickHandler)
+        is LayoutComponent.Column -> RenderColumn(
+            componentToRender,
+            currentModifier,
+            path,
+            parentScrollable,
+            onClickHandler
+        )
+
+        is LayoutComponent.Row -> RenderRow(
+            componentToRender,
+            currentModifier,
+            path,
+            parentScrollable,
+            onClickHandler
+        )
+
+        is LayoutComponent.Box -> RenderBox(
+            componentToRender,
+            currentModifier,
+            path,
+            parentScrollable,
+            onClickHandler
+        )
+
         is LayoutComponent.Text -> RenderText(componentToRender, currentModifier)
-        is LayoutComponent.Button -> RenderButton(componentToRender, currentModifier, path, parentScrollable, onClickHandler)
-        is LayoutComponent.Card -> RenderCard(componentToRender, currentModifier, path, parentScrollable, onClickHandler)
+        is LayoutComponent.Button -> RenderButton(
+            componentToRender,
+            currentModifier,
+            path,
+            parentScrollable,
+            onClickHandler
+        )
+
+        is LayoutComponent.Card -> RenderCard(
+            componentToRender,
+            currentModifier,
+            path,
+            parentScrollable,
+            onClickHandler
+        )
     }
 }
 
