@@ -10,12 +10,12 @@ object LayoutParser {
         ignoreUnknownKeys = true
         isLenient = true
         coerceInputValues = true
-        serializersModule = layoutSerializersModule
     }
 
-    fun parseLayoutJson(jsonString: String): LayoutNode? {
+    fun parseLayoutJson(jsonString: String): LayoutComponent? {
         return try {
-            json.decodeFromString<LayoutNode>(jsonString)
+            val wrapper = json.decodeFromString<ComponentWrapper>(jsonString)
+            wrapper.component
         } catch (e: MissingFieldException) {
             null
         } catch (e: Exception) {

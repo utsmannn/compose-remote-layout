@@ -1,3 +1,5 @@
+@file:Suppress("ktlint:standard:no-wildcard-imports")
+
 package com.utsman.composeremote
 
 import androidx.compose.foundation.horizontalScroll
@@ -16,49 +18,61 @@ import com.utsman.composeremote.app.modifier.applyJsonModifier
 
 class DynamicLayoutRenderer {
     companion object {
-        private val nodeCache = mutableMapOf<String, LayoutNode>()
+        private val componentCache = mutableMapOf<String, LayoutComponent>()
 
-        fun saveNode(path: String, node: LayoutNode) {
-            nodeCache[path] = node
+        fun saveComponent(
+            path: String,
+            component: LayoutComponent,
+        ) {
+            componentCache[path] = component
         }
 
-        fun getLastValidNode(path: String): LayoutNode? {
-            return nodeCache[path]
-        }
+        fun getLastValidComponent(path: String): LayoutComponent? = componentCache[path]
 
         fun clearCache() {
-            nodeCache.clear()
+            componentCache.clear()
         }
     }
 }
 
-val defaultNode = LayoutNode(
-    type = "column",
-    children = listOf(
-        LayoutNode(
-            type = "button",
-            text = "Hello, Compose!",
-            clickId = "default_button"
-        ),
-        LayoutNode(
-            type = "text",
-            text = "Hello, Compose!"
-        )
-    )
-)
+val defaultComponent =
+    ComponentWrapper(
+        column =
+            LayoutComponent.Column(
+                children =
+                    listOf(
+                        ComponentWrapper(
+                            button =
+                                LayoutComponent.Button(
+                                    text = "Hello, Compose!",
+                                    clickId = "default_button",
+                                ),
+                        ),
+                        ComponentWrapper(
+                            text =
+                                LayoutComponent.Text(
+                                    text = "Hello, Compose!",
+                                ),
+                        ),
+                    ),
+            ),
+    ).component
 
 @Composable
 fun DynamicLayout(
-    node: LayoutNode?,
+    component: LayoutComponent?,
     modifier: Modifier = Modifier,
     path: String = "root",
     parentScrollable: Boolean = false,
-    onClickHandler: (String) -> Unit = {}
+    onClickHandler: (String) -> Unit = {},
 ) {
-    val nodeToRender = node ?: DynamicLayoutRenderer.getLastValidNode(path) ?: defaultNode
+    val componentToRender =
+        component
+            ?: DynamicLayoutRenderer.getLastValidComponent(path)
+            ?: defaultComponent
 
-    if (node != null) {
-        DynamicLayoutRenderer.saveNode(path, node)
+    if (component != null) {
+        DynamicLayoutRenderer.saveComponent(path, component)
     }
 
     DisposableEffect(Unit) {
@@ -67,77 +81,76 @@ fun DynamicLayout(
         }
     }
 
-    val currentModifier = applyJsonModifier(modifier, nodeToRender.scopedModifier)
+    val currentModifier = applyJsonModifier(modifier, componentToRender.scopedModifier)
 
-    when (nodeToRender.type.lowercase()) {
-        "column" -> RenderColumn(nodeToRender, currentModifier, path, parentScrollable, onClickHandler)
-        "row" -> RenderRow(nodeToRender, currentModifier, path, parentScrollable, onClickHandler)
-        "box" -> RenderBox(nodeToRender, currentModifier, path, parentScrollable, onClickHandler)
-        "text" -> RenderText(nodeToRender, currentModifier)
-        "button" -> RenderButton(nodeToRender, currentModifier, path, parentScrollable, onClickHandler)
-        "card" -> RenderCard(nodeToRender, currentModifier, path, parentScrollable, onClickHandler)
-        else -> Text(
-            text = "Unsupported component: ${nodeToRender.type}",
-            modifier = currentModifier
-        )
+    when (componentToRender) {
+        is LayoutComponent.Column -> RenderColumn(componentToRender, currentModifier, path, parentScrollable, onClickHandler)
+        is LayoutComponent.Row -> RenderRow(componentToRender, currentModifier, path, parentScrollable, onClickHandler)
+        is LayoutComponent.Box -> RenderBox(componentToRender, currentModifier, path, parentScrollable, onClickHandler)
+        is LayoutComponent.Text -> RenderText(componentToRender, currentModifier)
+        is LayoutComponent.Button -> RenderButton(componentToRender, currentModifier, path, parentScrollable, onClickHandler)
+        is LayoutComponent.Card -> RenderCard(componentToRender, currentModifier, path, parentScrollable, onClickHandler)
     }
 }
 
 @Composable
 private fun RenderColumn(
-    node: LayoutNode,
+    component: LayoutComponent.Column,
     modifier: Modifier,
     path: String,
     parentScrollable: Boolean,
-    onClickHandler: (String) -> Unit
+    onClickHandler: (String) -> Unit,
 ) {
-    val scopedMod = node.modifier as? ScopedModifier.Column
+    val scopedMod = component.scopedModifier as? ScopedModifier.Column
     val isScrollable = scopedMod?.base?.scrollable == true && !parentScrollable
 
-    val columnModifier = if (isScrollable) {
-        if (scopedMod?.base?.height != null) {
-            modifier.height(scopedMod.base.height.dp).verticalScroll(rememberScrollState())
+    val columnModifier =
+        if (isScrollable) {
+            if (scopedMod?.base?.height != null) {
+                modifier.height(scopedMod.base.height.dp).verticalScroll(rememberScrollState())
+            } else {
+                modifier.fillMaxHeight().verticalScroll(rememberScrollState())
+            }
         } else {
-            modifier.fillMaxHeight().verticalScroll(rememberScrollState())
+            modifier
         }
-    } else {
-        modifier
-    }
 
     // Get arrangement and alignment from scoped modifier
-    val verticalArrangement = scopedMod?.verticalArrangement?.let { arrangement ->
-        when (arrangement.lowercase()) {
-            "top" -> Arrangement.Top
-            "bottom" -> Arrangement.Bottom
-            "center" -> Arrangement.Center
-            "spacebetween" -> Arrangement.SpaceBetween
-            "spacearound" -> Arrangement.SpaceAround
-            "spaceevenly" -> Arrangement.SpaceEvenly
-            else -> Arrangement.Top
-        }
-    } ?: Arrangement.Top
+    val verticalArrangement =
+        scopedMod?.verticalArrangement?.let { arrangement ->
+            when (arrangement.lowercase()) {
+                "top" -> Arrangement.Top
+                "bottom" -> Arrangement.Bottom
+                "center" -> Arrangement.Center
+                "spacebetween" -> Arrangement.SpaceBetween
+                "spacearound" -> Arrangement.SpaceAround
+                "spaceevenly" -> Arrangement.SpaceEvenly
+                else -> Arrangement.Top
+            }
+        } ?: Arrangement.Top
 
-    val horizontalAlignment = scopedMod?.horizontalAlignment?.let { alignment ->
-        when (alignment.lowercase()) {
-            "start" -> Alignment.Start
-            "end" -> Alignment.End
-            "center" -> Alignment.CenterHorizontally
-            else -> Alignment.Start
-        }
-    } ?: Alignment.Start
+    val horizontalAlignment =
+        scopedMod?.horizontalAlignment?.let { alignment ->
+            when (alignment.lowercase()) {
+                "start" -> Alignment.Start
+                "end" -> Alignment.End
+                "center" -> Alignment.CenterHorizontally
+                else -> Alignment.Start
+            }
+        } ?: Alignment.Start
 
     Column(
         modifier = columnModifier,
         verticalArrangement = verticalArrangement,
-        horizontalAlignment = horizontalAlignment
+        horizontalAlignment = horizontalAlignment,
     ) {
-        node.children?.forEachIndexed { index, child ->
+        component.children?.forEachIndexed { index, wrapper ->
             DynamicLayout(
-                child,
+                wrapper.component,
                 modifier = Modifier,
                 path = "$path-column-$index",
                 parentScrollable = isScrollable,
-                onClickHandler = onClickHandler
+                onClickHandler = onClickHandler,
             )
         }
     }
@@ -145,59 +158,62 @@ private fun RenderColumn(
 
 @Composable
 private fun RenderRow(
-    node: LayoutNode,
+    component: LayoutComponent.Row,
     modifier: Modifier,
     path: String,
     parentScrollable: Boolean,
-    onClickHandler: (String) -> Unit
+    onClickHandler: (String) -> Unit,
 ) {
-    val scopedMod = node.modifier as? ScopedModifier.Row
+    val scopedMod = component.scopedModifier as? ScopedModifier.Row
     val isScrollable = scopedMod?.base?.scrollable == true && !parentScrollable
 
-    val rowModifier = if (isScrollable) {
-        if (scopedMod?.base?.width != null) {
-            modifier.width(scopedMod.base.width.dp).horizontalScroll(rememberScrollState())
+    val rowModifier =
+        if (isScrollable) {
+            if (scopedMod?.base?.width != null) {
+                modifier.width(scopedMod.base.width.dp).horizontalScroll(rememberScrollState())
+            } else {
+                modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
+            }
         } else {
-            modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
+            modifier
         }
-    } else {
-        modifier
-    }
 
     // Get arrangement and alignment from scoped modifier
-    val horizontalArrangement = scopedMod?.horizontalArrangement?.let { arrangement ->
-        when (arrangement.lowercase()) {
-            "start" -> Arrangement.Start
-            "end" -> Arrangement.End
-            "center" -> Arrangement.Center
-            "spacebetween" -> Arrangement.SpaceBetween
-            "spacearound" -> Arrangement.SpaceAround
-            "spaceevenly" -> Arrangement.SpaceEvenly
-            else -> Arrangement.Start
-        }
-    } ?: Arrangement.Start
+    val horizontalArrangement =
+        scopedMod?.horizontalArrangement?.let { arrangement ->
+            when (arrangement.lowercase()) {
+                "start" -> Arrangement.Start
+                "end" -> Arrangement.End
+                "center" -> Arrangement.Center
+                "spacebetween" -> Arrangement.SpaceBetween
+                "spacearound" -> Arrangement.SpaceAround
+                "spaceevenly" -> Arrangement.SpaceEvenly
+                else -> Arrangement.Start
+            }
+        } ?: Arrangement.Start
 
-    val verticalAlignment = scopedMod?.verticalAlignment?.let { alignment ->
-        when (alignment.lowercase()) {
-            "top" -> Alignment.Top
-            "bottom" -> Alignment.Bottom
-            "center" -> Alignment.CenterVertically
-            else -> Alignment.Top
-        }
-    } ?: Alignment.Top
+    val verticalAlignment =
+        scopedMod?.verticalAlignment?.let { alignment ->
+            when (alignment.lowercase()) {
+                "top" -> Alignment.Top
+                "bottom" -> Alignment.Bottom
+                "center" -> Alignment.CenterVertically
+                else -> Alignment.Top
+            }
+        } ?: Alignment.Top
 
     Row(
         modifier = rowModifier,
         horizontalArrangement = horizontalArrangement,
-        verticalAlignment = verticalAlignment
+        verticalAlignment = verticalAlignment,
     ) {
-        node.children?.forEachIndexed { index, child ->
+        component.children?.forEachIndexed { index, wrapper ->
             DynamicLayout(
-                child,
+                wrapper.component,
                 modifier = Modifier,
                 path = "$path-row-$index",
                 parentScrollable = isScrollable,
-                onClickHandler = onClickHandler
+                onClickHandler = onClickHandler,
             )
         }
     }
@@ -205,41 +221,42 @@ private fun RenderRow(
 
 @Composable
 private fun RenderBox(
-    node: LayoutNode,
+    component: LayoutComponent.Box,
     modifier: Modifier,
     path: String,
     parentScrollable: Boolean,
-    onClickHandler: (String) -> Unit
+    onClickHandler: (String) -> Unit,
 ) {
-    val scopedMod = node.modifier as? ScopedModifier.Box
+    val scopedMod = component.scopedModifier as? ScopedModifier.Box
 
     // Get content alignment from scoped modifier
-    val contentAlignment = scopedMod?.contentAlignment?.let { alignment ->
-        when (alignment.lowercase()) {
-            "center" -> Alignment.Center
-            "topstart" -> Alignment.TopStart
-            "topcenter" -> Alignment.TopCenter
-            "topend" -> Alignment.TopEnd
-            "centerstart" -> Alignment.CenterStart
-            "centerend" -> Alignment.CenterEnd
-            "bottomstart" -> Alignment.BottomStart
-            "bottomcenter" -> Alignment.BottomCenter
-            "bottomend" -> Alignment.BottomEnd
-            else -> Alignment.Center
-        }
-    } ?: Alignment.Center
+    val contentAlignment =
+        scopedMod?.contentAlignment?.let { alignment ->
+            when (alignment.lowercase()) {
+                "center" -> Alignment.Center
+                "topstart" -> Alignment.TopStart
+                "topcenter" -> Alignment.TopCenter
+                "topend" -> Alignment.TopEnd
+                "centerstart" -> Alignment.CenterStart
+                "centerend" -> Alignment.CenterEnd
+                "bottomstart" -> Alignment.BottomStart
+                "bottomcenter" -> Alignment.BottomCenter
+                "bottomend" -> Alignment.BottomEnd
+                else -> Alignment.Center
+            }
+        } ?: Alignment.Center
 
     Box(
         modifier = modifier,
-        contentAlignment = contentAlignment
+        contentAlignment = contentAlignment,
     ) {
-        node.children?.forEachIndexed { index, child ->
+        component.children?.forEachIndexed { index, wrapper ->
             DynamicLayout(
-                child,
+                wrapper.component,
                 modifier = Modifier,
                 path = "$path-box-$index",
                 parentScrollable = parentScrollable,
-                onClickHandler = onClickHandler
+                onClickHandler = onClickHandler,
             )
         }
     }
@@ -247,39 +264,39 @@ private fun RenderBox(
 
 @Composable
 private fun RenderText(
-    node: LayoutNode,
-    modifier: Modifier
+    component: LayoutComponent.Text,
+    modifier: Modifier,
 ) {
     Text(
-        text = node.text ?: "",
-        modifier = modifier
+        text = component.text,
+        modifier = modifier,
     )
 }
 
 @Composable
 private fun RenderButton(
-    node: LayoutNode,
+    component: LayoutComponent.Button,
     modifier: Modifier,
     path: String,
     parentScrollable: Boolean,
-    onClickHandler: (String) -> Unit
+    onClickHandler: (String) -> Unit,
 ) {
     Button(
         modifier = modifier,
         onClick = {
-            node.clickId?.let { onClickHandler(it) }
-        }
+            component.clickId?.let { onClickHandler(it) }
+        },
     ) {
-        if (node.text != null) {
-            Text(text = node.text)
+        if (component.text != null) {
+            Text(text = component.text)
         } else {
-            node.children?.forEachIndexed { index, child ->
+            component.children?.forEachIndexed { index, wrapper ->
                 DynamicLayout(
-                    child,
+                    wrapper.component,
                     modifier = Modifier,
                     path = "$path-button-$index",
                     parentScrollable = parentScrollable,
-                    onClickHandler = onClickHandler
+                    onClickHandler = onClickHandler,
                 )
             }
         }
@@ -288,23 +305,23 @@ private fun RenderButton(
 
 @Composable
 private fun RenderCard(
-    node: LayoutNode,
+    component: LayoutComponent.Card,
     modifier: Modifier,
     path: String,
     parentScrollable: Boolean,
-    onClickHandler: (String) -> Unit
+    onClickHandler: (String) -> Unit,
 ) {
     Card(
         modifier = modifier,
-        elevation = 4.dp
+        elevation = 4.dp,
     ) {
-        node.children?.forEachIndexed { index, child ->
+        component.children?.forEachIndexed { index, wrapper ->
             DynamicLayout(
-                child,
+                wrapper.component,
                 modifier = Modifier,
                 path = "$path-card-$index",
                 parentScrollable = parentScrollable,
-                onClickHandler = onClickHandler
+                onClickHandler = onClickHandler,
             )
         }
     }
