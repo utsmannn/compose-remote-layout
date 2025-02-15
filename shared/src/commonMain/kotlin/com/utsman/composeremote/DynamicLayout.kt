@@ -32,14 +32,14 @@ val defaultComponent =
                         ComponentWrapper(
                             button =
                                 LayoutComponent.Button(
-                                    text = "Hello, Compose!",
+                                    content = "Hello, Compose!",
                                     clickId = "default_button",
                                 ),
                         ),
                         ComponentWrapper(
                             text =
                                 LayoutComponent.Text(
-                                    text = "Hello, Compose!",
+                                    content = "Hello, Compose!",
                                 ),
                         ),
                     ),
@@ -327,16 +327,16 @@ private fun RenderText(
     val states by bindsValue.textStates.collectAsState()
 
     val text =
-        if (component.text.startsWith("{") && component.text.endsWith("}")) {
-            val key = component.text.replace("{", "").replace("}", "")
+        if (component.content.startsWith("{") && component.content.endsWith("}")) {
+            val key = component.content.replace("{", "").replace("}", "")
             val value = states[key]
             value?.toString()
         } else {
-            component.text
+            component.content
         }
 
     Text(
-        text = text ?: component.text,
+        text = text ?: component.content,
         modifier = modifier,
     )
 }
@@ -355,8 +355,8 @@ private fun RenderButton(
             component.clickId?.let { onClickHandler(it) }
         },
     ) {
-        if (component.text != null) {
-            Text(text = component.text)
+        if (component.content != null) {
+            Text(text = component.content)
         } else {
             component.children?.forEachIndexed { index, wrapper ->
                 ChildDynamicLayout(

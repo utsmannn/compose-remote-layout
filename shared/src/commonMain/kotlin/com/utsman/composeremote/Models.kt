@@ -28,12 +28,12 @@ sealed class LayoutComponent {
     data class Box(override val modifier: LayoutModifier? = null, val children: List<ComponentWrapper>? = null) : LayoutComponent()
 
     @Serializable
-    data class Text(override val modifier: LayoutModifier? = null, val text: String) : LayoutComponent()
+    data class Text(override val modifier: LayoutModifier? = null, val content: String) : LayoutComponent()
 
     @Serializable
     data class Button(
         override val modifier: LayoutModifier? = null,
-        val text: String? = null,
+        val content: String? = null,
         val clickId: String? = null,
         val children: List<ComponentWrapper>? = null,
     ) : LayoutComponent()
@@ -69,7 +69,7 @@ data class ComponentWrapper(
             button?.let { return it }
             card?.let { return it }
             custom?.let { return it }
-            throw IllegalStateException("Component wrapper must contain exactly one component")
+            return LayoutComponent.Column()
         }
 }
 
@@ -148,10 +148,17 @@ data class BaseModifier(
     val margin: MarginValues? = null,
     val background: StyleValues? = null,
     val border: BorderValues? = null,
-    val shape: ShapeValues? = null,
     val shadow: ShadowValues? = null,
     val scrollable: Boolean? = false,
     val clickable: Boolean? = false,
+    val alpha: Float? = null,
+    val rotate: Float? = null,
+    val scale: ScaleValues? = null,
+    val offset: OffsetValues? = null,
+    val aspectRatio: Float? = null,
+    val clip: Boolean? = false,
+    val wrapContentHeight: Boolean? = false,
+    val wrapContentWidth: Boolean? = false,
 )
 
 @Serializable
@@ -177,7 +184,12 @@ data class MarginValues(
 )
 
 @Serializable
-data class StyleValues(val color: String? = null, val alpha: Float? = null)
+data class StyleValues(
+    val color: String? = null,
+    val alpha: Float? = null,
+    val shape: String? = null,
+    val radius: Int? = null,
+)
 
 @Serializable
 data class BorderValues(
@@ -187,7 +199,26 @@ data class BorderValues(
 )
 
 @Serializable
-data class ShapeValues(val type: String = "rectangle", val cornerRadius: Int? = null)
+data class ScaleValues(
+    val scaleX: Float? = null,
+    val scaleY: Float? = null,
+)
+
+@Serializable
+data class OffsetValues(
+    val x: Int? = null,
+    val y: Int? = null,
+)
+
+@Serializable
+data class ShapeValues(
+    val type: String = "rectangle",
+    val cornerRadius: Int? = null,
+    val topStart: Int? = null,
+    val topEnd: Int? = null,
+    val bottomStart: Int? = null,
+    val bottomEnd: Int? = null,
+)
 
 @Serializable
 data class ShadowValues(val elevation: Int = 4, val shape: ShapeValues? = null)

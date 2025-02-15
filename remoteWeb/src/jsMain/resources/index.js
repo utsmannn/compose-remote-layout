@@ -43,7 +43,7 @@ require(['vs/editor/editor.main'], async function () {
     "children": [
       {
         "button": {
-          "text": "Click me",
+          "content": "Click me",
           "clickId": "button1",
           "modifier": {
             "base": {
@@ -54,7 +54,7 @@ require(['vs/editor/editor.main'], async function () {
       },
       {
         "text": {
-          "text": "Hello World",
+          "content": "Hello World",
           "modifier": {
             "base": {
               "padding": {

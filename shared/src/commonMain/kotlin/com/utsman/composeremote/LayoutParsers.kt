@@ -67,14 +67,7 @@ object LayoutParser {
 
         return when (type) {
             "column" -> {
-                val children = content.jsonObject["children"]?.let { childrenArray ->
-                    json.decodeFromJsonElement<JsonArray>(childrenArray).map {
-                        parseComponentWrapper(it)
-                    }
-                }
-                val modifier = content.jsonObject["modifier"]?.let {
-                    json.decodeFromJsonElement<LayoutModifier>(it)
-                }
+                val (children, modifier) = getChildrenModifier(content)
                 ComponentWrapper(
                     column = LayoutComponent.Column(
                         modifier = modifier,
@@ -82,13 +75,49 @@ object LayoutParser {
                     ),
                 )
             }
-            "row" -> ComponentWrapper(row = json.decodeFromJsonElement(content))
-            "box" -> ComponentWrapper(box = json.decodeFromJsonElement(content))
+            "row" -> {
+                val (children, modifier) = getChildrenModifier(content)
+                ComponentWrapper(
+                    row = LayoutComponent.Row(
+                        modifier = modifier,
+                        children = children,
+                    ),
+                )
+            }
+            "box" -> {
+                val (children, modifier) = getChildrenModifier(content)
+                ComponentWrapper(
+                    box = LayoutComponent.Box(
+                        modifier = modifier,
+                        children = children,
+                    ),
+                )
+            }
             "text" -> ComponentWrapper(text = json.decodeFromJsonElement(content))
             "button" -> ComponentWrapper(button = json.decodeFromJsonElement(content))
-            "card" -> ComponentWrapper(card = json.decodeFromJsonElement(content))
+            "card" -> {
+                val (children, modifier) = getChildrenModifier(content)
+                ComponentWrapper(
+                    card = LayoutComponent.Card(
+                        modifier = modifier,
+                        children = children,
+                    ),
+                )
+            }
             else -> ComponentWrapper(column = LayoutComponent.Column()) // handle empty when type not found
         }
+    }
+
+    private fun getChildrenModifier(content: JsonElement): Pair<List<ComponentWrapper>?, LayoutModifier?> {
+        val children = content.jsonObject["children"]?.let { childrenArray ->
+            json.decodeFromJsonElement<JsonArray>(childrenArray).map {
+                parseComponentWrapper(it)
+            }
+        }
+        val modifier = content.jsonObject["modifier"]?.let {
+            json.decodeFromJsonElement<LayoutModifier>(it)
+        }
+        return Pair(children, modifier)
     }
 
     private fun extractModifierOrder(jsonElement: JsonElement): List<String> {

@@ -4,20 +4,28 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 
 fun applyJsonModifier(
@@ -81,27 +89,36 @@ private fun applyBaseModifier(
     }
 
     base.background?.let { bg ->
+        var backgroundModifier: Modifier = Modifier
+
+        // Create shape if specified
+        val shape = when (bg.shape?.lowercase()) {
+            "circle" -> CircleShape
+            "roundedcorner" -> RoundedCornerShape(bg.radius?.dp ?: 8.dp)
+            else -> null
+        }
+
+        // Apply background color
         bg.color?.let { colorStr ->
             try {
                 val color = ColorParser.parseColor(colorStr)
-                modifierMap["background"] =
+                backgroundModifier = backgroundModifier.then(
                     Modifier.background(
-                        color.copy(alpha = bg.alpha ?: 1f),
-                    )
+                        color = color.copy(alpha = bg.alpha ?: 1f),
+                        shape = shape ?: RectangleShape,
+                    ),
+                )
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
-    }
 
-    base.shape?.let { shape ->
-        val composableShape =
-            when (shape.type.lowercase()) {
-                "circle" -> CircleShape
-                "roundedcorner" -> RoundedCornerShape(shape.cornerRadius?.dp ?: 8.dp)
-                else -> RoundedCornerShape(0.dp)
-            }
-        modifierMap["shape"] = Modifier.clip(composableShape)
+        // Apply clip if shape is specified
+        if (shape != null) {
+            backgroundModifier = backgroundModifier.then(Modifier.clip(shape))
+        }
+
+        modifierMap["background"] = backgroundModifier
     }
 
     base.border?.let { border ->
@@ -171,6 +188,43 @@ private fun applyBaseModifier(
     }
     if (base.scrollable == true) {
         modifierMap["scrollable"] = Modifier
+    }
+
+    base.alpha?.let { alpha ->
+        modifierMap["alpha"] = Modifier.alpha(alpha)
+    }
+
+    base.rotate?.let { degrees ->
+        modifierMap["rotate"] = Modifier.rotate(degrees)
+    }
+
+    base.scale?.let { scale ->
+        val scaleModifier: Modifier
+        if (scale.scaleX != null || scale.scaleY != null) {
+            scaleModifier = Modifier.scale(
+                scaleX = scale.scaleX ?: 1f,
+                scaleY = scale.scaleY ?: 1f,
+            )
+            modifierMap["scale"] = scaleModifier
+        }
+    }
+
+    base.offset?.let { offset ->
+        modifierMap["offset"] = Modifier.offset(
+            x = offset.x?.dp ?: 0.dp,
+            y = offset.y?.dp ?: 0.dp,
+        )
+    }
+
+    base.aspectRatio?.let { ratio ->
+        modifierMap["aspectRatio"] = Modifier.aspectRatio(ratio)
+    }
+
+    if (base.wrapContentHeight == true) {
+        modifierMap["wrapContentHeight"] = Modifier.wrapContentHeight()
+    }
+    if (base.wrapContentWidth == true) {
+        modifierMap["wrapContentWidth"] = Modifier.wrapContentWidth()
     }
 
     var currentMod = mod

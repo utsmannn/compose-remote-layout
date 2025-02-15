@@ -28,7 +28,7 @@ fun App() {
     "children": [
       {
         "button": {
-          "text": "Click me",
+          "content": "Click me",
           "clickId": "button1",
           "modifier": {
             "base": {
@@ -39,7 +39,7 @@ fun App() {
       },
       {
         "text": {
-          "text": "{counter}",
+          "content": "Hello World",
           "modifier": {
             "base": {
               "padding": {
@@ -47,15 +47,6 @@ fun App() {
               }
             }
           }
-        }
-      },
-      {
-        "text": {
-            "text": "Click me"
-        }
-      },{
-        "banner": {
-            "title": "hjabsjkhskjashkjashjlkas"
         }
       }
     ]
