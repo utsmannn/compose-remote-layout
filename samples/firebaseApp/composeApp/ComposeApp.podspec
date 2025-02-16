@@ -1,5 +1,5 @@
 Pod::Spec.new do |spec|
-    spec.name                     = 'SimpleAppCocoaPod'
+    spec.name                     = 'ComposeApp'
     spec.version                  = '1.0'
     spec.homepage                 = 'Link to a Kotlin/Native module homepage'
     spec.source                   = { :http=> ''}
@@ -17,7 +17,7 @@ Pod::Spec.new do |spec|
         Kotlin framework 'ComposeApp' doesn't exist yet, so a proper Xcode project can't be generated.
         'pod install' should be executed after running ':generateDummyFramework' Gradle task:
 
-            ./gradlew :samples:simpleApp:composeApp:generateDummyFramework
+            ./gradlew :samples:firebaseApp:composeApp:generateDummyFramework
 
         Alternatively, proper pod installation is performed during Gradle sync in the IDE (if Podfile location is set)"
     end
@@ -27,13 +27,13 @@ Pod::Spec.new do |spec|
     }
                 
     spec.pod_target_xcconfig = {
-        'KOTLIN_PROJECT_PATH' => ':samples:simpleApp:composeApp',
+        'KOTLIN_PROJECT_PATH' => ':samples:firebaseApp:composeApp',
         'PRODUCT_MODULE_NAME' => 'ComposeApp',
     }
                 
     spec.script_phases = [
         {
-            :name => 'Build SimpleAppCocoaPod',
+            :name => 'Build ComposeApp',
             :execution_position => :before_compile,
             :shell_path => '/bin/sh',
             :script => <<-SCRIPT

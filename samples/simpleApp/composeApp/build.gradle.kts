@@ -23,40 +23,23 @@ kotlin {
         iosSimulatorArm64(),
     ).forEach {
         it.binaries.framework {
-            baseName = "Remote Compose App"
+            baseName = "ComposeApp"
             isStatic = true
         }
     }
 
     cocoapods {
-        // Required properties
-        // Specify the required Pod version here
-        // Otherwise, the Gradle project version is used
         version = "1.0"
         summary = "Some description for a Kotlin/Native module"
         homepage = "Link to a Kotlin/Native module homepage"
 
-        // Optional properties
-        // Configure the Pod name here instead of changing the Gradle project name
-        name = "SimpleAppCocoaPod"
+        name = "ComposeApp"
 
         framework {
-            // Required properties
-            // Framework name configuration. Use this property instead of deprecated 'frameworkName'
             baseName = "ComposeApp"
-
-            // Optional properties
-            // Specify the framework linking type. It's dynamic by default.
             isStatic = false
-            // Dependency export
-            // Uncomment and specify another project module if you have one:
-            // export(project(":<your other KMP module>"))
             transitiveExport = false // This is default.
         }
-
-        // Maps custom Xcode configuration to NativeBuildType
-//        xcodeConfigurationToNativeBuildType["CUSTOM_DEBUG"] = NativeBuildType.DEBUG
-//        xcodeConfigurationToNativeBuildType["CUSTOM_RELEASE"] = NativeBuildType.RELEASE
     }
 
     sourceSets {

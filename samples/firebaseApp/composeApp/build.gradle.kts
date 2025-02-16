@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.compose)
     alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlinCocoapods)
 }
 
 kotlin {
@@ -22,8 +23,23 @@ kotlin {
         iosSimulatorArm64(),
     ).forEach {
         it.binaries.framework {
-            baseName = "Remote Compose Firebase App"
+            baseName = "ComposeApp"
             isStatic = true
+        }
+    }
+
+    cocoapods {
+        version = "1.0"
+        summary = "Some description for a Kotlin/Native module"
+        homepage = "Link to a Kotlin/Native module homepage"
+        podfile = project.file("../iosApp/Podfile")
+
+        name = "ComposeApp"
+
+        framework {
+            baseName = "ComposeApp"
+            isStatic = false
+            transitiveExport = false // This is default.
         }
     }
 
