@@ -22,7 +22,7 @@ kotlin {
         iosSimulatorArm64(),
     ).forEach {
         it.binaries.framework {
-            baseName = "ComposeApp"
+            baseName = "Remote Compose Firebase App"
             isStatic = true
         }
     }
@@ -47,14 +47,14 @@ kotlin {
 }
 
 android {
-    namespace = "sample.app"
+    namespace = "sample.firebase.app"
     compileSdk = 35
 
     defaultConfig {
         minSdk = 21
         targetSdk = 35
 
-        applicationId = "sample.app.androidApp"
+        applicationId = "sample.firebase.app.androidApp"
         versionCode = 1
         versionName = "1.0.0"
     }
@@ -66,7 +66,7 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "sample"
+            packageName = "sample.firebase"
             packageVersion = "1.0.0"
         }
     }
