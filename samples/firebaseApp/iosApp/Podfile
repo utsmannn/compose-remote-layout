@@ -6,5 +6,7 @@ target 'iosApp' do
   use_frameworks!
 
   # Pods for iosApp
+  pod 'FirebaseAnalytics'
+  pod 'FirebaseFirestore'
 
 end

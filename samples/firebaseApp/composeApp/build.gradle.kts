@@ -33,6 +33,7 @@ kotlin {
         summary = "Some description for a Kotlin/Native module"
         homepage = "Link to a Kotlin/Native module homepage"
         podfile = project.file("../iosApp/Podfile")
+        ios.deploymentTarget = "17.0"
 
         name = "ComposeApp"
 
@@ -40,6 +41,14 @@ kotlin {
             baseName = "ComposeApp"
             isStatic = false
             transitiveExport = false // This is default.
+        }
+
+        pod("FirebaseAnalytics") {
+            extraOpts += listOf("-compiler-option", "-fmodules")
+        }
+
+        pod("FirebaseFirestore") {
+            extraOpts += listOf("-compiler-option", "-fmodules")
         }
     }
 
