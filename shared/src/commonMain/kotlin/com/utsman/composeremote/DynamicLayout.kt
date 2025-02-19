@@ -326,14 +326,7 @@ private fun RenderText(
     val bindsValue = LocalBindsValue.current
     val states by bindsValue.textStates.collectAsState()
 
-    val text =
-        if (component.content.startsWith("{") && component.content.endsWith("}")) {
-            val key = component.content.replace("{", "").replace("}", "")
-            val value = states[key]
-            value?.toString()
-        } else {
-            component.content
-        }
+    val text = BindsValue.get(component, states)
 
     Text(
         text = text ?: component.content,
@@ -355,8 +348,13 @@ private fun RenderButton(
             component.clickId?.let { onClickHandler(it) }
         },
     ) {
+        val bindsValue = LocalBindsValue.current
+        val states by bindsValue.textStates.collectAsState()
+
+        val text = BindsValue.get(component, states)
+
         if (component.content != null) {
-            Text(text = component.content)
+            Text(text = text ?: component.content)
         } else {
             component.children?.forEachIndexed { index, wrapper ->
                 ChildDynamicLayout(

@@ -20,7 +20,6 @@ kotlin {
 
             implementation(compose.ui)
             implementation(compose.material3)
-//            implementation(compose.html.core)
 
             api("io.github.qdsfdhvh:image-loader:1.10.0")
         }

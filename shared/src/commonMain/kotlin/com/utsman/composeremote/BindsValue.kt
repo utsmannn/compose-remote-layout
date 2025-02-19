@@ -16,6 +16,40 @@ class BindsValue {
         currentMap[key] = value
         _textStates.value = currentMap
     }
+
+    companion object {
+        fun get(
+            component: LayoutComponent.Text,
+            states: Map<String, Any>,
+        ): String? {
+            val text =
+                if (component.content.startsWith("{") && component.content.endsWith("}")) {
+                    val key = component.content.replace("{", "").replace("}", "")
+                    val value = states[key]
+                    value?.toString()
+                } else {
+                    component.content
+                }
+            return text
+        }
+
+        fun get(
+            component: LayoutComponent.Button,
+            states: Map<String, Any>,
+        ): String? {
+            if (component.content == null) return null
+
+            val text =
+                if (component.content.startsWith("{") && component.content.endsWith("}")) {
+                    val key = component.content.replace("{", "").replace("}", "")
+                    val value = states[key]
+                    value?.toString()
+                } else {
+                    component.content
+                }
+            return text
+        }
+    }
 }
 
 val LocalBindsValue = staticCompositionLocalOf<BindsValue> { error("No BindsValue provided") }
