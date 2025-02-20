@@ -30,8 +30,7 @@ jobs:
 
       - name: Decode GPG key
         run: |
-          mkdir -p ~/.gradle/
-          echo "${{ secrets.GPG_KEY_CONTENTS }}" | base64 --decode > ~/.gradle/secring.gpg
+          echo "${{ secrets.GPG_KEY_CONTENTS }}" | base64 --decode > ${{ github.workspace }}/secring.gpg
 
       - name: Build & Publish to Maven Central
         env:
@@ -39,7 +38,7 @@ jobs:
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
           SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
-          SIGNING_SECRET_KEY_RING_FILE: ~/.gradle/secring.gpg
+          SIGNING_SECRET_KEY_RING_FILE: ${{ github.workspace }}/secring.gpg
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           ./gradlew publishAllPublicationsToSonatypeRepository -Pversion=$VERSION
