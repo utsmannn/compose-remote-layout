@@ -7,8 +7,8 @@ plugins {
     id("convention.publication")
 }
 
-group = "com.utsman.composeremote"
-version = "1.0.0"
+group = "io.github.utsmannn"
+version = "0.0.1-alpha1"
 
 kotlin {
     jvmToolchain(17)

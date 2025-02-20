@@ -16,7 +16,7 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(libs.kotlinx.serialization.json)
-            api(project(":shared"))
+            api(project(":compose-remote-layout"))
 
             implementation(compose.ui)
             implementation(compose.material3)

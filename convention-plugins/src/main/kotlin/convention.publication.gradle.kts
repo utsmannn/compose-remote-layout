@@ -1,9 +1,8 @@
-//Publishing your Kotlin Multiplatform library to Maven Central
-//https://dev.to/kotlin/how-to-build-and-publish-a-kotlin-multiplatform-library-going-public-4a8k
+// Publishing your Kotlin Multiplatform library to Maven Central
+// https://dev.to/kotlin/how-to-build-and-publish-a-kotlin-multiplatform-library-going-public-4a8k
 
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.bundling.Jar
-import org.gradle.kotlin.dsl.`maven-publish`
 import org.gradle.kotlin.dsl.signing
 import java.util.*
 
@@ -44,7 +43,7 @@ fun getExtraString(name: String) = ext[name]?.toString()
 publishing {
     // Configure maven central repository
     repositories {
-        maven("https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+        maven("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
             name = "sonatype"
             credentials {
                 username = getExtraString("ossrhUsername")
@@ -60,9 +59,9 @@ publishing {
 
         // Provide artifacts information requited by Maven Central
         pom {
-            name.set("Compose Remote")
+            name.set("Compose Remote Layout")
             description.set("Kotlin Multiplatform library")
-            //url.set("") todo
+            url.set("https://github.com/utsmannn/compose-remote-layout")
 
             licenses {
                 license {
@@ -72,13 +71,13 @@ publishing {
             }
             developers {
                 developer {
-                    //id.set("") todo
-                    //name.set("") todo
-                    //email.set("") todo
+                    id.set("utsmannn")
+                    name.set("Utsman")
+                    email.set("utsmannn@gmail.com")
                 }
             }
             scm {
-                //url.set("") todo
+                url.set("https://github.com/utsmannn/compose-remote-layout")
             }
         }
     }
@@ -91,7 +90,7 @@ signing {
     }
 }
 
-//https://github.com/gradle/gradle/issues/26132
+// https://github.com/gradle/gradle/issues/26132
 val signingTasks = tasks.withType<Sign>()
 tasks.withType<AbstractPublishToMaven>().configureEach {
     mustRunAfter(signingTasks)

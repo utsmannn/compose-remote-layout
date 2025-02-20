@@ -29,7 +29,7 @@ dependencyResolutionManagement {
     }
 }
 includeBuild("convention-plugins")
-include(":shared")
+include(":compose-remote-layout")
 include(":samples:simpleApp:composeApp")
 include(":samples:firebaseApp:composeApp")
 include(":remoteWeb")

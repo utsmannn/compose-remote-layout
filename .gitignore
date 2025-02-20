@@ -15,3 +15,4 @@ Pods/
 *.gpg
 *yarn.lock
 /convention-plugins/bin/
+/public.key
