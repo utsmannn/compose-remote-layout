@@ -48,7 +48,8 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.ui)
             implementation(compose.material)
-            implementation(project(":compose-remote-layout"))
+            implementation(projects.composeRemoteLayout)
+            implementation(projects.samples.sharedCompose)
         }
 
         androidMain.dependencies {

@@ -220,7 +220,20 @@ require(['vs/editor/editor.main'], async function () {
 
     document.getElementById('saveToRemoteConfig').addEventListener('click', async function() {
         try {
+            const editorValue = editor.getValue();
+            const response = await fetch('http://localhost:3000/parameter?key=layout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: editorValue
+            });
 
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            alert('Successfully saved to Remote Config');
         } catch (error) {
             alert('Error saving to Remote Config: ' + error.message);
         }
