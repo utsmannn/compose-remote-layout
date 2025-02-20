@@ -56,7 +56,7 @@ val textJsonDefault =
 fun App(textJson: String = textJsonDefault) {
     Scaffold {
         val layoutNode by remember(textJson) { mutableStateOf(parseLayoutJson(textJson)) }
-//
+
         DynamicLayout(layoutNode) { clickId ->
             println("clickId: $clickId")
         }

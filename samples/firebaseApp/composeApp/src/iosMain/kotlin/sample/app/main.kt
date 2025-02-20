@@ -5,7 +5,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.window.ComposeUIViewController
 import cocoapods.FirebaseCore.FIRApp
@@ -61,7 +60,6 @@ fun MainViewController(): UIViewController {
 
     return ComposeUIViewController {
         var layoutJson by remember { mutableStateOf(jsonDefault) }
-        val scope = rememberCoroutineScope()
 
         LaunchedEffect(Unit) {
             FIRApp.configure()
@@ -78,10 +76,10 @@ fun MainViewController(): UIViewController {
                 layoutJson = it.stringValue
             }
 
-
             remoteConfig.addOnConfigUpdateListener { configUpdate, nsError ->
-                if (configUpdate != null) {                
-                    remoteConfig.fetchAndActivateWithCompletionHandler { firRemoteConfigFetchAndActivateStatus, nsError ->                        println("cuaks fetchAndActivate... --> ${nsError?.localizedDescription}")
+                if (configUpdate != null) {
+                    remoteConfig.fetchAndActivateWithCompletionHandler { firRemoteConfigFetchAndActivateStatus, nsError ->
+                        println("cuaks fetchAndActivate... --> ${nsError?.localizedDescription}")
                         remoteConfig.configValueForKey("layout").also {
                             layoutJson = it.stringValue
                         }

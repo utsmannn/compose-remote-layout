@@ -1,4 +1,3 @@
-
 *.iml
 .gradle
 .idea
@@ -15,3 +14,4 @@ Pods/
 *.jks
 *.gpg
 *yarn.lock
+/convention-plugins/bin/

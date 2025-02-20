@@ -1,70 +1,3 @@
-import { initializeApp } from 'firebase-admin/app';
-import { getRemoteConfig } from 'firebase-admin/remote-config';
-
-const firebaseConfig = {
-    apiKey: "AIzaSyDZ9Q1dYmUzLMuG-NOugyees63IGEVq750",
-    authDomain: "compose-remote-sample.firebaseapp.com",
-    projectId: "compose-remote-sample",
-    storageBucket: "compose-remote-sample.firebasestorage.app",
-    messagingSenderId: "536588754546",
-    appId: "1:536588754546:web:b7b9b292a3652305e26ceb",
-    measurementId: "G-7S2R103MBB"
-  };
-
-
-firebase.initializeApp(firebaseConfig);
-
-// Initialize Remote Config with compat version
-const remoteConfig = firebase.remoteConfig();
-const remoteConfigSettings = {
-    minimumFetchIntervalMillis: 3600000, // 1 hour
-    fetchTimeoutMillis: 60000 // 1 minute
-};
-remoteConfig.settings = remoteConfigSettings;
-
-
-remoteConfig.defaultConfig = {
-    'ui_config': JSON.stringify({
-        column: {
-            modifier: {
-                base: {
-                    width: 200,
-                    padding: {
-                        all: 16
-                    }
-                },
-                verticalArrangement: "spaceBetween",
-                horizontalAlignment: "center"
-            },
-            children: [
-                {
-                    button: {
-                        content: "Click me",
-                        clickId: "button1",
-                        modifier: {
-                            base: {
-                                fillMaxWidth: true
-                            }
-                        }
-                    }
-                },
-                {
-                    text: {
-                        content: "Hello World",
-                        modifier: {
-                            base: {
-                                padding: {
-                                    top: 8
-                                }
-                            }
-                        }
-                    }
-                }
-            ]
-        }
-    })
-};
-
 require.config({
     paths: {
         'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs'
@@ -73,7 +6,7 @@ require.config({
 
 require(['vs/editor/editor.main'], async function () {
     const customSchema = {
-      uri: "http://myschema/ui-components",
+      uri: "http://remote-web/ui-components",
       fileMatch: ["*"],
       schema: {
         type: "object",
@@ -230,24 +163,50 @@ require(['vs/editor/editor.main'], async function () {
     });
 
     // Initial JSON content
-    try {
-        await remoteConfig.fetchAndActivate();
-        const remoteValue = remoteConfig.getValue('layout').asString();
-        if (remoteValue) {
-            editor.setValue(remoteValue);
-        } else {
-            editor.setValue(remoteConfig.defaultConfig.ui_config);
+    const initialValue = `{
+  "column": {
+    "modifier": {
+      "base": {
+        "width": 200,
+        "padding": {
+          "all": 16
         }
-    } catch (error) {
-        console.error('Error fetching remote config:', error);
-        editor.setValue(remoteConfig.defaultConfig.ui_config);
-    }
-
+      },
+      "verticalArrangement": "spaceBetween",
+      "horizontalAlignment": "center"
+    },
+    "children": [
+      {
+        "button": {
+          "content": "Click me",
+          "clickId": "button1",
+          "modifier": {
+            "base": {
+              "fillMaxWidth": true
+            }
+          }
+        }
+      },
+      {
+        "text": {
+          "content": "Hello World",
+          "modifier": {
+            "base": {
+              "padding": {
+                "top": 8
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}`;
 
     // Set the value after 300ms delay
-//    setTimeout(() => {
-//        editor.setValue(initialValue);
-//    }, 300);
+    setTimeout(() => {
+        editor.setValue(initialValue);
+    }, 300);
 
 
     document.getElementById('formatBtn').addEventListener('click', function() {
@@ -261,16 +220,7 @@ require(['vs/editor/editor.main'], async function () {
 
     document.getElementById('saveToRemoteConfig').addEventListener('click', async function() {
         try {
-            const editorContent = editor.getValue();
-            // Validate JSON
-            JSON.parse(editorContent);
 
-            // Update Remote Config
-            remoteConfig.setValue('layout', editorContent);
-
-            // Activate the changes
-            await remoteConfig.activate();
-            alert('Successfully saved to Remote Config!');
         } catch (error) {
             alert('Error saving to Remote Config: ' + error.message);
         }
