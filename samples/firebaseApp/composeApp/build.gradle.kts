@@ -39,15 +39,22 @@ kotlin {
 
         framework {
             baseName = "ComposeApp"
-            isStatic = false
-            transitiveExport = false // This is default.
+            isStatic = true
         }
 
         pod("FirebaseAnalytics") {
             extraOpts += listOf("-compiler-option", "-fmodules")
         }
 
-        pod("FirebaseFirestore") {
+        pod("FirebaseRemoteConfig") {
+            extraOpts += listOf("-compiler-option", "-fmodules")
+        }
+
+        pod("FirebaseCoreInternal") {
+            extraOpts += listOf("-compiler-option", "-fmodules")
+        }
+
+        pod("FirebaseCore") {
             extraOpts += listOf("-compiler-option", "-fmodules")
         }
     }

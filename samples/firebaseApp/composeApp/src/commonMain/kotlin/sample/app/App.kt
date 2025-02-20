@@ -8,11 +8,8 @@ import androidx.compose.runtime.remember
 import com.utsman.composeremote.DynamicLayout
 import com.utsman.composeremote.LayoutParser.parseLayoutJson
 
-@Suppress("ktlint:standard:function-naming")
-@Composable
-fun App() {
-    val textJson =
-        """
+val textJsonDefault =
+    """
 {
   "column": {
     "modifier": {
@@ -52,10 +49,13 @@ fun App() {
     ]
   }
 }
-        """.trimIndent()
+    """.trimIndent()
 
+@Suppress("ktlint:standard:function-naming")
+@Composable
+fun App(textJson: String = textJsonDefault) {
     Scaffold {
-        val layoutNode by remember { mutableStateOf(parseLayoutJson(textJson)) }
+        val layoutNode by remember(textJson) { mutableStateOf(parseLayoutJson(textJson)) }
 //
         DynamicLayout(layoutNode) { clickId ->
             println("clickId: $clickId")

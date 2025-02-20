@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Monaco Editor with Custom Completion</title>
+    <title>Monaco Editor with Firebase Remote Config</title>
     <style>
         .container {
             display: flex;
@@ -27,11 +27,15 @@
         #text_container {
             display: none;
         }
-        .format-btn {
+        .button-container {
             position: absolute;
             bottom: 10px;
             right: 10px;
             z-index: 100;
+            display: flex;
+            gap: 10px;
+        }
+        .editor-btn {
             padding: 6px 12px;
             background-color: #1e1e1e;
             color: #ffffff;
@@ -41,9 +45,15 @@
             font-size: 12px;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
-        .format-btn:hover {
+        .editor-btn:hover {
             background-color: #2d2d2d;
             border-color: #666666;
+        }
+        .editor-btn.save {
+            background-color: #2c5282;
+        }
+        .editor-btn.save:hover {
+            background-color: #2a4365;
         }
     </style>
     <script type="application/javascript" src="skiko.js"></script>
@@ -52,13 +62,21 @@
 <div class="container">
     <div class="editor-container">
         <div id="editor"></div>
-        <button id="formatBtn" class="format-btn">Format JSON</button>
+        <div class="button-container">
+            <button id="formatBtn" class="editor-btn">Format JSON</button>
+            <button id="saveToRemoteConfig" class="editor-btn save">Save to Remote Config</button>
+        </div>
     </div>
     <div id="text_container"></div>
     <div id="compose"></div>
 </div>
-</body>
+
+<!-- Firebase SDK v11.3.1 -->
+<script src="https://www.gstatic.com/firebasejs/11.3.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.3.1/firebase-remote-config-compat.js"></script>
+
 <script type="application/javascript" src="remoteWeb.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.js"></script>
 <script src="index.js"></script>
+</body>
 </html>

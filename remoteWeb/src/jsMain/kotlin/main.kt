@@ -1,6 +1,7 @@
 @file:Suppress("ktlint:standard:filename")
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -55,7 +56,10 @@ fun main() {
             Image(
                 painter = painter,
                 contentDescription = "image",
-                modifier = param.modifier,
+                modifier = param.modifier
+                    .clickable {
+                        println("clicked....")
+                    },
                 contentScale = ContentScale.FillWidth,
             )
         }
@@ -72,13 +76,15 @@ fun main() {
             bindsValue.setValue("counter", counter)
         }
 
-        DynamicLayout(
-            component = layoutNode,
-            bindValue = bindsValue,
-        ) { clickId ->
-            when (clickId) {
-                "button1" -> {
-                    counter++
+        MaterialTheme {
+            DynamicLayout(
+                component = layoutNode,
+                bindValue = bindsValue,
+            ) { clickId ->
+                when (clickId) {
+                    "button1" -> {
+                        counter++
+                    }
                 }
             }
         }

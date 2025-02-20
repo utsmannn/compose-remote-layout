@@ -10,7 +10,9 @@ Pod::Spec.new do |spec|
     spec.libraries                = 'c++'
     spec.ios.deployment_target    = '17.0'
     spec.dependency 'FirebaseAnalytics'
-    spec.dependency 'FirebaseFirestore'
+    spec.dependency 'FirebaseCore'
+    spec.dependency 'FirebaseCoreInternal'
+    spec.dependency 'FirebaseRemoteConfig'
                 
     if !Dir.exist?('build/cocoapods/framework/ComposeApp.framework') || Dir.empty?('build/cocoapods/framework/ComposeApp.framework')
         raise "
