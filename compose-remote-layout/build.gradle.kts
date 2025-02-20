@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "io.github.utsmannn"
-version = "0.0.1-alpha1"
+version = project.findProperty("version")?.toString() ?: "0.0.1"
 
 kotlin {
     jvmToolchain(17)
