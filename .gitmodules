@@ -1,0 +1,3 @@
+[submodule "jsonBuilderWeb/remote-config-server"]
+	path = jsonBuilderWeb/remote-config-server
+	url = git@github.com:utsmannn/compose-remote-firebase-remote-config-server.git
