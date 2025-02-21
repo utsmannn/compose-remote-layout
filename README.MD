@@ -505,6 +505,8 @@ The repository includes a [Firebase sample](samples/firebaseApp) project demonst
 
 ### 7.1 Using jsonBuilderWeb Module
 
+![json_builder.png](images/json_builder.png)
+
 The [`jsonBuilderWeb`](jsonBuilderWeb) module provides a web interface for:
 
 - Creating and editing layouts
