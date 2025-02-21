@@ -495,7 +495,7 @@ fun DynamicUpdates() {
 
 ### Firebase Remote Config Integration
 
-The repository includes a [Firebase sample](samples/firebaseApp) project demonstrating:
+The repository includes a [Firebase sample](./samples/firebaseApp) project demonstrating:
 
 1. **Remote Config Setup**: Integration with Firebase Remote Config
 2. **Real-time Updates**: Layout updates without app deployment
@@ -507,7 +507,7 @@ The repository includes a [Firebase sample](samples/firebaseApp) project demonst
 
 ![json_builder.png](images/json_builder.png)
 
-The [`jsonBuilderWeb`](jsonBuilderWeb) module provides a web interface for:
+The [`jsonBuilderWeb`](./jsonBuilderWeb) module provides a web interface for:
 
 - Creating and editing layouts
 - Real-time preview of changes
@@ -522,7 +522,7 @@ To run the JSON builder:
 
 ### 7.2 Firebase Remote Config Integration
 
-The [`remote-config-server`](jsonBuilderWeb/remote-config-server) in the `jsonBuilderWeb` module provides:
+The [`remote-config-server`](./jsonBuilderWeb/remote-config-server) in the `jsonBuilderWeb` module provides:
 
 - Local development server for testing
 - Firebase Remote Config simulation
