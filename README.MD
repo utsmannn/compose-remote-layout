@@ -137,10 +137,8 @@ Use in JSON:
 ```json
 {
   "banner": {
-    "data": {
-      "title": "Welcome",
-      "message": "This is a custom banner"
-    },
+    "title": "Welcome",
+    "message": "This is a custom banner",
     "modifier": {
       "base": {
         "padding": {
