@@ -1,0 +1,246 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden;
+    background-color: #f5f5f5;
+}
+
+.container {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    height: calc(100vh - 40px);
+    max-width: 1800px;
+    margin: 0 auto;
+}
+
+.editor-container {
+    position: relative;
+    width: 60%;
+    height: 100%;
+    min-width: 0;
+    overflow: hidden;
+}
+
+#editor {
+    width: 100% !important;
+    height: 100% !important;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.compose-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 320px;
+    max-width: 600px;
+    height: 100%;
+    background: #f0f0f0;
+    border-radius: 8px;
+    position: relative;
+}
+
+.device-selector {
+    background: #1e1e1e;
+    padding: 12px;
+    border-radius: 4px 4px 0 0;
+    color: white;
+    z-index: 2;
+}
+
+.device-selector select {
+    width: 100%;
+    padding: 8px;
+    background: #2d2d2d;
+    color: white;
+    border: 1px solid #454545;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.device-selector select:focus {
+    outline: none;
+    border-color: #2c5282;
+}
+
+.device-selector select optgroup {
+    background: #1e1e1e;
+    color: #888;
+    font-style: normal;
+    padding: 8px 0;
+}
+
+.device-selector select option {
+    background: #2d2d2d;
+    color: white;
+    padding: 8px;
+}
+
+.device-selector select option:hover {
+    background: #454545;
+}
+
+.device-preview-container {
+    position: relative;
+    flex: 1;
+    background: #fff;
+    border-radius: 0 0 4px 4px;
+    overflow: hidden;
+}
+
+#compose {
+    position: absolute;
+    border: 12px solid #1e1e1e;
+    background: white;
+    border-radius: 32px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform-origin: top left;
+}
+
+#text_container {
+    display: none;
+}
+
+.button-container {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    z-index: 100;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    background: rgba(30, 30, 30, 0.8);
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.editor-btn {
+    padding: 6px 12px;
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border: 1px solid #454545;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    transition: all 0.2s ease;
+}
+
+.editor-btn:hover {
+    background-color: #2d2d2d;
+    border-color: #666666;
+}
+
+.editor-btn.save {
+    background-color: #2c5282;
+}
+
+.editor-btn.save:hover {
+    background-color: #2a4365;
+}
+
+.loading-container {
+    display: none;
+    align-items: center;
+    gap: 8px;
+}
+
+.loading-bar {
+    width: 100px;
+    height: 4px;
+    background-color: #454545;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.loading-progress {
+    width: 30%;
+    height: 100%;
+    background-color: #2c5282;
+    border-radius: 2px;
+    animation: loading 1s infinite linear;
+}
+
+.loading-text {
+    font-size: 12px;
+    color: #ffffff;
+}
+
+.scale-indicator {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    background: #2c5282;
+    color: white;
+    border-radius: 4px;
+    display: none;
+    animation: slideIn 0.3s ease;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+@keyframes loading {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(300%); }
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* Media Queries for Responsive Layout */
+@media (max-width: 1200px) {
+    .container {
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .editor-container {
+        width: 55%;
+    }
+
+    .compose-section {
+        max-width: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        height: auto;
+        overflow: auto;
+    }
+
+    .editor-container {
+        width: 100%;
+        height: 50vh;
+    }
+
+    .compose-section {
+        width: 100%;
+        min-width: auto;
+        height: 50vh;
+    }
+}
