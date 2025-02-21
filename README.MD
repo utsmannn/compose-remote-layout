@@ -522,7 +522,7 @@ To run the JSON builder:
 
 ### Firebase Remote Config Integration
 
-The [`remote-config-server`](./jsonBuilderWeb/remote-config-server) in the `jsonBuilderWeb` module provides:
+The [`remote-config-server`](https://github.com/utsmannn/compose-remote-firebase-remote-config-server) in the `jsonBuilderWeb` module provides:
 
 - Local development server for testing
 - Firebase Remote Config simulation
