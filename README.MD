@@ -44,6 +44,10 @@ The compose-remote-layout module provides several core features:
     - Map JSON definitions to custom UI elements
     - Pass custom parameters and handle specific logic
 
+### Demo Video
+
+https://github.com/user-attachments/assets/6479f0c1-338e-4d1e-90e9-25c2ebf72395
+
 ## 3. Download
 
 Add the dependencies to your `build.gradle.kts`:
