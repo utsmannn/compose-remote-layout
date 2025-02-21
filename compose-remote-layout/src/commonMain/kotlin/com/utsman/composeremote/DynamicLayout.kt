@@ -17,8 +17,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -55,8 +53,10 @@ fun DynamicLayout(
     bindValue: BindsValue = BindsValue(),
     onClickHandler: (String) -> Unit = {},
 ) {
+    val currentBindsValue = LocalBindsValue.current
+
     CompositionLocalProvider(
-        LocalBindsValue provides bindValue,
+        LocalBindsValue provides bindValue + currentBindsValue,
     ) {
         ChildDynamicLayout(
             component,
@@ -324,12 +324,9 @@ private fun RenderText(
     modifier: Modifier,
 ) {
     val bindsValue = LocalBindsValue.current
-    val states by bindsValue.textStates.collectAsState()
-
-    val text = BindsValue.get(component, states)
 
     Text(
-        text = text ?: component.content,
+        text = bindsValue.getValue(component) ?: component.content,
         modifier = modifier,
     )
 }
@@ -349,12 +346,9 @@ private fun RenderButton(
         },
     ) {
         val bindsValue = LocalBindsValue.current
-        val states by bindsValue.textStates.collectAsState()
-
-        val text = BindsValue.get(component, states)
 
         if (component.content != null) {
-            Text(text = text ?: component.content)
+            Text(text = bindsValue.getValue(component) ?: component.content)
         } else {
             component.children?.forEachIndexed { index, wrapper ->
                 ChildDynamicLayout(
@@ -400,16 +394,23 @@ private fun RenderCustomNode(
     path: String,
     parentScrollable: Boolean,
     onClickHandler: (String) -> Unit,
+//    bindsValue: BindsValue,
 ) {
+    val bindsValue = LocalBindsValue.current
     CustomNodes.get(component.type)?.let { renderer ->
+        val newData = component.data.mapValues { (_, value) ->
+            bindsValue.getValue<String>(component, value) ?: value
+        }
+
         renderer(
             CustomNodes.NodeParam(
-                data = component.data,
+                data = newData,
                 modifier = modifier,
                 children = component.children,
                 path = path,
                 parentScrollable = parentScrollable,
                 onClickHandler = onClickHandler,
+                bindsValue = bindsValue,
             ),
         )
     }

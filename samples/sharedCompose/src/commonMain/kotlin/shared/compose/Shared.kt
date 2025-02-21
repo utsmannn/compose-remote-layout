@@ -2,15 +2,20 @@ package shared.compose
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.ui.Modifier
@@ -20,6 +25,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.seiko.imageloader.rememberImagePainter
 import com.utsman.composeremote.CustomNodes
+import com.utsman.composeremote.DynamicLayout
 
 object Shared {
     fun registerCustomNode() {
@@ -70,6 +76,53 @@ object Shared {
                         modifier = Modifier.height(8.dp),
                     )
 
+                    Text(
+                        text = param.data["message"] ?: "unknown",
+                    )
+                }
+            }
+        }
+
+        CustomNodes.register("grid") { param ->
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = param.modifier,
+            ) {
+                param.children?.let { wrapper ->
+                    wrapper.forEach { child ->
+                        val component = child.component
+                        item {
+                            DynamicLayout(
+                                component = component,
+                                onClickHandler = param.onClickHandler,
+                                bindValue = param.bindsValue,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        CustomNodes.register("card_item") { param ->
+            Card(
+                modifier = Modifier.then(
+                    if (param.data["clickId"] != null) {
+                        Modifier.clickable {
+                            param.onClickHandler(param.data["clickId"] ?: "")
+                        }
+                    } else {
+                        Modifier
+                    },
+                ).then(param.modifier),
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                        .padding(12.dp),
+                ) {
+                    Text(
+                        text = param.data["title"] ?: "unknown",
+                    )
+                    Spacer(Modifier.height(8.dp))
                     Text(
                         text = param.data["message"] ?: "unknown",
                     )

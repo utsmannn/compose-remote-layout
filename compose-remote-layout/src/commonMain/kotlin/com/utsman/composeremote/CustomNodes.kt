@@ -11,6 +11,7 @@ object CustomNodes {
         val path: String,
         val parentScrollable: Boolean,
         val onClickHandler: (String) -> Unit,
+        val bindsValue: BindsValue,
     )
 
     private val nodes = mutableMapOf<String, @Composable (NodeParam) -> Unit>()

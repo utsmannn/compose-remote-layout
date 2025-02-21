@@ -1,55 +1,69 @@
 package com.utsman.composeremote
 
-import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.getValue
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 
 class BindsValue {
-    private val _textStates: MutableStateFlow<Map<String, Any>> = MutableStateFlow(emptyMap())
-    val textStates: StateFlow<Map<String, Any>> get() = _textStates
+    private val valueStates: MutableStateFlow<Map<String, Any>> = MutableStateFlow(emptyMap())
 
     fun setValue(
         key: String,
         value: Any,
     ) {
-        val currentMap = textStates.value.toMutableMap()
+        val currentMap = valueStates.value.toMutableMap()
         currentMap[key] = value
-        _textStates.value = currentMap
+        valueStates.value = currentMap
     }
 
-    companion object {
-        fun get(
-            component: LayoutComponent.Text,
-            states: Map<String, Any>,
-        ): String? {
-            val text =
-                if (component.content.startsWith("{") && component.content.endsWith("}")) {
-                    val key = component.content.replace("{", "").replace("}", "")
-                    val value = states[key]
-                    value?.toString()
-                } else {
-                    component.content
-                }
-            return text
+    @Composable
+    fun <T> getValue(
+        component: LayoutComponent,
+        key: String = "",
+    ): T? {
+        val states by valueStates.collectAsState()
+        return when (component) {
+            is LayoutComponent.Text -> {
+                get(component.content, states) as? T
+            }
+            is LayoutComponent.Button -> {
+                get(component.content, states) as? T
+            }
+            is LayoutComponent.Custom -> {
+                if (key.isEmpty()) return null
+                get(key, states) as? T
+            }
+            else -> {
+                null
+            }
         }
+    }
 
-        fun get(
-            component: LayoutComponent.Button,
-            states: Map<String, Any>,
-        ): String? {
-            if (component.content == null) return null
+    operator fun plus(other: BindsValue): BindsValue {
+        val currentMap = valueStates.value.toMutableMap()
+        val otherMap = other.valueStates.value
+        valueStates.value = currentMap + otherMap
+        return this
+    }
 
-            val text =
-                if (component.content.startsWith("{") && component.content.endsWith("}")) {
-                    val key = component.content.replace("{", "").replace("}", "")
-                    val value = states[key]
-                    value?.toString()
-                } else {
-                    component.content
-                }
-            return text
-        }
+    private fun get(
+        rawKey: String? = "",
+        states: Map<String, Any>,
+    ): String? {
+        if (rawKey == null) return null
+
+        val value =
+            if (rawKey.startsWith("{") && rawKey.endsWith("}")) {
+                val key = rawKey.replace("{", "").replace("}", "")
+                val value = states[key]
+                value?.toString()
+            } else {
+                rawKey
+            }
+        return value
     }
 }
 
-val LocalBindsValue = staticCompositionLocalOf<BindsValue> { error("No BindsValue provided") }
+val LocalBindsValue = compositionLocalOf { BindsValue() }
