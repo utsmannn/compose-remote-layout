@@ -154,18 +154,18 @@ The library supports extensive modifiers through JSON:
 
 ```json
 "modifier": {
-   "base": {
-   "width": 200,
-   "height": 100,
-   "padding": {
-      "all": 16
-   },
-   "background": {
-      "color": "#FF0000",
-      "shape": "roundedcorner",
-      "radius": 8
-      }
-   }
+"base": {
+"width": 200,
+"height": 100,
+"padding": {
+"all": 16
+},
+"background": {
+"color": "#FF0000",
+"shape": "roundedcorner",
+"radius": 8
+}
+}
 }
 ```
 
@@ -198,208 +198,330 @@ Different components support specific modifiers:
 }
 ```
 
-## 5. How It Works
+# 5. How It Works
 
-The library uses several key architectural approaches to enable dynamic UI rendering:
+The library operates through several interconnected systems that handle JSON parsing, component
+rendering, and state management. Let's explore how each part works.
 
-### 5.1 Component System
+## 5.1 Core Flow
 
-The component system is built on a sealed class hierarchy:
+The basic flow of the library follows this sequence:
+
+```mermaid
+sequenceDiagram
+    participant App
+    participant LayoutParser
+    participant DynamicLayout
+    participant Components
+    participant BindsValue
+    
+    App->>LayoutParser: parseLayoutJson(jsonString)
+    activate LayoutParser
+    LayoutParser-->>App: LayoutComponent
+    deactivate LayoutParser
+    
+    App->>DynamicLayout: DynamicLayout(component)
+    activate DynamicLayout
+    DynamicLayout->>Components: Render UI Elements
+    Components->>BindsValue: Check Dynamic Values
+    BindsValue-->>Components: Current Values
+    Components-->>DynamicLayout: Rendered UI
+    deactivate DynamicLayout
+```
+
+Implementation example:
 
 ```kotlin
-sealed class LayoutComponent {
-    abstract val modifier: LayoutModifier?
+@Composable
+fun MyScreen() {
+    val jsonLayout = """
+    {
+      "column": {
+        "children": [
+          {
+            "text": {
+              "content": "Hello World"
+            }
+          }
+        ]
+      }
+    }
+    """
 
-    data class Column(...)
-    data class Row(...)
-    data class Box(...)
-    data class Text(...)
-    data class Button(...)
-    data class Card(...)
-    data class Custom(...)
+    val component = LayoutParser.parseLayoutJson(jsonLayout)
+    DynamicLayout(component = component)
 }
 ```
 
-Components are wrapped in a `ComponentWrapper` class that helps with type safety and component
-identification:
+## 5.2 JSON Parsing and Component Creation
 
-```kotlin
-data class ComponentWrapper(
-    val column: LayoutComponent.Column? = null,
-    val row: LayoutComponent.Row? = null,
-    // other components...
-)
+Here's how the library processes JSON into UI components:
+
+```mermaid
+sequenceDiagram
+participant Client
+participant Parser
+participant ComponentBuilder
+participant CustomNodes
+
+    Client->>Parser: JSON String
+    activate Parser
+    Parser->>Parser: Validate JSON
+    Parser->>ComponentBuilder: Build Components
+    ComponentBuilder->>CustomNodes: Check Custom Components
+    CustomNodes-->>ComponentBuilder: Component Definitions
+    ComponentBuilder-->>Parser: Component Tree
+    Parser-->>Client: LayoutComponent
+    deactivate Parser
 ```
 
-### 5.2 JSON Parsing Architecture
-
-The JSON parsing process follows these steps:
-
-1. **Initial Parsing**: Uses kotlinx.serialization to parse JSON string
-2. **Modifier Order Extraction**: Analyzes JSON structure to maintain consistent modifier ordering
-3. **Component Type Detection**: Identifies component types and creates appropriate wrappers
-4. **Custom Component Handling**: Checks for registered custom components
-5. **Validation**: Ensures required fields are present
-
-Key parsing code:
+Example of handling parsed layouts:
 
 ```kotlin
-object LayoutParser {
-    private val json = Json {
-        ignoreUnknownKeys = true
-        isLenient = true
-        coerceInputValues = true
-        encodeDefaults = false
+@Composable
+fun LayoutScreen() {
+    var layout by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        layout = fetchLayoutFromServer()
     }
 
-    fun parseLayoutJson(jsonString: String): LayoutComponent? {
-        val jsonElement = json.parseToJsonElement(jsonString)
-        val modifierOrder = extractModifierOrder(jsonElement)
-        ModifierOrderTracker.setCurrentOrder(modifierOrder)
-        return parseComponentWrapper(jsonElement).component
+    val component = remember(layout) {
+        LayoutParser.parseLayoutJson(layout)
+    }
+
+    DynamicLayout(component = component)
+}
+```
+
+## 5.3 Value Binding System
+
+The value binding system manages dynamic content updates:
+
+```mermaid
+
+sequenceDiagram
+participant App
+participant BindsValue
+participant DynamicLayout
+participant Component
+
+    App->>BindsValue: setValue("counter", 1)
+    activate BindsValue
+    BindsValue->>BindsValue: Update State
+    deactivate BindsValue
+    
+    DynamicLayout->>Component: Render
+    Component->>BindsValue: Get Value
+    BindsValue-->>Component: Current Value
+    Component->>Component: Update UI
+```
+
+Implementation example:
+
+```kotlin
+@Composable
+fun CounterExample() {
+    val bindsValue = remember { BindsValue() }
+    var counter by remember { mutableStateOf(0) }
+
+    LaunchedEffect(counter) {
+        bindsValue.setValue("counter", counter)
+    }
+
+    Column {
+        DynamicLayout(
+            component = LayoutParser.parseLayoutJson(
+                """
+            {
+              "text": {
+                "content": "{counter}"
+              }
+            }
+            """
+            ),
+            bindValue = bindsValue
+        )
+
+        Button(onClick = { counter++ }) {
+            Text("Increment")
+        }
     }
 }
 ```
 
-### 5.3 Modifier System
+## 5.4 Custom Component Registration
 
-The modifier system uses a hierarchical approach:
+The process for registering and using custom components:
 
-1. **Base Modifiers**: Universal properties applicable to all components
-   ```kotlin
-   data class BaseModifier(
-       val width: Int?,
-       val height: Int?,
-       val padding: PaddingValues?,
-       // other universal properties...
-   )
-   ```
+```mermaid
+sequenceDiagram
+participant App
+participant CustomNodes
+participant DynamicLayout
+participant Component
 
-2. **Scoped Modifiers**: Component-specific properties
-   ```kotlin
-   sealed class ScopedModifier {
-       abstract val base: BaseModifier
-       
-       data class Column(
-           override val base: BaseModifier,
-           val verticalArrangement: String?,
-           val horizontalAlignment: String?
-       ) : ScopedModifier()
-       // other scoped modifiers...
-   }
-   ```
+    App->>CustomNodes: register("banner", composable)
+    App->>DynamicLayout: JSON with "banner"
+    DynamicLayout->>CustomNodes: get("banner")
+    CustomNodes-->>DynamicLayout: Composable
+    DynamicLayout->>Component: Render Custom Component
+```
 
-3. **Modifier Application**: Modifiers are applied in a specific order tracked by
-   `ModifierOrderTracker`
+Example implementation:
 
-### 5.4 Dynamic Layout Rendering
+```kotlin
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-The rendering process involves several key components:
+        // Register custom component
+        CustomNodes.register("banner") { param ->
+            Column(modifier = param.modifier) {
+                Text(param.data["title"] ?: "")
+                Text(param.data["message"] ?: "")
+            }
+        }
 
-1. **DynamicLayout Composable**:
-   ```kotlin
-   @Composable
-   fun DynamicLayout(
-       component: LayoutComponent?,
-       modifier: Modifier = Modifier,
-       path: String = "root",
-       parentScrollable: Boolean = false,
-       bindValue: BindsValue = BindsValue(),
-       onClickHandler: (String) -> Unit = {}
-   )
-   ```
+        setContent {
+            // Use custom component
+            DynamicLayout(
+                component = LayoutParser.parseLayoutJson(
+                    """
+                {
+                  "banner": {
+                    "data": {
+                      "title": "Welcome",
+                      "message": "Hello!"
+                    }
+                  }
+                }
+                """
+                )
+            )
+        }
+    }
+}
+```
 
-2. **Component Caching**: Uses `DynamicLayoutRenderer` to cache and reuse components
-   ```kotlin
-   object DynamicLayoutRenderer {
-       private val componentCache = mutableMapOf<String, LayoutComponent>()
-       
-       fun saveComponent(path: String, component: LayoutComponent)
-       fun getLastValidComponent(path: String): LayoutComponent?
-       fun clearCache()
-   }
-   ```
+## 5.5 Event Handling Flow
 
-3. **Path-based Rendering**: Uses string paths to track component hierarchy
-   ```text
-   root-column-0-button-1
-   ```
+The event system handles user interactions:
 
-### 5.5 Value Binding System
+```mermaid
+sequenceDiagram
+participant User
+participant Component
+participant DynamicLayout
+participant App
 
-The value binding system enables dynamic updates:
+    User->>Component: Click
+    Component->>DynamicLayout: clickId
+    DynamicLayout->>App: onClickHandler
+    App->>App: Handle Event
+```
 
-1. **State Management**:
-   ```kotlin
-   class BindsValue {
-       private val _textStates: MutableStateFlow<Map<String, Any>>
-       val textStates: StateFlow<Map<String, Any>>
-   }
-   ```
+Implementation example:
 
-2. **Template Processing**:
-   ```kotlin
-   companion object {
-       fun get(component: LayoutComponent.Text, states: Map<String, Any>): String? {
-           if (component.content.startsWith("{") && component.content.endsWith("}")) {
-               val key = component.content.replace("{", "").replace("}", "")
-               return states[key]?.toString()
-           }
-           return component.content
-       }
-   }
-   ```
+```kotlin
+@Composable
+fun ButtonExample() {
+    DynamicLayout(
+        component = LayoutParser.parseLayoutJson(
+            """
+        {
+          "button": {
+            "content": "Click Me",
+            "clickId": "main_button"
+          }
+        }
+        """
+        ),
+        onClickHandler = { clickId ->
+            when (clickId) {
+                "main_button" -> {
+                    // Handle click
+                }
+            }
+        }
+    )
+}
+```
 
-### 5.6 Custom Component Integration
+## 5.6 Layout Updates and Caching
 
-Custom components are managed through a registry system:
+Updates and caching flow:
 
-1. **Registration**:
-   ```kotlin
-   object CustomNodes {
-       private val nodes = mutableMapOf<String, @Composable (NodeParam) -> Unit>()
-       
-       fun register(type: String, node: @Composable (NodeParam) -> Unit)
-   }
-   ```
+```mermaid
+sequenceDiagram
+participant App
+participant DynamicLayout
+participant Cache
+participant Components
 
-2. **Parameter Handling**:
-   ```kotlin
-   data class NodeParam(
-       val data: Map<String, String>,
-       val modifier: Modifier,
-       val children: List<ComponentWrapper>?,
-       val path: String
-   )
-   ```
+    App->>DynamicLayout: New Layout
+    DynamicLayout->>Cache: Save Component
+    DynamicLayout->>Components: Update UI
+    Components->>Cache: Get Cached Values
+    Cache-->>Components: Cached Components
+    Components-->>DynamicLayout: Updated UI
+```
 
-### 5.7 Event Handling
+Example with remote updates:
 
-The library handles events through:
+```kotlin
+@Composable
+fun DynamicUpdates() {
+    var layout by remember { mutableStateOf("") }
 
-1. **Click Handlers**: Passed through DynamicLayout
-2. **Scrolling State**: Managed per-component with scrollable flag
-3. **Parent-Child Communication**: Through path-based component tracking
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(5000)
+            layout = fetchNewLayout()
+        }
+    }
 
-All these systems work together to provide a flexible and maintainable dynamic UI system while
-maintaining type safety and performance.
+    DynamicLayout(
+        component = LayoutParser.parseLayoutJson(layout)
+    )
+}
+```
 
 ## 6. Sample Projects
 
 ### Firebase Remote Config Integration
 
-The repository includes a [Firebase sample project](samples/firebaseApp) demonstrating:
+The repository includes a Firebase sample project demonstrating:
 
 1. **Remote Config Setup**: Integration with Firebase Remote Config
 2. **Real-time Updates**: Layout updates without app deployment
 3. **Cross-platform Support**: Implementation for Android and iOS
 4. **Error Handling**: Fallback mechanisms and error states
 
+Key implementation points:
+
+```kotlin
+// iOS implementation
+LaunchedEffect(Unit) {
+    FIRApp.configure()
+    val remoteConfig = FIRRemoteConfig.remoteConfig()
+    remoteConfig.configSettings = FIRRemoteConfigSettings().also {
+        it.minimumFetchInterval = 1.0
+    }
+
+    remoteConfig.addOnConfigUpdateListener { configUpdate, error ->
+        if (configUpdate != null) {
+            remoteConfig.fetchAndActivate()
+        }
+    }
+}
+```
+
 ## 7. JSON Builder Guide
 
 ### 7.1 Using jsonBuilderWeb Module
 
-The [jsonBuilderWeb](jsonBuilderWeb) module provides a web interface for:
+The jsonBuilderWeb module provides a web interface for:
 
 - Creating and editing layouts
 - Real-time preview of changes
@@ -414,18 +536,12 @@ To run the JSON builder:
 
 ### 7.2 Firebase Remote Config Integration
 
-The [`remote-config-server`](jsonBuilderWeb/remote-config-server) in the jsonBuilderWeb module provides:
+The `remote-config-server` in the jsonBuilderWeb module provides:
 
 - Local development server for testing
 - Firebase Remote Config simulation
 - API endpoints for layout updates
 - Configuration management interface
-
-To run the remote config server:
-
-```shell
-npm run start
-```
 
 ## 8. Potential Use Cases
 
