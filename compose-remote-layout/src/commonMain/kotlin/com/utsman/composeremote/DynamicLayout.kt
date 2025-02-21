@@ -17,9 +17,13 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.utsman.composeremote.LayoutParser.parseLayoutJson
 
 val defaultComponent =
     ComponentWrapper(
@@ -394,7 +398,6 @@ private fun RenderCustomNode(
     path: String,
     parentScrollable: Boolean,
     onClickHandler: (String) -> Unit,
-//    bindsValue: BindsValue,
 ) {
     val bindsValue = LocalBindsValue.current
     CustomNodes.get(component.type)?.let { renderer ->
@@ -414,4 +417,10 @@ private fun RenderCustomNode(
             ),
         )
     }
+}
+
+@Composable
+fun createLayoutComponent(textJson: String): LayoutComponent? {
+    val layoutNode by remember(textJson) { derivedStateOf { parseLayoutJson(textJson) } }
+    return layoutNode
 }
