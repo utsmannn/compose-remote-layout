@@ -54,14 +54,14 @@ Add the dependencies to your `build.gradle.kts`:
 
 ```kotlin
 // Kotlin Multiplatform
-implementation("io.github.utsmannn:compose-remote-layout:0.0.1-alpha02")
+implementation("io.github.utsmannn:compose-remote-layout:{version}")
 
 // Choose platform-specific implementations as needed:
-implementation("io.github.utsmannn:compose-remote-layout-android:0.0.1-alpha02")
-implementation("io.github.utsmannn:compose-remote-layout-jvm:0.0.1-alpha02")
-implementation("io.github.utsmannn:compose-remote-layout-iosx64:0.0.1-alpha02")
-implementation("io.github.utsmannn:compose-remote-layout-iosarm64:0.0.1-alpha02")
-implementation("io.github.utsmannn:compose-remote-layout-js:0.0.1-alpha02")
+implementation("io.github.utsmannn:compose-remote-layout-android:{version}")
+implementation("io.github.utsmannn:compose-remote-layout-jvm:{version}")
+implementation("io.github.utsmannn:compose-remote-layout-iosx64:{version}")
+implementation("io.github.utsmannn:compose-remote-layout-iosarm64:{version}")
+implementation("io.github.utsmannn:compose-remote-layout-js:{version}")
 ```
 
 ## 4. Usage Guide
@@ -556,7 +556,7 @@ This library can handle various scenarios:
 
 ⚠️ **Early Development Stage**
 
-This library is currently in alpha stage (version 0.0.1-alpha02) and has several important
+This library is currently in alpha stage (version {version}) and has several important
 considerations:
 
 1. **Production Use**: Not recommended for production applications at this time

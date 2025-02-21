@@ -54,14 +54,10 @@ class BindsValue {
     ): Any? {
         if (rawKey == null) return null
 
-        val value =
-            if (rawKey.startsWith("{") && rawKey.endsWith("}")) {
-                val key = rawKey.replace("{", "").replace("}", "")
-                val value = states[key]
-                value?.toString()
-            } else {
-                rawKey
-            }
+        val value = rawKey.replace(Regex("\\{(.*?)\\}")) { matchResult ->
+            val key = matchResult.groupValues[1]
+            states[key]?.toString() ?: matchResult.value
+        }
         return value
     }
 }

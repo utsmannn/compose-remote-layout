@@ -6,7 +6,7 @@
     <application
             android:icon="@android:mipmap/sym_def_app_icon"
             android:label="sample"
-            android:theme="@android:style/Theme.Material.NoActionBar">
+            android:theme="@android:style/Theme.Material.Light.NoActionBar.TranslucentDecor">
         <activity
             android:name="sample.app.AppActivity"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
