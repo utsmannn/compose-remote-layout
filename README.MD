@@ -1,6 +1,13 @@
-# Compose Remote Layout
+<p>
+  <a href="https://central.sonatype.com/artifact/io.github.utsmannn/compose-remote-layout/overview"><img alt="Maven Central Version" src="https://img.shields.io/maven-central/v/io.github.utsmannn/compose-remote-layout"></a>
+  <a href="https://github.com/utsmannn/compose-remote-layout/actions/workflows/publish.yaml"><img alt="Publish to Maven Central" src="https://github.com/utsmannn/compose-remote-layout/actions/workflows/publish.yaml/badge.svg"></a>
+</p>
 
-## 1. Background and Motivation
+
+# Compose Remote Layout
+Article published on [Medium](https://medium.com/@utsmannn/server-driven-ui-with-compose-remote-layout-bdc902d973f8)
+
+## Background and Motivation
 
 In modern app development, the ability to update UI components without deploying new app versions is
 increasingly important. While solutions like React Native and Flutter offer this capability, they
@@ -15,7 +22,7 @@ This library was created to solve several key challenges:
 - Platform-specific UI customization from a central source
 - Real-time UI updates for critical changes
 
-## 2. Key Features
+## Key Features
 
 The compose-remote-layout module provides several core features:
 
@@ -48,7 +55,7 @@ The compose-remote-layout module provides several core features:
 
 https://github.com/user-attachments/assets/6479f0c1-338e-4d1e-90e9-25c2ebf72395
 
-## 3. Download
+## Download
 
 Add the dependencies to your `build.gradle.kts`:
 
@@ -64,9 +71,9 @@ implementation("io.github.utsmannn:compose-remote-layout-iosarm64:{version}")
 implementation("io.github.utsmannn:compose-remote-layout-js:{version}")
 ```
 
-## 4. Usage Guide
+## Usage Guide
 
-### 4.1 Default Usage
+### Default Usage
 
 Basic implementation using built-in components:
 
@@ -108,7 +115,7 @@ Example JSON layout:
 }
 ```
 
-### 4.2 Custom Node Registration
+### Custom Node Registration
 
 Create and register custom components:
 
@@ -148,7 +155,7 @@ Use in JSON:
 }
 ```
 
-### 4.3 Modifier System
+### Modifier System
 
 The library supports extensive modifiers through JSON:
 
@@ -169,7 +176,7 @@ The library supports extensive modifiers through JSON:
 }
 ```
 
-### 4.4 Scoped Modifiers
+### Scoped Modifiers
 
 Different components support specific modifiers:
 
@@ -198,12 +205,12 @@ Different components support specific modifiers:
 }
 ```
 
-# 5. How It Works
+# How It Works
 
 The library operates through several interconnected systems that handle JSON parsing, component
 rendering, and state management. Let's explore how each part works.
 
-## 5.1 Core Flow
+## Core Flow
 
 The basic flow of the library follows this sequence:
 
@@ -253,7 +260,7 @@ fun MyScreen() {
 }
 ```
 
-## 5.2 JSON Parsing and Component Creation
+## JSON Parsing and Component Creation
 
 Here's how the library processes JSON into UI components:
 
@@ -291,7 +298,7 @@ fun LayoutScreen() {
 }
 ```
 
-## 5.3 Value Binding System
+## Value Binding System
 
 The value binding system manages dynamic content updates:
 
@@ -347,7 +354,7 @@ fun CounterExample() {
 }
 ```
 
-## 5.4 Custom Component Registration
+## Custom Component Registration
 
 The process for registering and using custom components:
 
@@ -401,7 +408,7 @@ class MainActivity : ComponentActivity() {
 }
 ```
 
-## 5.5 Event Handling Flow
+## Event Handling Flow
 
 The event system handles user interactions:
 
@@ -445,7 +452,7 @@ fun ButtonExample() {
 }
 ```
 
-## 5.6 Layout Updates and Caching
+## Layout Updates and Caching
 
 Updates and caching flow:
 
@@ -484,7 +491,7 @@ fun DynamicUpdates() {
 }
 ```
 
-## 6. Sample Projects
+## Sample Projects
 
 ### Firebase Remote Config Integration
 
@@ -494,9 +501,9 @@ The repository includes a [Firebase sample](samples/firebaseApp) project demonst
 2. **Real-time Updates**: Layout updates without app deployment
 3. **Cross-platform Support**: Implementation for Android and iOS
 
-## 7. JSON Builder Module
+## JSON Builder Module
 
-### 7.1 Using jsonBuilderWeb Module
+### Using jsonBuilderWeb Module
 
 ![json_builder.png](images/json_builder.png)
 
@@ -528,7 +535,7 @@ To run the remote config server:
 npm run start
 ```
 
-## 8. Potential Use Cases
+## Potential Use Cases
 
 This library can handle various scenarios:
 
@@ -552,7 +559,7 @@ This library can handle various scenarios:
     - New feature rollouts
     - Experimental features
 
-## 9. Important Disclaimer
+## Important Disclaimer
 
 ⚠️ **Early Development Stage**
 
