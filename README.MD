@@ -154,18 +154,18 @@ The library supports extensive modifiers through JSON:
 
 ```json
 "modifier": {
-"base": {
-"width": 200,
-"height": 100,
-"padding": {
-"all": 16
-},
-"background": {
-"color": "#FF0000",
-"shape": "roundedcorner",
-"radius": 8
-}
-}
+   "base": {
+      "width": 200,
+      "height": 100,
+      "padding": {
+      "all": 16
+   },
+   "background": {
+         "color": "#FF0000",
+         "shape": "roundedcorner",
+         "radius": 8
+      }
+   }
 }
 ```
 
@@ -491,42 +491,22 @@ fun DynamicUpdates() {
 
 ### Firebase Remote Config Integration
 
-The repository includes a Firebase sample project demonstrating:
+The repository includes a [Firebase sample](samples/firebaseApp) project demonstrating:
 
 1. **Remote Config Setup**: Integration with Firebase Remote Config
 2. **Real-time Updates**: Layout updates without app deployment
 3. **Cross-platform Support**: Implementation for Android and iOS
-4. **Error Handling**: Fallback mechanisms and error states
 
-Key implementation points:
-
-```kotlin
-// iOS implementation
-LaunchedEffect(Unit) {
-    FIRApp.configure()
-    val remoteConfig = FIRRemoteConfig.remoteConfig()
-    remoteConfig.configSettings = FIRRemoteConfigSettings().also {
-        it.minimumFetchInterval = 1.0
-    }
-
-    remoteConfig.addOnConfigUpdateListener { configUpdate, error ->
-        if (configUpdate != null) {
-            remoteConfig.fetchAndActivate()
-        }
-    }
-}
-```
-
-## 7. JSON Builder Guide
+## 7. JSON Builder Module
 
 ### 7.1 Using jsonBuilderWeb Module
 
-The jsonBuilderWeb module provides a web interface for:
+The [`jsonBuilderWeb`](jsonBuilderWeb) module provides a web interface for:
 
 - Creating and editing layouts
 - Real-time preview of changes
 - Schema validation
-- Remote config integration
+- Url push config integration
 
 To run the JSON builder:
 
@@ -536,12 +516,18 @@ To run the JSON builder:
 
 ### 7.2 Firebase Remote Config Integration
 
-The `remote-config-server` in the jsonBuilderWeb module provides:
+The [`remote-config-server`](jsonBuilderWeb/remote-config-server) in the `jsonBuilderWeb` module provides:
 
 - Local development server for testing
 - Firebase Remote Config simulation
 - API endpoints for layout updates
 - Configuration management interface
+
+To run the remote config server:
+
+```shell
+npm run start
+```
 
 ## 8. Potential Use Cases
 
