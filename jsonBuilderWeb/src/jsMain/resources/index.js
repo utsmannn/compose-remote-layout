@@ -244,8 +244,8 @@ require(['vs/editor/editor.main'], async function () {
         var newValue = editor.getValue();
         document.getElementById('text_container').textContent = newValue;
 
-        if (typeof remoteWeb !== 'undefined' && typeof remoteWeb.updateEditorContent === 'function') {
-            remoteWeb.updateEditorContent(newValue);
+        if (typeof jsonBuilderWeb !== 'undefined' && typeof jsonBuilderWeb.updateEditorContent === 'function') {
+            jsonBuilderWeb.updateEditorContent(newValue);
         } else {
             console.log('remoteWeb not loaded yet');
         }

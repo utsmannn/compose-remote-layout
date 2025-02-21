@@ -386,20 +386,22 @@ specific properties.
 
 </details>
 
-## How to Use the `remoteWeb` Module
+## How to Use the `jsonBuilderWeb` Module
 
-1. **Build and Run** <br>Build the `remoteWeb` module using Gradle. This will generate the
-   necessary JavaScript files and prepare the web application for deployment.
+1. **Build and Run** <br>Build and run the `jsonBuilderWeb` with the following command:
 
-2. **Open `index.html` in a Web Browser:** <br>Launch a web browser and open the `index.html` file.
-   This will load the `remoteWeb` interface, featuring the Monaco Editor and the Compose rendering
-   area.
+   ```shell
+   ./gradlew :jsonBuilderWeb:jsBrowserRun
+   ```
 
-3. **Create or Edit JSON Layout Definitions:** <br>Utilize the Monaco Editor to create new JSON
+   This will start a local web server and open the `jsonBuilderWeb` application in your default
+   browser.
+
+2. **Create or Edit JSON Layout Definitions:** <br>Utilize the Monaco Editor to create new JSON
    layout definitions or modify existing ones. The editor's syntax highlighting, autocompletion, and
    validation features will assist you in crafting well-formed and semantically correct JSON.
 
-4. **Visualize Changes in Real-Time:** <br>As you make changes to the JSON within the Monaco Editor,
-   the `remoteWeb` module will automatically transmit those changes to the Compose application. The
+3. **Visualize Changes in Real-Time:** <br>As you make changes to the JSON within the Monaco Editor,
+   the `jsonBuilderWeb` module will automatically transmit those changes to the Compose application. The
    application will then re-render the UI, allowing you to visualize the impact of your
    modifications in real-time.
