@@ -73,12 +73,10 @@ Basic implementation using built-in components:
 ```kotlin
 @Composable
 fun MyScreen(layoutJson: String) {
-    val layoutComponent = remember(layoutJson) {
-        LayoutParser.parseLayoutJson(layoutJson)
-    }
-
+    val component = createLayoutComponent(layoutJson)
+   
     DynamicLayout(
-        component = layoutComponent,
+        component = component,
         onClickHandler = { clickId ->
             // Handle click events
         }
@@ -250,7 +248,7 @@ fun MyScreen() {
     }
     """
 
-    val component = LayoutParser.parseLayoutJson(jsonLayout)
+    val component = createLayoutComponent(jsonLayout)
     DynamicLayout(component = component)
 }
 ```
@@ -288,10 +286,7 @@ fun LayoutScreen() {
         layout = fetchLayoutFromServer()
     }
 
-    val component = remember(layout) {
-        LayoutParser.parseLayoutJson(layout)
-    }
-
+    val component = createLayoutComponent(layout)
     DynamicLayout(component = component)
 }
 ```
@@ -333,7 +328,7 @@ fun CounterExample() {
 
     Column {
         DynamicLayout(
-            component = LayoutParser.parseLayoutJson(
+            component = createLayoutComponent(
                 """
             {
               "text": {
@@ -388,7 +383,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             // Use custom component
             DynamicLayout(
-                component = LayoutParser.parseLayoutJson(
+                component = createLayoutComponent(
                     """
                 {
                   "banner": {
@@ -429,7 +424,7 @@ Implementation example:
 @Composable
 fun ButtonExample() {
     DynamicLayout(
-        component = LayoutParser.parseLayoutJson(
+        component = createLayoutComponent(
             """
         {
           "button": {
@@ -484,7 +479,7 @@ fun DynamicUpdates() {
     }
 
     DynamicLayout(
-        component = LayoutParser.parseLayoutJson(layout)
+        component = createLayoutComponent(layout)
     )
 }
 ```
