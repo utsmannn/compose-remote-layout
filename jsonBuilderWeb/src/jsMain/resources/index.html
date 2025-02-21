@@ -2,7 +2,109 @@
 <html>
 <head>
     <title>JSON builder for Compose Remote Layout</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            gap: 10px;
+            padding: 20px;
+            height: 100vh;
+        }
+
+        .editor-container {
+            position: relative;
+            flex: 2;
+            height: calc(100vh - 40px);
+        }
+
+        #editor {
+            width: 100%;
+            height: 100%;
+            border: 1px solid #ccc;
+        }
+
+        #compose {
+            flex: 1;
+            height: calc(100vh - 40px);
+            border: 1px solid #ccc;
+            background: #f5f5f5;
+        }
+
+        #text_container {
+            display: none;
+        }
+
+        .button-container {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            z-index: 100;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .editor-btn {
+            padding: 6px 12px;
+            background-color: #1e1e1e;
+            color: #ffffff;
+            border: 1px solid #454545;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        .editor-btn:hover {
+            background-color: #2d2d2d;
+            border-color: #666666;
+        }
+
+        .editor-btn.save {
+            background-color: #2c5282;
+        }
+
+        .editor-btn.save:hover {
+            background-color: #2a4365;
+        }
+
+        .status-message {
+            font-size: 12px;
+            color: #e0e0e0;
+            margin-right: 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .status-message.show {
+            opacity: 1;
+        }
+
+        .loading-bar {
+            width: 100px;
+            height: 2px;
+            background-color: #454545;
+            margin-right: 10px;
+            display: none;
+        }
+
+        .loading-bar .progress {
+            width: 0%;
+            height: 100%;
+            background-color: #2c5282;
+            transition: width 0.3s ease;
+        }
+    </style>
     <script type="application/javascript" src="skiko.js"></script>
 </head>
 <body>
@@ -10,54 +112,16 @@
     <div class="editor-container">
         <div id="editor"></div>
         <div class="button-container">
-            <div class="loading-container">
-                <div class="loading-bar">
-                    <div class="loading-progress"></div>
-                </div>
-                <span class="loading-text">Saving...</span>
+            <div id="statusMessage" class="status-message"></div>
+            <div id="loadingBar" class="loading-bar">
+                <div class="progress"></div>
             </div>
             <button id="formatBtn" class="editor-btn">Format JSON</button>
             <button id="saveToRemoteConfig" class="editor-btn save">Save to Remote Config</button>
         </div>
     </div>
     <div id="text_container"></div>
-    <div class="compose-section">
-        <div class="device-selector">
-            <select id="deviceSize">
-                <optgroup label="Large Phones (>400px)">
-                    <option value="428x926">iPhone 13 Pro Max (428x926)</option>
-                    <option value="412x915">Pixel 6 Pro (412x915)</option>
-                    <option value="414x896">iPhone 11 Pro Max (414x896)</option>
-                    <option value="412x892">Samsung S21 Ultra (412x892)</option>
-                </optgroup>
-                <optgroup label="Medium Phones (375-400px)">
-                    <option value="390x844">iPhone 12/13 Pro (390x844)</option>
-                    <option value="393x851">Pixel 5 (393x851)</option>
-                    <option value="384x854">Nokia 8.3 (384x854)</option>
-                    <option value="375x812">iPhone X/XS/11 Pro (375x812)</option>
-                    <option value="375x667">iPhone 6/7/8/SE2 (375x667)</option>
-                </optgroup>
-                <optgroup label="Small Phones (<375px)">
-                    <option value="360x800">Samsung A51/71 (360x800)</option>
-                    <option value="360x780">Samsung Galaxy S8 (360x780)</option>
-                    <option value="360x640">Moto G Power (360x640)</option>
-                    <option value="320x568">iPhone 5/SE1 (320x568)</option>
-                </optgroup>
-                <optgroup label="Custom Sizes">
-                    <option value="300x600">Small Custom (300x600)</option>
-                    <option value="350x700">Medium Custom (350x700)</option>
-                    <option value="450x900">Large Custom (450x900)</option>
-                </optgroup>
-            </select>
-        </div>
-        <div class="device-preview-container">
-            <div id="compose"></div>
-        </div>
-    </div>
-</div>
-
-<div class="notification" id="notification">
-    Configuration saved successfully!
+    <div id="compose"></div>
 </div>
 
 <script type="application/javascript" src="jsonBuilderWeb.js"></script>

@@ -5,45 +5,36 @@ require.config({
 });
 
 require(['vs/editor/editor.main'], async function () {
-    try {
-        const schemaResponse = await fetch('schema.json');
-        if (!schemaResponse.ok) {
-            throw new Error(`HTTP error! status: ${schemaResponse.status}`);
-        }
-        const schemaData = await schemaResponse.json();
+    // Fetch the schema file
+    const schemaResponse = await fetch('schema.json');
+    const customSchema = await schemaResponse.json();
 
-        const customSchema = {
-            uri: "http://remote-web/ui-components",
-            fileMatch: ["*"],
-            schema: schemaData
-        };
+    // Set the schema URI
+    const schemaWithUri = {
+        uri: "http://remote-web/ui-components",
+        fileMatch: ["*"],
+        schema: customSchema
+    };
 
-        // Set the schema in Monaco Editor
-        monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
-            validate: true,
-            schemas: [customSchema],
-            enableSchemaRequest: true
-        });
+    // Set the schema in Monaco Editor
+    monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+        validate: true,
+        schemas: [schemaWithUri],
+        enableSchemaRequest: true
+    });
 
-        // Create editor instance
-        const editor = monaco.editor.create(document.getElementById('editor'), {
-            language: 'json',
-            theme: 'vs-dark',
-            automaticLayout: true,
-            formatOnPaste: true,
-            formatOnType: true,
-            tabSize: 2,
-            minimap: {
-                enabled: true
-            },
-            scrollbar: {
-                vertical: 'visible',
-                horizontal: 'visible'
-            }
-        });
+    // Create editor instance
+    var editor = monaco.editor.create(document.getElementById('editor'), {
+        language: 'json',
+        theme: 'vs-dark',
+        automaticLayout: true,
+        formatOnPaste: true,
+        formatOnType: true,
+        tabSize: 2
+    });
 
-        // Initial JSON content
-        const initialValue = `{
+    // Initial JSON content
+    const initialValue = `{
   "column": {
     "modifier": {
       "base": {
@@ -83,174 +74,78 @@ require(['vs/editor/editor.main'], async function () {
   }
 }`;
 
-        // Device size handling
-        const composeContainer = document.getElementById('compose');
-        const deviceSelector = document.getElementById('deviceSize');
-        const composeSection = document.querySelector('.compose-section');
+    // Set the value after 300ms delay
+    setTimeout(() => {
+        editor.setValue(initialValue);
+    }, 300);
 
-        function updateComposeSize() {
-            try {
-                const [width, height] = deviceSelector.value.split('x').map(Number);
-                const maxScale = 1;
-                const minScale = 0.25;
+    const statusMessage = document.getElementById('statusMessage');
+    const loadingBar = document.getElementById('loadingBar');
+    const progressBar = loadingBar.querySelector('.progress');
 
-                const previewContainer = document.querySelector('.device-preview-container');
-                const availableWidth = previewContainer.clientWidth - 40;
-                const availableHeight = previewContainer.clientHeight - 40;
-
-                // Calculate scale based on both width and height constraints
-                let scale = Math.min(
-                    availableWidth / width,
-                    availableHeight / height,
-                    maxScale
-                );
-
-                scale = Math.max(scale, minScale);
-
-                // Set the actual dimensions
-                composeContainer.style.width = `${width}px`;
-                composeContainer.style.height = `${height}px`;
-
-                // Apply scaling transform
-                composeContainer.style.transform = `scale(${scale})`;
-
-                // Adjust container position to center
-                const scaledWidth = width * scale;
-                const scaledHeight = height * scale;
-
-                composeContainer.style.position = 'absolute';
-                composeContainer.style.left = `${(availableWidth - width * scale) / 2 + 20}px`;
-                composeContainer.style.top = `${(availableHeight - height * scale) / 2 + 20}px`;
-
-                // Update scale indicator
-                let scaleIndicator = document.querySelector('.scale-indicator');
-                if (!scaleIndicator) {
-                    scaleIndicator = document.createElement('div');
-                    scaleIndicator.className = 'scale-indicator';
-                    previewContainer.appendChild(scaleIndicator);
-                }
-                scaleIndicator.textContent = `${Math.round(scale * 100)}%`;
-
-            } catch (error) {
-                console.error('Error updating compose size:', error);
-            }
-        }
-
-        // Add resize observer to handle container size changes
-        const resizeObserver = new ResizeObserver(entries => {
-            updateComposeSize();
-        });
-
-        resizeObserver.observe(composeSection);
-
-        deviceSelector.addEventListener('change', updateComposeSize);
-        updateComposeSize(); // Initial size update
-
-        // Format button handler
-        document.getElementById('formatBtn').addEventListener('click', function() {
-            try {
-                editor.getAction('editor.action.formatDocument').run();
-            } catch (error) {
-                console.error('Format error:', error);
-                alert('Invalid JSON: ' + error.message);
-            }
-        });
-
-        // Save to remote config handler
-        document.getElementById('saveToRemoteConfig').addEventListener('click', async function() {
-            const loadingContainer = document.querySelector('.loading-container');
-            const notification = document.getElementById('notification');
-
-            try {
-                loadingContainer.style.display = 'flex';
-                const editorValue = editor.getValue();
-
-                // Validate JSON before sending
-                JSON.parse(editorValue);
-
-                const response = await fetch('http://localhost:3000/parameter?key=layout', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: editorValue
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                // Show success notification
-                notification.style.display = 'block';
-                setTimeout(() => {
-                    notification.style.display = 'none';
-                }, 3000);
-
-            } catch (error) {
-                console.error('Save error:', error);
-                alert('Error saving to Remote Config: ' + error.message);
-            } finally {
-                loadingContainer.style.display = 'none';
-            }
-        });
-
+    function showStatus(message, isError = false) {
+        statusMessage.textContent = message;
+        statusMessage.style.color = isError ? '#ff4444' : '#e0e0e0';
+        statusMessage.classList.add('show');
         setTimeout(() => {
-            // Set initial value
-            editor.setValue(initialValue);
-            editor.getAction('editor.action.formatDocument').run();
-        }, 600);
-
-        // Editor change event handler
-        let updateTimeout;
-        editor.onDidChangeModelContent(function(e) {
-            try {
-                const newValue = editor.getValue();
-                document.getElementById('text_container').textContent = newValue;
-
-                // Debounce the update to prevent too frequent calls
-                if (updateTimeout) {
-                    clearTimeout(updateTimeout);
-                }
-
-                updateTimeout = setTimeout(() => {
-                    if (typeof jsonBuilderWeb !== 'undefined' &&
-                        typeof jsonBuilderWeb.updateEditorContent === 'function') {
-                        try {
-                            const parsedValue = JSON.parse(newValue);
-                            jsonBuilderWeb.updateEditorContent(newValue);
-                        } catch (parseError) {
-                            console.warn('Invalid JSON:', parseError);
-                        }
-                    } else {
-                        console.warn('jsonBuilderWeb not loaded yet');
-                    }
-                }, 300);
-
-            } catch (error) {
-                console.error('Update error:', error);
-            }
-        });
-
-        // Keyboard shortcuts
-        editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, function() {
-            document.getElementById('saveToRemoteConfig').click();
-        });
-
-        editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyF, function() {
-            document.getElementById('formatBtn').click();
-        });
-
-        // Clean up
-        window.addEventListener('beforeunload', () => {
-            resizeObserver.disconnect();
-            if (updateTimeout) {
-                clearTimeout(updateTimeout);
-            }
-            editor.dispose();
-        });
-
-    } catch (error) {
-        console.error('Initialization error:', error);
-        alert('Failed to initialize the editor. Please check the console for details.');
+            statusMessage.classList.remove('show');
+        }, 3000);
     }
+
+    document.getElementById('formatBtn').addEventListener('click', function() {
+        try {
+            editor.getAction('editor.action.formatDocument').run();
+            showStatus('JSON formatted successfully');
+        } catch (error) {
+            showStatus('Invalid JSON: ' + error.message, true);
+        }
+    });
+
+    document.getElementById('saveToRemoteConfig').addEventListener('click', async function() {
+        try {
+            const editorValue = editor.getValue();
+
+            // Show loading bar
+            loadingBar.style.display = 'block';
+            progressBar.style.width = '30%';
+
+            const response = await fetch('http://localhost:3000/parameter?key=layout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: editorValue
+            });
+
+            progressBar.style.width = '100%';
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            showStatus('Successfully saved to Remote Config');
+
+            // Hide loading bar after animation
+            setTimeout(() => {
+                loadingBar.style.display = 'none';
+                progressBar.style.width = '0%';
+            }, 500);
+        } catch (error) {
+            showStatus('Error saving to Remote Config: ' + error.message, true);
+            loadingBar.style.display = 'none';
+            progressBar.style.width = '0%';
+        }
+    });
+
+    // Change event handler
+    editor.onDidChangeModelContent(function(e) {
+        var newValue = editor.getValue();
+        document.getElementById('text_container').textContent = newValue;
+
+        if (typeof jsonBuilderWeb !== 'undefined' && typeof jsonBuilderWeb.updateEditorContent === 'function') {
+            jsonBuilderWeb.updateEditorContent(newValue);
+        } else {
+            console.log('remoteWeb not loaded yet');
+        }
+    });
 });
