@@ -51,7 +51,7 @@ class BindsValue {
     private fun get(
         rawKey: String? = "",
         states: Map<String, Any>,
-    ): String? {
+    ): Any? {
         if (rawKey == null) return null
 
         val value =
