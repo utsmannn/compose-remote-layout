@@ -1,5 +1,10 @@
 package com.utsman.composeremote
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import com.utsman.composeremote.LayoutParser.parseLayoutJson
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.json.Json
@@ -9,6 +14,12 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+
+@Composable
+fun createLayoutComponent(textJson: String): LayoutComponent? {
+    val layoutNode by remember(textJson) { derivedStateOf { parseLayoutJson(textJson) } }
+    return layoutNode
+}
 
 @OptIn(ExperimentalSerializationApi::class)
 object LayoutParser {
@@ -75,6 +86,7 @@ object LayoutParser {
                     ),
                 )
             }
+
             "row" -> {
                 val (children, modifier) = getChildrenModifier(content)
                 ComponentWrapper(
@@ -84,6 +96,7 @@ object LayoutParser {
                     ),
                 )
             }
+
             "box" -> {
                 val (children, modifier) = getChildrenModifier(content)
                 ComponentWrapper(
@@ -93,6 +106,7 @@ object LayoutParser {
                     ),
                 )
             }
+
             "text" -> ComponentWrapper(text = json.decodeFromJsonElement(content))
             "button" -> ComponentWrapper(button = json.decodeFromJsonElement(content))
             "card" -> {
@@ -104,6 +118,7 @@ object LayoutParser {
                     ),
                 )
             }
+
             else -> ComponentWrapper(column = LayoutComponent.Column()) // handle empty when type not found
         }
     }
@@ -137,6 +152,7 @@ object LayoutParser {
                     }
                     element.jsonObject.values.forEach { traverse(it) }
                 }
+
                 is JsonArray -> element.forEach { traverse(it) }
                 else -> {}
             }

@@ -3,7 +3,6 @@
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -12,7 +11,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
 import com.utsman.composeremote.BindsValue
 import com.utsman.composeremote.DynamicLayout
-import com.utsman.composeremote.LayoutParser.parseLayoutJson
+import com.utsman.composeremote.createLayoutComponent
 import kotlinx.browser.document
 import kotlinx.coroutines.flow.MutableStateFlow
 import shared.compose.Shared
@@ -28,7 +27,6 @@ fun main() {
 
     ComposeViewport(body) {
         val textJson by _textJson.collectAsState()
-        val layoutNode by remember { derivedStateOf { parseLayoutJson(textJson) } }
 
         var counter by remember { mutableStateOf(0) }
         val bindsValue = remember { BindsValue() }
@@ -39,7 +37,7 @@ fun main() {
 
         MaterialTheme {
             DynamicLayout(
-                component = layoutNode,
+                component = createLayoutComponent(textJson),
                 bindValue = bindsValue,
             ) { clickId ->
                 when (clickId) {
