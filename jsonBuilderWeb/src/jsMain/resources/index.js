@@ -5,6 +5,14 @@ require.config({
 });
 
 require(['vs/editor/editor.main'], async function () {
+    // Config state
+    let config = {
+        url: 'http://localhost:3000/parameter?key=layout',
+        headers: [
+            { key: 'Content-Type', value: 'application/json' }
+        ]
+    };
+
     // Fetch the schema file
     const schemaResponse = await fetch('schema.json');
     const customSchema = await schemaResponse.json();
@@ -82,6 +90,7 @@ require(['vs/editor/editor.main'], async function () {
     const statusMessage = document.getElementById('statusMessage');
     const loadingBar = document.getElementById('loadingBar');
     const progressBar = loadingBar.querySelector('.progress');
+    const configDialog = document.getElementById('configDialog');
 
     function showStatus(message, isError = false) {
         statusMessage.textContent = message;
@@ -92,6 +101,65 @@ require(['vs/editor/editor.main'], async function () {
         }, 3000);
     }
 
+    // Config Dialog Functions
+    function openConfigDialog() {
+        const configUrl = document.getElementById('configUrl');
+        const configBody = document.getElementById('configBody');
+        const headersContainer = document.getElementById('headersContainer');
+
+        // Set current values
+        configUrl.value = config.url;
+        configBody.value = editor.getValue();
+
+        // Clear and rebuild headers
+        headersContainer.innerHTML = '';
+        config.headers.forEach(header => {
+            addHeaderRow(header.key, header.value);
+        });
+
+        configDialog.style.display = 'flex';
+    }
+
+    function closeConfigDialog() {
+        configDialog.style.display = 'none';
+    }
+
+    function addHeaderRow(key = '', value = '') {
+        const headersContainer = document.getElementById('headersContainer');
+        const headerRow = document.createElement('div');
+        headerRow.className = 'header-row';
+        headerRow.innerHTML = `
+            <input type="text" class="form-control" placeholder="Key" value="${key}">
+            <input type="text" class="form-control" placeholder="Value" value="${value}">
+            <button class="remove-header-btn">&times;</button>
+        `;
+
+        headerRow.querySelector('.remove-header-btn').addEventListener('click', () => {
+            headerRow.remove();
+        });
+
+        headersContainer.appendChild(headerRow);
+    }
+
+    function saveConfig() {
+        const configUrl = document.getElementById('configUrl');
+        const headersContainer = document.getElementById('headersContainer');
+        const headerRows = headersContainer.querySelectorAll('.header-row');
+
+        config.url = configUrl.value;
+        config.headers = Array.from(headerRows).map(row => {
+            const inputs = row.querySelectorAll('input');
+            return {
+                key: inputs[0].value,
+                value: inputs[1].value
+            };
+        });
+
+        closeConfigDialog();
+        showStatus('Configuration saved');
+    }
+
+    // Event Listeners
     document.getElementById('formatBtn').addEventListener('click', function() {
         try {
             editor.getAction('editor.action.formatDocument').run();
@@ -109,11 +177,14 @@ require(['vs/editor/editor.main'], async function () {
             loadingBar.style.display = 'block';
             progressBar.style.width = '30%';
 
-            const response = await fetch('http://localhost:3000/parameter?key=layout', {
+            const headers = {};
+            config.headers.forEach(header => {
+                headers[header.key] = header.value;
+            });
+
+            const response = await fetch(config.url, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: headers,
                 body: editorValue
             });
 
@@ -137,10 +208,23 @@ require(['vs/editor/editor.main'], async function () {
         }
     });
 
-    // Change event handler
+    // Config button event listeners
+    document.getElementById('configBtn').addEventListener('click', openConfigDialog);
+    document.getElementById('addHeaderBtn').addEventListener('click', () => addHeaderRow());
+    document.querySelector('.dialog-close').addEventListener('click', closeConfigDialog);
+    document.getElementById('cancelConfigBtn').addEventListener('click', closeConfigDialog);
+    document.getElementById('saveConfigBtn').addEventListener('click', saveConfig);
+
+    // Editor change event handler
     editor.onDidChangeModelContent(function(e) {
-        var newValue = editor.getValue();
+        const newValue = editor.getValue();
         document.getElementById('text_container').textContent = newValue;
+
+        // Update config dialog body if it's open
+        const configBody = document.getElementById('configBody');
+        if (configDialog.style.display === 'flex') {
+            configBody.value = newValue;
+        }
 
         if (typeof jsonBuilderWeb !== 'undefined' && typeof jsonBuilderWeb.updateEditorContent === 'function') {
             jsonBuilderWeb.updateEditorContent(newValue);
@@ -148,4 +232,15 @@ require(['vs/editor/editor.main'], async function () {
             console.log('remoteWeb not loaded yet');
         }
     });
+
+    // Close dialog when clicking outside
+    configDialog.addEventListener('click', function(e) {
+        if (e.target === configDialog) {
+            closeConfigDialog();
+        }
+    });
+
+    // Initialize the editor with default config values
+    const configBody = document.getElementById('configBody');
+    configBody.value = initialValue;
 });

@@ -104,6 +104,126 @@
             background-color: #2c5282;
             transition: width 0.3s ease;
         }
+
+        /* Config Dialog Styles */
+        .dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .dialog {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 6px;
+            width: 500px;
+            max-width: 90%;
+            color: #e0e0e0;
+        }
+
+        .dialog-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .dialog-title {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .dialog-close {
+            background: none;
+            border: none;
+            color: #e0e0e0;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .dialog-content {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #e0e0e0;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            background: #2d2d2d;
+            border: 1px solid #454545;
+            border-radius: 3px;
+            color: #e0e0e0;
+            font-family: monospace;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #2c5282;
+        }
+
+        .headers-container {
+            margin-top: 10px;
+        }
+
+        .header-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .header-row input {
+            flex: 1;
+        }
+
+        .add-header-btn {
+            padding: 4px 8px;
+            background: #2c5282;
+            border: none;
+            border-radius: 3px;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .add-header-btn:hover {
+            background: #2a4365;
+        }
+
+        .dialog-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .remove-header-btn {
+            padding: 4px 8px;
+            background: #822c2c;
+            border: none;
+            border-radius: 3px;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .remove-header-btn:hover {
+            background: #652a2a;
+        }
     </style>
     <script type="application/javascript" src="skiko.js"></script>
 </head>
@@ -116,12 +236,48 @@
             <div id="loadingBar" class="loading-bar">
                 <div class="progress"></div>
             </div>
+            <button id="configBtn" class="editor-btn">Config</button>
             <button id="formatBtn" class="editor-btn">Format JSON</button>
             <button id="saveToRemoteConfig" class="editor-btn save">Save to Remote Config</button>
         </div>
     </div>
     <div id="text_container"></div>
     <div id="compose"></div>
+</div>
+
+<!-- Config Dialog -->
+<div id="configDialog" class="dialog-overlay">
+    <div class="dialog">
+        <div class="dialog-header">
+            <h2 class="dialog-title">HTTP Configuration</h2>
+            <button class="dialog-close">&times;</button>
+        </div>
+        <div class="dialog-content">
+            <div class="form-group">
+                <label for="configUrl">URL</label>
+                <input type="text" id="configUrl" class="form-control" placeholder="Enter URL">
+            </div>
+            <div class="form-group">
+                <label>Headers</label>
+                <div id="headersContainer" class="headers-container">
+                    <div class="header-row">
+                        <input type="text" class="form-control" placeholder="Key" value="Content-Type">
+                        <input type="text" class="form-control" placeholder="Value" value="application/json">
+                        <button class="remove-header-btn">&times;</button>
+                    </div>
+                </div>
+                <button id="addHeaderBtn" class="add-header-btn">Add Header</button>
+            </div>
+            <div class="form-group">
+                <label for="configBody">Request Body</label>
+                <textarea id="configBody" class="form-control" rows="4" readonly></textarea>
+            </div>
+        </div>
+        <div class="dialog-footer">
+            <button id="cancelConfigBtn" class="editor-btn">Cancel</button>
+            <button id="saveConfigBtn" class="editor-btn save">Save Configuration</button>
+        </div>
+    </div>
 </div>
 
 <script type="application/javascript" src="jsonBuilderWeb.js"></script>
