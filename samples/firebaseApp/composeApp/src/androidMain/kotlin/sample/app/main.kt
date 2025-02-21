@@ -3,38 +3,62 @@ package sample.app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import com.utsman.composeremote.CustomNodes
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
+import com.google.firebase.remoteconfig.ConfigUpdate
+import com.google.firebase.remoteconfig.ConfigUpdateListener
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigException
+import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
+import com.google.firebase.remoteconfig.remoteConfig
 
 class AppActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
 
-        CustomNodes.register("banner") { param ->
-            Column(
-                modifier = param.modifier,
-            ) {
-                Text(
-                    text = param.data["title"] ?: "unknown",
-                    style = MaterialTheme.typography.h2,
-                )
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    text = param.data["message"] ?: "unknown",
-                )
-            }
+        FirebaseApp.initializeApp(this)
+
+        val remoteConfig: FirebaseRemoteConfig = Firebase.remoteConfig
+        val configSettings = remoteConfigSettings {
+            minimumFetchIntervalInSeconds = 3600
         }
 
+        remoteConfig.setConfigSettingsAsync(configSettings)
+        remoteConfig.setDefaultsAsync(
+            mapOf(remoteConfigKey to jsonDefault),
+        )
+
         setContent {
-            App()
+            var layoutJson by remember { mutableStateOf(jsonDefault) }
+
+            LaunchedEffect(Unit) {
+                remoteConfig.fetchAndActivate().addOnCompleteListener {
+                    remoteConfig.getString(remoteConfigKey).also {
+                        layoutJson = it
+                    }
+                }
+
+                remoteConfig.addOnConfigUpdateListener(object : ConfigUpdateListener {
+                    override fun onUpdate(configUpdate: ConfigUpdate) {
+                        remoteConfig.fetchAndActivate().addOnCompleteListener {
+                            remoteConfig.getString(remoteConfigKey).also {
+                                layoutJson = it
+                            }
+                        }
+                    }
+
+                    override fun onError(error: FirebaseRemoteConfigException) {
+                        error.printStackTrace()
+                    }
+                })
+            }
+
+            App(layoutJson)
         }
     }
 }

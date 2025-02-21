@@ -13,81 +13,38 @@ import cocoapods.FirebaseRemoteConfig.FIRRemoteConfigSettings
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.UIKit.UIViewController
 import sample.app.App
+import sample.app.jsonDefault
+import sample.app.remoteConfigKey
 
 @Suppress("ktlint:standard:function-naming")
-fun MainViewController(): UIViewController {
-    val jsonDefault = """
-{
-  "column": {
-    "modifier": {
-      "base": {
-        "width": 200,
-        "padding": {
-          "all": 16
+fun MainViewController(): UIViewController = ComposeUIViewController {
+    var layoutJson by remember { mutableStateOf(jsonDefault) }
+
+    LaunchedEffect(Unit) {
+        FIRApp.configure()
+        val remoteConfig = FIRRemoteConfig.remoteConfig()
+        remoteConfig.configSettings = FIRRemoteConfigSettings().also {
+            it.minimumFetchInterval = 1.0
         }
-      },
-      "verticalArrangement": "spaceBetween",
-      "horizontalAlignment": "center"
-    },
-    "children": [
-      {
-        "button": {
-          "content": "Click me",
-          "clickId": "button1",
-          "modifier": {
-            "base": {
-              "fillMaxWidth": true
-            }
-          }
+
+        remoteConfig.setDefaults(
+            mapOf(remoteConfigKey to jsonDefault),
+        )
+
+        remoteConfig.configValueForKey(remoteConfigKey).also {
+            layoutJson = it.stringValue
         }
-      },
-      {
-        "text": {
-          "content": "Hello From ios",
-          "modifier": {
-            "base": {
-              "padding": {
-                "top": 8
-              }
-            }
-          }
-        }
-      }
-    ]
-  }
-}
-    """.trimIndent()
 
-    return ComposeUIViewController {
-        var layoutJson by remember { mutableStateOf(jsonDefault) }
-
-        LaunchedEffect(Unit) {
-            FIRApp.configure()
-            val remoteConfig = FIRRemoteConfig.remoteConfig()
-            remoteConfig.configSettings = FIRRemoteConfigSettings().also {
-                it.minimumFetchInterval = 1.0
-            }
-
-            remoteConfig.setDefaults(
-                mapOf("layout" to jsonDefault),
-            )
-
-            remoteConfig.configValueForKey("layout").also {
-                layoutJson = it.stringValue
-            }
-
-            remoteConfig.addOnConfigUpdateListener { configUpdate, nsError ->
-                if (configUpdate != null) {
-                    remoteConfig.fetchAndActivateWithCompletionHandler { firRemoteConfigFetchAndActivateStatus, nsError ->
-                        println("cuaks fetchAndActivate... --> ${nsError?.localizedDescription}")
-                        remoteConfig.configValueForKey("layout").also {
-                            layoutJson = it.stringValue
-                        }
+        remoteConfig.addOnConfigUpdateListener { configUpdate, _ ->
+            if (configUpdate != null) {
+                remoteConfig.fetchAndActivateWithCompletionHandler { _, _ ->
+                    remoteConfig.configValueForKey(remoteConfigKey).also {
+                        layoutJson = it.stringValue
                     }
                 }
             }
         }
-
-        App(layoutJson)
     }
+
+    App(layoutJson)
 }

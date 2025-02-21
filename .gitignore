@@ -16,3 +16,4 @@ Pods/
 *yarn.lock
 /convention-plugins/bin/
 /public.key
+/samples/firebaseApp/composeApp/google-services.json

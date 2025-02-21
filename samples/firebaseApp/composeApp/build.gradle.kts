@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.compose)
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlinCocoapods)
+    id("com.google.gms.google-services")
 }
 
 kotlin {
@@ -71,6 +72,10 @@ kotlin {
 
         androidMain.dependencies {
             implementation(libs.androidx.activityCompose)
+
+            implementation(platform("com.google.firebase:firebase-bom:33.9.0"))
+            implementation("com.google.firebase:firebase-config")
+            implementation("com.google.firebase:firebase-analytics")
         }
 
         jvmMain.dependencies {

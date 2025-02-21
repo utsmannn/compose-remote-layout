@@ -25,7 +25,7 @@ fun App(textJson: String = "{}") {
     Scaffold(
         modifier = Modifier
             .padding(
-                WindowInsets.statusBars.asPaddingValues().calculateTopPadding(),
+                top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding(),
             ),
     ) {
         val layoutNode by remember(textJson) { mutableStateOf(parseLayoutJson(textJson)) }
@@ -35,3 +35,47 @@ fun App(textJson: String = "{}") {
         }
     }
 }
+
+const val remoteConfigKey = "home"
+
+val jsonDefault = """
+{
+  "column": {
+    "modifier": {
+      "base": {
+        "width": 200,
+        "padding": {
+          "all": 16
+        }
+      },
+      "verticalArrangement": "spaceBetween",
+      "horizontalAlignment": "center"
+    },
+    "children": [
+      {
+        "button": {
+          "content": "Click me",
+          "clickId": "button1",
+          "modifier": {
+            "base": {
+              "fillMaxWidth": true
+            }
+          }
+        }
+      },
+      {
+        "text": {
+          "content": "Hello From ios",
+          "modifier": {
+            "base": {
+              "padding": {
+                "top": 8
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}
+""".trimIndent()
