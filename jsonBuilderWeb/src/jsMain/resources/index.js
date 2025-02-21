@@ -7,130 +7,140 @@ require.config({
 require(['vs/editor/editor.main'], async function () {
     // Config state
     let config = {
-        url: 'http://localhost:3000/parameter?key=layout',
-        headers: [
-            { key: 'Content-Type', value: 'application/json' }
-        ]
+        get: {
+            url: 'http://localhost:3000/remote-config/parameter?key=layout',
+            headers: [],
+            mappings: [
+                { path: 'data.layout', operator: 'direct' }
+            ]
+        },
+        post: {
+            url: 'http://localhost:3000/remote-config/parameter?key=layout',
+            headers: [
+                { key: 'Content-Type', value: 'application/json' }
+            ]
+        }
     };
 
-    // Fetch the schema file
-    const schemaResponse = await fetch('schema.json');
-    const customSchema = await schemaResponse.json();
+    // Load schema and create editor
+    const editor = await initializeEditor();
 
-    // Set the schema URI
-    const schemaWithUri = {
-        uri: "http://remote-web/ui-components",
-        fileMatch: ["*"],
-        schema: customSchema
-    };
+    // Initial loading with delay
+    setTimeout(async () => {
+        await loadInitialData();
+    }, 1000);
 
-    // Set the schema in Monaco Editor
-    monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
-        validate: true,
-        schemas: [schemaWithUri],
-        enableSchemaRequest: true
-    });
-
-    // Create editor instance
-    var editor = monaco.editor.create(document.getElementById('editor'), {
-        language: 'json',
-        theme: 'vs-dark',
-        automaticLayout: true,
-        formatOnPaste: true,
-        formatOnType: true,
-        tabSize: 2
-    });
-
-    // Initial JSON content
-    const initialValue = `{
-  "column": {
-    "modifier": {
-      "base": {
-        "width": 200,
-        "padding": {
-          "all": 16
-        }
-      },
-      "verticalArrangement": "spaceBetween",
-      "horizontalAlignment": "center"
-    },
-    "children": [
-      {
-        "button": {
-          "content": "Click me",
-          "clickId": "button1",
-          "modifier": {
-            "base": {
-              "fillMaxWidth": true
-            }
-          }
-        }
-      },
-      {
-        "text": {
-          "content": "Hello World",
-          "modifier": {
-            "base": {
-              "padding": {
-                "top": 8
-              }
-            }
-          }
-        }
-      }
-    ]
-  }
-}`;
-
-    // Set the value after 300ms delay
-    setTimeout(() => {
-        editor.setValue(initialValue);
-    }, 300);
-
+    // DOM Elements
     const statusMessage = document.getElementById('statusMessage');
     const loadingBar = document.getElementById('loadingBar');
     const progressBar = loadingBar.querySelector('.progress');
     const configDialog = document.getElementById('configDialog');
 
-    function showStatus(message, isError = false) {
-        statusMessage.textContent = message;
-        statusMessage.style.color = isError ? '#ff4444' : '#e0e0e0';
-        statusMessage.classList.add('show');
-        setTimeout(() => {
-            statusMessage.classList.remove('show');
-        }, 3000);
+    // Initialize all event listeners
+    initializeEventListeners();
+
+    async function loadInitialData() {
+        try {
+            const success = await initializeGetConfig();
+            if (!success) {
+                // Set default value if initialization fails
+                const defaultValue = {
+                    text: {
+                        content: "Hello from Remote Compose"
+                    }
+                };
+                editor.setValue(JSON.stringify(defaultValue, null, 2));
+                showStatus('Using default configuration', true);
+            }
+        } catch (error) {
+            console.error('Error in loadInitialData:', error);
+            const defaultValue = {
+                text: {
+                    content: "Hello from Remote Compose"
+                }
+            };
+            editor.setValue(JSON.stringify(defaultValue, null, 2));
+            showStatus('Using default configuration', true);
+        }
     }
 
-    // Config Dialog Functions
-    function openConfigDialog() {
-        const configUrl = document.getElementById('configUrl');
-        const configBody = document.getElementById('configBody');
-        const headersContainer = document.getElementById('headersContainer');
+    async function initializeEditor() {
+        // Fetch schema
+        const schemaResponse = await fetch('schema.json');
+        const customSchema = await schemaResponse.json();
 
-        // Set current values
-        configUrl.value = config.url;
-        configBody.value = editor.getValue();
+        // Configure schema
+        const schemaWithUri = {
+            uri: "http://remote-web/ui-components",
+            fileMatch: ["*"],
+            schema: customSchema
+        };
 
-        // Clear and rebuild headers
-        headersContainer.innerHTML = '';
-        config.headers.forEach(header => {
-            addHeaderRow(header.key, header.value);
+        // Set Monaco validation options
+        monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+            validate: true,
+            schemas: [schemaWithUri],
+            enableSchemaRequest: true
         });
 
-        configDialog.style.display = 'flex';
+        // Create editor instance
+        const editor = monaco.editor.create(document.getElementById('editor'), {
+            language: 'json',
+            theme: 'vs-dark',
+            automaticLayout: true,
+            formatOnPaste: true,
+            formatOnType: true,
+            tabSize: 2
+        });
+
+        return editor;
     }
 
-    function closeConfigDialog() {
-        configDialog.style.display = 'none';
+    function initializeEventListeners() {
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+        });
+
+        // Config dialog buttons
+        document.getElementById('configBtn').addEventListener('click', openConfigDialog);
+        document.getElementById('addGetHeaderBtn').addEventListener('click', () => addHeaderRow('get'));
+        document.getElementById('addPostHeaderBtn').addEventListener('click', () => addHeaderRow('post'));
+        document.getElementById('addMappingBtn').addEventListener('click', addMappingRow);
+        document.querySelector('.dialog-close').addEventListener('click', closeConfigDialog);
+        document.getElementById('cancelConfigBtn').addEventListener('click', closeConfigDialog);
+        document.getElementById('saveConfigBtn').addEventListener('click', saveConfig);
+        document.getElementById('testGetConfig').addEventListener('click', initializeGetConfig);
+        document.getElementById('formatBtn').addEventListener('click', formatJson);
+        document.getElementById('saveToRemoteConfig').addEventListener('click', saveToRemoteConfig);
+
+        // Close dialog when clicking outside
+        configDialog.addEventListener('click', (e) => {
+            if (e.target === configDialog) closeConfigDialog();
+        });
+
+        // Editor change handler
+        editor.onDidChangeModelContent((e) => {
+            updateEditorContent(editor.getValue());
+        });
     }
 
-    function addHeaderRow(key = '', value = '') {
-        const headersContainer = document.getElementById('headersContainer');
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.tab === tabId);
+        });
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.toggle('active', content.dataset.tab === tabId);
+        });
+    }
+
+    function addHeaderRow(type) {
+        const container = document.getElementById(`${type}HeadersContainer`);
         const headerRow = document.createElement('div');
         headerRow.className = 'header-row';
         headerRow.innerHTML = `
-            <input type="text" class="form-control" placeholder="Key" value="${key}">
-            <input type="text" class="form-control" placeholder="Value" value="${value}">
+            <input type="text" class="form-control" placeholder="Key">
+            <input type="text" class="form-control" placeholder="Value">
             <button class="remove-header-btn">&times;</button>
         `;
 
@@ -138,51 +148,246 @@ require(['vs/editor/editor.main'], async function () {
             headerRow.remove();
         });
 
-        headersContainer.appendChild(headerRow);
+        container.appendChild(headerRow);
+    }
+
+    function addMappingRow() {
+        const container = document.getElementById('responseMappingContainer');
+        const row = document.createElement('div');
+        row.className = 'mapping-row';
+        row.innerHTML = `
+            <input type="text" class="form-control" placeholder="Response path">
+            <select class="form-control mapping-operator">
+                <option value="direct">Direct</option>
+                <option value="parse">Parse JSON</option>
+                <option value="stringify">Stringify</option>
+            </select>
+            <button class="remove-header-btn">&times;</button>
+        `;
+
+        row.querySelector('.remove-header-btn').addEventListener('click', () => {
+            row.remove();
+        });
+
+        container.appendChild(row);
+    }
+
+    function openConfigDialog() {
+        const getConfigUrl = document.getElementById('getConfigUrl');
+        const postConfigUrl = document.getElementById('postConfigUrl');
+        const configBody = document.getElementById('configBody');
+
+        // Set current values
+        getConfigUrl.value = config.get.url;
+        postConfigUrl.value = config.post.url;
+        configBody.value = editor.getValue();
+
+        // Clear and rebuild headers and mappings
+        rebuildHeadersAndMappings();
+
+        configDialog.style.display = 'flex';
+    }
+
+    function rebuildHeadersAndMappings() {
+        // Rebuild GET headers
+        const getHeadersContainer = document.getElementById('getHeadersContainer');
+        getHeadersContainer.innerHTML = '';
+        config.get.headers.forEach(header => {
+            const row = document.createElement('div');
+            row.className = 'header-row';
+            row.innerHTML = `
+                <input type="text" class="form-control" placeholder="Key" value="${header.key || ''}">
+                <input type="text" class="form-control" placeholder="Value" value="${header.value || ''}">
+                <button class="remove-header-btn">&times;</button>
+            `;
+            row.querySelector('.remove-header-btn').addEventListener('click', () => row.remove());
+            getHeadersContainer.appendChild(row);
+        });
+
+        // Rebuild POST headers
+        const postHeadersContainer = document.getElementById('postHeadersContainer');
+        postHeadersContainer.innerHTML = '';
+        config.post.headers.forEach(header => {
+            const row = document.createElement('div');
+            row.className = 'header-row';
+            row.innerHTML = `
+                <input type="text" class="form-control" placeholder="Key" value="${header.key || ''}">
+                <input type="text" class="form-control" placeholder="Value" value="${header.value || ''}">
+                <button class="remove-header-btn">&times;</button>
+            `;
+            row.querySelector('.remove-header-btn').addEventListener('click', () => row.remove());
+            postHeadersContainer.appendChild(row);
+        });
+
+        // Rebuild mappings
+        const mappingContainer = document.getElementById('responseMappingContainer');
+        mappingContainer.innerHTML = '';
+        config.get.mappings.forEach(mapping => {
+            const row = document.createElement('div');
+            row.className = 'mapping-row';
+            row.innerHTML = `
+                <input type="text" class="form-control" placeholder="Response path" value="${mapping.path || ''}">
+                <select class="form-control mapping-operator">
+                    <option value="direct" ${mapping.operator === 'direct' ? 'selected' : ''}>Direct</option>
+                    <option value="parse" ${mapping.operator === 'parse' ? 'selected' : ''}>Parse JSON</option>
+                    <option value="stringify" ${mapping.operator === 'stringify' ? 'selected' : ''}>Stringify</option>
+                </select>
+                <button class="remove-header-btn">&times;</button>
+            `;
+            row.querySelector('.remove-header-btn').addEventListener('click', () => row.remove());
+            mappingContainer.appendChild(row);
+        });
+    }
+
+    function closeConfigDialog() {
+        configDialog.style.display = 'none';
+    }
+
+    function getHeadersFromContainer(type) {
+        const container = document.getElementById(`${type}HeadersContainer`);
+        const headerRows = container.querySelectorAll('.header-row');
+        return Array.from(headerRows).map(row => {
+            const inputs = row.querySelectorAll('input');
+            return {
+                key: inputs[0].value.trim(),
+                value: inputs[1].value.trim()
+            };
+        }).filter(header => header.key && header.value);
+    }
+
+    function getMappingsFromContainer() {
+        const mappingRows = document.getElementById('responseMappingContainer').querySelectorAll('.mapping-row');
+        return Array.from(mappingRows).map(row => {
+            return {
+                path: row.querySelector('input').value.trim(),
+                operator: row.querySelector('select').value
+            };
+        }).filter(mapping => mapping.path);
     }
 
     function saveConfig() {
-        const configUrl = document.getElementById('configUrl');
-        const headersContainer = document.getElementById('headersContainer');
-        const headerRows = headersContainer.querySelectorAll('.header-row');
+        const getConfigUrl = document.getElementById('getConfigUrl');
+        const postConfigUrl = document.getElementById('postConfigUrl');
 
-        config.url = configUrl.value;
-        config.headers = Array.from(headerRows).map(row => {
-            const inputs = row.querySelectorAll('input');
-            return {
-                key: inputs[0].value,
-                value: inputs[1].value
-            };
-        });
+        // Update URLs if they're not empty
+        if (getConfigUrl.value.trim()) {
+            config.get.url = getConfigUrl.value.trim();
+        }
+        if (postConfigUrl.value.trim()) {
+            config.post.url = postConfigUrl.value.trim();
+        }
+
+        // Update headers and mappings
+        config.get.headers = getHeadersFromContainer('get');
+        config.post.headers = getHeadersFromContainer('post');
+        config.get.mappings = getMappingsFromContainer();
 
         closeConfigDialog();
         showStatus('Configuration saved');
     }
 
-    // Event Listeners
-    document.getElementById('formatBtn').addEventListener('click', function() {
-        try {
-            editor.getAction('editor.action.formatDocument').run();
-            showStatus('JSON formatted successfully');
-        } catch (error) {
-            showStatus('Invalid JSON: ' + error.message, true);
+    function getValueFromPath(obj, path) {
+        return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+    }
+
+    function processResponse(response, mappings) {
+        for (const mapping of mappings) {
+            let value = getValueFromPath(response, mapping.path);
+
+            if (value !== undefined) {
+                switch (mapping.operator) {
+                    case 'parse':
+                        try {
+                            if (typeof value === 'string') {
+                                value = JSON.parse(value);
+                            }
+                        } catch (e) {
+                            console.error('Error parsing JSON:', e);
+                            return null;
+                        }
+                        break;
+                    case 'stringify':
+                        if (typeof value !== 'string') {
+                            value = JSON.stringify(value, null, 2);
+                        }
+                        break;
+                }
+                return value;
+            }
         }
-    });
+        return null;
+    }
 
-    document.getElementById('saveToRemoteConfig').addEventListener('click', async function() {
+    async function initializeGetConfig() {
         try {
-            const editorValue = editor.getValue();
-
-            // Show loading bar
+            showStatus('Initializing data...');
             loadingBar.style.display = 'block';
             progressBar.style.width = '30%';
 
             const headers = {};
-            config.headers.forEach(header => {
-                headers[header.key] = header.value;
+            config.get.headers.forEach(header => {
+                if (header.key && header.value) {
+                    headers[header.key] = header.value;
+                }
             });
 
-            const response = await fetch(config.url, {
+            const response = await fetch(config.get.url, {
+                method: 'GET',
+                headers: headers
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            progressBar.style.width = '50%';
+
+            const fullResponse = await response.json();
+            console.log('Full response:', fullResponse);
+
+            const layoutValue = fullResponse.value;
+            if (!layoutValue) {
+                throw new Error('No value field found in response');
+            }
+            console.log('Mapped layout value:', layoutValue);
+
+            const editorContent = typeof layoutValue === 'string'
+                ? layoutValue
+                : JSON.stringify(layoutValue, null, 2);
+
+            progressBar.style.width = '80%';
+
+            editor.setValue(editorContent);
+            showStatus('Data initialized successfully');
+            progressBar.style.width = '100%';
+            return true;
+
+        } catch (error) {
+            console.error('Initialization error:', error);
+            return false;
+        } finally {
+            setTimeout(() => {
+                loadingBar.style.display = 'none';
+                progressBar.style.width = '0%';
+            }, 500);
+        }
+    }
+
+    async function saveToRemoteConfig() {
+        try {
+            const editorValue = editor.getValue();
+
+            loadingBar.style.display = 'block';
+            progressBar.style.width = '30%';
+
+            const headers = {};
+            config.post.headers.forEach(header => {
+                if (header.key && header.value) {
+                    headers[header.key] = header.value;
+                }
+            });
+
+            const response = await fetch(config.post.url, {
                 method: 'POST',
                 headers: headers,
                 body: editorValue
@@ -196,51 +401,43 @@ require(['vs/editor/editor.main'], async function () {
 
             showStatus('Successfully saved to Remote Config');
 
-            // Hide loading bar after animation
+        } catch (error) {
+            showStatus('Error saving to Remote Config: ' + error.message, true);
+        } finally {
             setTimeout(() => {
                 loadingBar.style.display = 'none';
                 progressBar.style.width = '0%';
             }, 500);
-        } catch (error) {
-            showStatus('Error saving to Remote Config: ' + error.message, true);
-            loadingBar.style.display = 'none';
-            progressBar.style.width = '0%';
         }
-    });
+    }
 
-    // Config button event listeners
-    document.getElementById('configBtn').addEventListener('click', openConfigDialog);
-    document.getElementById('addHeaderBtn').addEventListener('click', () => addHeaderRow());
-    document.querySelector('.dialog-close').addEventListener('click', closeConfigDialog);
-    document.getElementById('cancelConfigBtn').addEventListener('click', closeConfigDialog);
-    document.getElementById('saveConfigBtn').addEventListener('click', saveConfig);
+    function formatJson() {
+        try {
+            editor.getAction('editor.action.formatDocument').run();
+            showStatus('JSON formatted successfully');
+        } catch (error) {
+            showStatus('Invalid JSON: ' + error.message, true);
+        }
+    }
 
-    // Editor change event handler
-    editor.onDidChangeModelContent(function(e) {
-        const newValue = editor.getValue();
-        document.getElementById('text_container').textContent = newValue;
+    function showStatus(message, isError = false) {
+        statusMessage.textContent = message;
+        statusMessage.style.color = isError ? '#ff4444' : '#e0e0e0';
+        statusMessage.classList.add('show');
+        setTimeout(() => {
+            statusMessage.classList.remove('show');
+        }, 3000);
+    }
 
-        // Update config dialog body if it's open
+    function updateEditorContent(value) {
+        document.getElementById('text_container').textContent = value;
         const configBody = document.getElementById('configBody');
         if (configDialog.style.display === 'flex') {
-            configBody.value = newValue;
+            configBody.value = value;
         }
 
         if (typeof jsonBuilderWeb !== 'undefined' && typeof jsonBuilderWeb.updateEditorContent === 'function') {
-            jsonBuilderWeb.updateEditorContent(newValue);
-        } else {
-            console.log('remoteWeb not loaded yet');
+            jsonBuilderWeb.updateEditorContent(value);
         }
-    });
-
-    // Close dialog when clicking outside
-    configDialog.addEventListener('click', function(e) {
-        if (e.target === configDialog) {
-            closeConfigDialog();
-        }
-    });
-
-    // Initialize the editor with default config values
-    const configBody = document.getElementById('configBody');
-    configBody.value = initialValue;
+    }
 });
