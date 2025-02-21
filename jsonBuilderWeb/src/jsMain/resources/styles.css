@@ -8,6 +8,7 @@
 body, html {
     height: 100vh;
     overflow: hidden;
+    width: 100%;
 }
 
 /* Main container layout */
@@ -16,11 +17,15 @@ body, html {
     gap: 10px;
     padding: 20px;
     height: 100vh;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .editor-container {
     position: relative;
     flex: 2;
+    min-width: 0; /* Important for flex container */
     height: calc(100vh - 40px);
 }
 
@@ -32,6 +37,8 @@ body, html {
 
 #compose {
     flex: 1;
+    min-width: 300px;
+    max-width: 40%;
     height: calc(100vh - 40px);
     border: 1px solid #ccc;
     background: #f5f5f5;
@@ -123,9 +130,10 @@ body, html {
     background: #1e1e1e;
     padding: 20px;
     border-radius: 6px;
-    width: 500px;
-    max-width: 90%;
+    width: 90%;
+    max-width: 500px;
     color: #e0e0e0;
+    margin: 20px;
 }
 
 .dialog-header {
@@ -287,4 +295,83 @@ body, html {
     font-size: 11px;
     color: #888;
     margin-top: 4px;
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 1024px) {
+    .container {
+        padding: 10px;
+    }
+
+    #compose {
+        min-width: 250px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        height: auto;
+        overflow-y: auto;
+    }
+
+    .editor-container {
+        height: 60vh;
+        flex: none;
+    }
+
+    #compose {
+        height: 40vh;
+        max-width: 100%;
+        min-width: 100%;
+    }
+
+    .button-container {
+        position: static;
+        margin-top: 10px;
+        justify-content: flex-end;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .container {
+        padding: 5px;
+        gap: 5px;
+    }
+
+    .header-row,
+    .mapping-row {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .button-container {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+
+    .editor-btn {
+        width: calc(50% - 5px);
+        text-align: center;
+    }
+
+    .dialog {
+        padding: 15px;
+        margin: 10px;
+    }
+
+    .tab-buttons {
+        flex-wrap: wrap;
+    }
+
+    .tab-btn {
+        flex: 1;
+        text-align: center;
+        padding: 6px 8px;
+        font-size: 12px;
+    }
+
+    .mapping-operator {
+        width: 100%;
+    }
 }

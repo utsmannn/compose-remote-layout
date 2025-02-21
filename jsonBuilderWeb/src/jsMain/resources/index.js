@@ -110,7 +110,7 @@ require(['vs/editor/editor.main'], async function () {
         document.querySelector('.dialog-close').addEventListener('click', closeConfigDialog);
         document.getElementById('cancelConfigBtn').addEventListener('click', closeConfigDialog);
         document.getElementById('saveConfigBtn').addEventListener('click', saveConfig);
-        document.getElementById('testGetConfig').addEventListener('click', initializeGetConfig);
+        document.getElementById('testGetConfig').addEventListener('click', () => initializeGetConfig(true));
         document.getElementById('formatBtn').addEventListener('click', formatJson);
         document.getElementById('saveToRemoteConfig').addEventListener('click', saveToRemoteConfig);
 
@@ -265,14 +265,14 @@ require(['vs/editor/editor.main'], async function () {
         }).filter(mapping => mapping.path);
     }
 
-    function saveConfig() {
+    function saveConfig(close = true) {
         const getConfigUrl = document.getElementById('getConfigUrl');
         const postConfigUrl = document.getElementById('postConfigUrl');
 
-        // Update URLs if they're not empty
         if (getConfigUrl.value.trim()) {
             config.get.url = getConfigUrl.value.trim();
         }
+
         if (postConfigUrl.value.trim()) {
             config.post.url = postConfigUrl.value.trim();
         }
@@ -282,8 +282,10 @@ require(['vs/editor/editor.main'], async function () {
         config.post.headers = getHeadersFromContainer('post');
         config.get.mappings = getMappingsFromContainer();
 
-        closeConfigDialog();
-        showStatus('Configuration saved');
+        if (close) {
+            closeConfigDialog();
+            showStatus('Configuration saved');
+        }
     }
 
     function getValueFromPath(obj, path) {
@@ -318,9 +320,12 @@ require(['vs/editor/editor.main'], async function () {
         return null;
     }
 
-    async function initializeGetConfig() {
+    async function initializeGetConfig(isFromTest = false) {
         try {
-            showStatus('Initializing data...');
+            if (isFromTest) {
+                saveConfig(false);
+            }
+            showStatus('Getting the data...');
             loadingBar.style.display = 'block';
             progressBar.style.width = '30%';
 
@@ -345,7 +350,8 @@ require(['vs/editor/editor.main'], async function () {
             const fullResponse = await response.json();
             console.log('Full response:', fullResponse);
 
-            const layoutValue = fullResponse.value;
+            const layoutValue = processResponse(fullResponse, config.get.mappings);
+
             if (!layoutValue) {
                 throw new Error('No value field found in response');
             }
