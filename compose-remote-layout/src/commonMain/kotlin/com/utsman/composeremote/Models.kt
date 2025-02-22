@@ -13,7 +13,6 @@ sealed class LayoutComponent {
                 is Column -> modifier?.toScopedModifier("column")
                 is Row -> modifier?.toScopedModifier("row")
                 is Box -> modifier?.toScopedModifier("box")
-                is Custom -> modifier?.toScopedModifier("default")
                 else -> modifier?.toScopedModifier("default")
             }
 
@@ -41,6 +40,13 @@ sealed class LayoutComponent {
     data class Card(override val modifier: LayoutModifier? = null, val children: List<ComponentWrapper>? = null) : LayoutComponent()
 
     @Serializable
+    data class Spacer(
+        override val modifier: LayoutModifier? = null,
+        val height: Int = 0,
+        val width: Int = 0,
+    ) : LayoutComponent()
+
+    @Serializable
     data class Custom(
         override val modifier: LayoutModifier? = null,
         val type: String,
@@ -57,6 +63,7 @@ data class ComponentWrapper(
     val text: LayoutComponent.Text? = null,
     val button: LayoutComponent.Button? = null,
     val card: LayoutComponent.Card? = null,
+    val spacer: LayoutComponent.Spacer? = null,
     val custom: LayoutComponent.Custom? = null,
 ) {
     val component: LayoutComponent
@@ -67,6 +74,7 @@ data class ComponentWrapper(
             text?.let { return it }
             button?.let { return it }
             card?.let { return it }
+            spacer?.let { return it }
             custom?.let { return it }
             return LayoutComponent.Column()
         }

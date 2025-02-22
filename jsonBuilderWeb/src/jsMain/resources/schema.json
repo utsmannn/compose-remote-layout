@@ -231,6 +231,17 @@
               "content",
               "clickId"
             ]
+          },
+          "spacer": {
+            "type": "object",
+            "properties": {
+              "width": {
+                "type": "number"
+              },
+              "height": {
+                "type": "number"
+              }
+            }
           }
         },
         "additionalProperties": {

@@ -98,6 +98,7 @@ object LayoutParser {
 
             "text" -> ComponentWrapper(text = json.decodeFromJsonElement(content))
             "button" -> ComponentWrapper(button = json.decodeFromJsonElement(content))
+            "spacer" -> ComponentWrapper(spacer = json.decodeFromJsonElement(content))
             "card" -> {
                 val (children, modifier) = getChildrenModifier(content)
                 ComponentWrapper(

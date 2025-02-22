@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -144,6 +145,8 @@ private fun ChildDynamicLayout(
                 parentScrollable,
                 onClickHandler,
             )
+
+        is LayoutComponent.Spacer -> RenderSpacer(componentToRender)
 
         is LayoutComponent.Custom ->
             RenderCustomNode(
@@ -389,6 +392,17 @@ private fun RenderCard(
             )
         }
     }
+}
+
+@Composable
+private fun RenderSpacer(
+    component: LayoutComponent.Spacer,
+) {
+    Spacer(
+        modifier = Modifier
+            .height(component.height.dp)
+            .width(component.width.dp),
+    )
 }
 
 @Composable
