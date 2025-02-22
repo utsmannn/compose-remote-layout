@@ -8,13 +8,12 @@ sealed class LayoutComponent {
     abstract val modifier: LayoutModifier?
 
     val scopedModifier: ScopedModifier?
-        get() =
-            when (this) {
-                is Column -> modifier?.toScopedModifier("column")
-                is Row -> modifier?.toScopedModifier("row")
-                is Box -> modifier?.toScopedModifier("box")
-                else -> modifier?.toScopedModifier("default")
-            }
+        get() = when (this) {
+            is Column -> modifier?.toScopedModifier("column")
+            is Row -> modifier?.toScopedModifier("row")
+            is Box -> modifier?.toScopedModifier("box")
+            else -> modifier?.toScopedModifier("default")
+        }
 
     @Serializable
     data class Column(override val modifier: LayoutModifier? = null, val children: List<ComponentWrapper>? = null) : LayoutComponent()
@@ -26,7 +25,18 @@ sealed class LayoutComponent {
     data class Box(override val modifier: LayoutModifier? = null, val children: List<ComponentWrapper>? = null) : LayoutComponent()
 
     @Serializable
-    data class Text(override val modifier: LayoutModifier? = null, val content: String) : LayoutComponent()
+    data class Text(
+        override val modifier: LayoutModifier? = null,
+        val content: String,
+        val color: String? = null,
+        val fontSize: Int? = null,
+        val fontWeight: String? = null,
+        val fontStyle: String? = null,
+        val letterSpacing: Int? = null,
+        val lineHeight: Int? = null,
+        val textAlign: String? = null,
+        val textDecoration: String? = null,
+    ) : LayoutComponent()
 
     @Serializable
     data class Button(
@@ -34,6 +44,14 @@ sealed class LayoutComponent {
         val content: String? = null,
         val clickId: String? = null,
         val children: List<ComponentWrapper>? = null,
+        val fontColor: String? = null,
+        val fontSize: Int? = null,
+        val fontWeight: String? = null,
+        val fontStyle: String? = null,
+        val letterSpacing: Int? = null,
+        val lineHeight: Int? = null,
+        val textAlign: String? = null,
+        val textDecoration: String? = null,
     ) : LayoutComponent()
 
     @Serializable
@@ -119,25 +137,22 @@ data class LayoutModifier(
     val contentAlignment: String? = null,
 ) {
     fun toScopedModifier(type: String): ScopedModifier = when (type) {
-        "column" ->
-            ScopedModifier.Column(
-                base = base,
-                verticalArrangement = verticalArrangement,
-                horizontalAlignment = horizontalAlignment,
-            )
+        "column" -> ScopedModifier.Column(
+            base = base,
+            verticalArrangement = verticalArrangement,
+            horizontalAlignment = horizontalAlignment,
+        )
 
-        "row" ->
-            ScopedModifier.Row(
-                base = base,
-                horizontalArrangement = horizontalArrangement,
-                verticalAlignment = verticalAlignment,
-            )
+        "row" -> ScopedModifier.Row(
+            base = base,
+            horizontalArrangement = horizontalArrangement,
+            verticalAlignment = verticalAlignment,
+        )
 
-        "box" ->
-            ScopedModifier.Box(
-                base = base,
-                contentAlignment = contentAlignment,
-            )
+        "box" -> ScopedModifier.Box(
+            base = base,
+            contentAlignment = contentAlignment,
+        )
 
         else -> ScopedModifier.Default(base)
     }

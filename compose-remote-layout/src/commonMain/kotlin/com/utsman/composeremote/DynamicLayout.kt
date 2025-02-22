@@ -14,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Card
+import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -23,7 +24,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.utsman.composeremote.LayoutParser.parseLayoutJson
 
 val defaultComponent =
@@ -331,10 +337,31 @@ private fun RenderText(
     modifier: Modifier,
 ) {
     val bindsValue = LocalBindsValue.current
+    val defaultTextStyle = LocalTextStyle.current
+
+    val color = component.color?.let { ColorParser.parseColor(it) } ?: defaultTextStyle.color
+    val fontSize = component.fontSize?.sp ?: defaultTextStyle.fontSize
+    val fontWeight = component.fontWeight?.toFontWeight() ?: defaultTextStyle.fontWeight
+    val fontStyle = component.fontStyle?.toFontStyle() ?: defaultTextStyle.fontStyle
+    val letterSpacing = component.letterSpacing?.sp ?: defaultTextStyle.letterSpacing
+    val lineHeight = component.lineHeight?.sp ?: defaultTextStyle.lineHeight
+    val textAlign = component.textAlign?.toTextAlign() ?: defaultTextStyle.textAlign
+    val textDecoration = component.textDecoration?.toTextDecoration() ?: defaultTextStyle.textDecoration
 
     Text(
         text = bindsValue.getValue(component) ?: component.content,
         modifier = modifier,
+        style = LocalTextStyle.current
+            .copy(
+                color = color,
+                fontSize = fontSize,
+                fontWeight = fontWeight,
+                fontStyle = fontStyle,
+                letterSpacing = letterSpacing,
+                lineHeight = lineHeight,
+                textAlign = textAlign,
+                textDecoration = textDecoration,
+            ),
     )
 }
 
@@ -355,7 +382,31 @@ private fun RenderButton(
         val bindsValue = LocalBindsValue.current
 
         if (component.content != null) {
-            Text(text = bindsValue.getValue(component) ?: component.content)
+            val defaultTextStyle = LocalTextStyle.current
+
+            val color = component.fontColor?.let { ColorParser.parseColor(it) } ?: defaultTextStyle.color
+            val fontSize = component.fontSize?.sp ?: defaultTextStyle.fontSize
+            val fontWeight = component.fontWeight?.toFontWeight() ?: defaultTextStyle.fontWeight
+            val fontStyle = component.fontStyle?.toFontStyle() ?: defaultTextStyle.fontStyle
+            val letterSpacing = component.letterSpacing?.sp ?: defaultTextStyle.letterSpacing
+            val lineHeight = component.lineHeight?.sp ?: defaultTextStyle.lineHeight
+            val textAlign = component.textAlign?.toTextAlign() ?: defaultTextStyle.textAlign
+            val textDecoration = component.textDecoration?.toTextDecoration() ?: defaultTextStyle.textDecoration
+
+            Text(
+                text = bindsValue.getValue(component) ?: component.content,
+                style = LocalTextStyle.current
+                    .copy(
+                        color = color,
+                        fontSize = fontSize,
+                        fontWeight = fontWeight,
+                        fontStyle = fontStyle,
+                        letterSpacing = letterSpacing,
+                        lineHeight = lineHeight,
+                        textAlign = textAlign,
+                        textDecoration = textDecoration,
+                    ),
+            )
         } else {
             component.children?.forEachIndexed { index, wrapper ->
                 ChildDynamicLayout(
@@ -431,6 +482,41 @@ private fun RenderCustomNode(
             ),
         )
     }
+}
+
+private fun String.toFontWeight(): FontWeight? = when (lowercase()) {
+    "thin", "w100" -> FontWeight.W100
+    "extralight", "w200" -> FontWeight.W200
+    "light", "w300" -> FontWeight.W300
+    "normal", "regular", "w400" -> FontWeight.W400
+    "medium", "w500" -> FontWeight.W500
+    "semibold", "w600" -> FontWeight.W600
+    "bold", "w700" -> FontWeight.W700
+    "extrabold", "w800" -> FontWeight.W800
+    "black", "w900" -> FontWeight.W900
+    else -> null
+}
+
+private fun String.toFontStyle(): FontStyle? = when (lowercase()) {
+    "normal" -> FontStyle.Normal
+    "italic" -> FontStyle.Italic
+    else -> null
+}
+
+private fun String.toTextAlign(): TextAlign? = when (lowercase()) {
+    "start" -> TextAlign.Start
+    "end" -> TextAlign.End
+    "center" -> TextAlign.Center
+    "justify" -> TextAlign.Justify
+    else -> null
+}
+
+private fun String.toTextDecoration(): TextDecoration? = when (lowercase()) {
+    "none" -> TextDecoration.None
+    "underline" -> TextDecoration.Underline
+    "linethrough" -> TextDecoration.LineThrough
+    "underline linethrough" -> TextDecoration.Underline + TextDecoration.LineThrough
+    else -> null
 }
 
 @Composable

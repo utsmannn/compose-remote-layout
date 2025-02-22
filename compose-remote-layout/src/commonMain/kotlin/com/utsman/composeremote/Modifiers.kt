@@ -348,7 +348,7 @@ object ColorParser {
             4 -> parseRGBA(formattedColor)
             6 -> parseRRGGBB(formattedColor)
             8 -> parseRRGGBBAA(formattedColor)
-            else -> throw IllegalArgumentException("Invalid color format: $colorString")
+            else -> Color.Black
         }
     }
 
