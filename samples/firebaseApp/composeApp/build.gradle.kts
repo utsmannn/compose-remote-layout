@@ -24,7 +24,7 @@ kotlin {
         iosSimulatorArm64(),
     ).forEach {
         it.binaries.framework {
-            baseName = "ComposeApp"
+            baseName = "ComposeAppFirebase"
             isStatic = true
         }
     }
@@ -36,10 +36,10 @@ kotlin {
         podfile = project.file("../iosApp/Podfile")
         ios.deploymentTarget = "17.0"
 
-        name = "ComposeApp"
+        name = "ComposeAppFirebase"
 
         framework {
-            baseName = "ComposeApp"
+            baseName = "ComposeAppFirebase"
             isStatic = true
         }
 

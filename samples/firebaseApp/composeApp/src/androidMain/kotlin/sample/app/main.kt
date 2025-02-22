@@ -16,6 +16,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigException
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.google.firebase.remoteconfig.remoteConfig
+import shared.compose.Shared
 
 class AppActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,6 +33,8 @@ class AppActivity : ComponentActivity() {
         remoteConfig.setDefaultsAsync(
             mapOf(remoteConfigKey to jsonDefault),
         )
+
+        Shared.registerCustomNode()
 
         setContent {
             var layoutJson by remember { mutableStateOf(jsonDefault) }

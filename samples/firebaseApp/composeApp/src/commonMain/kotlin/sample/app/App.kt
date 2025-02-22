@@ -10,16 +10,20 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.utsman.composeremote.BindsValue
 import com.utsman.composeremote.DynamicLayout
 import com.utsman.composeremote.LayoutParser.parseLayoutJson
-import shared.compose.Shared
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun App(textJson: String = "{}") {
-    LaunchedEffect(Unit) {
-        Shared.registerCustomNode()
+    var counter by remember { mutableStateOf(0) }
+    val bindsValue = remember { BindsValue() }
+
+    LaunchedEffect(counter) {
+        bindsValue.setValue("counter", counter)
     }
 
     Scaffold(
@@ -30,8 +34,12 @@ fun App(textJson: String = "{}") {
     ) {
         val layoutNode by remember(textJson) { mutableStateOf(parseLayoutJson(textJson)) }
 
-        DynamicLayout(layoutNode) { clickId ->
-            println("clickId: $clickId")
+        DynamicLayout(component = layoutNode, bindValue = bindsValue) { clickId ->
+            when (clickId) {
+                "button1" -> {
+                    counter++
+                }
+            }
         }
     }
 }

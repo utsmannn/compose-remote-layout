@@ -9,6 +9,6 @@ target 'iosApp' do
   pod 'FirebaseAnalytics'
   pod 'FirebaseCore'
   pod 'FirebaseRemoteConfig'
-  pod 'ComposeApp', :path => '../composeApp'
+  pod 'ComposeAppFirebase', :path => '../composeApp'
 
 end

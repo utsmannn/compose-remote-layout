@@ -3,6 +3,7 @@ package shared.compose
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -87,6 +88,7 @@ object Shared {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 modifier = param.modifier,
+                horizontalArrangement = Arrangement.spacedBy((param.data["spacing"]?.toInt() ?: 0).dp),
             ) {
                 param.children?.let { wrapper ->
                     wrapper.forEach { child ->
@@ -105,7 +107,7 @@ object Shared {
 
         CustomNodes.register("card_item") { param ->
             Card(
-                modifier = Modifier.then(
+                modifier = param.modifier.then(
                     if (param.data["clickId"] != null) {
                         Modifier.clickable {
                             param.onClickHandler(param.data["clickId"] ?: "")
@@ -113,7 +115,7 @@ object Shared {
                     } else {
                         Modifier
                     },
-                ).then(param.modifier),
+                ),
             ) {
                 Column(
                     modifier = Modifier.fillMaxSize()

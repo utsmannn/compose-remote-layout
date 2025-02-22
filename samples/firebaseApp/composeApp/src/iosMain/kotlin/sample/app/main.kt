@@ -15,36 +15,41 @@ import platform.UIKit.UIViewController
 import sample.app.App
 import sample.app.jsonDefault
 import sample.app.remoteConfigKey
+import shared.compose.Shared
 
 @Suppress("ktlint:standard:function-naming")
-fun MainViewController(): UIViewController = ComposeUIViewController {
-    var layoutJson by remember { mutableStateOf(jsonDefault) }
+fun MainViewController(): UIViewController {
+    Shared.registerCustomNode()
 
-    LaunchedEffect(Unit) {
-        FIRApp.configure()
-        val remoteConfig = FIRRemoteConfig.remoteConfig()
-        remoteConfig.configSettings = FIRRemoteConfigSettings().also {
-            it.minimumFetchInterval = 1.0
-        }
+    FIRApp.configure()
+    val remoteConfig = FIRRemoteConfig.remoteConfig()
+    remoteConfig.configSettings = FIRRemoteConfigSettings().also {
+        it.minimumFetchInterval = 1.0
+    }
 
-        remoteConfig.setDefaults(
-            mapOf(remoteConfigKey to jsonDefault),
-        )
+    remoteConfig.setDefaults(
+        mapOf(remoteConfigKey to jsonDefault),
+    )
 
-        remoteConfig.configValueForKey(remoteConfigKey).also {
-            layoutJson = it.stringValue
-        }
+    return ComposeUIViewController {
+        var layoutJson by remember { mutableStateOf(jsonDefault) }
 
-        remoteConfig.addOnConfigUpdateListener { configUpdate, _ ->
-            if (configUpdate != null) {
-                remoteConfig.fetchAndActivateWithCompletionHandler { _, _ ->
-                    remoteConfig.configValueForKey(remoteConfigKey).also {
-                        layoutJson = it.stringValue
+        LaunchedEffect(Unit) {
+            remoteConfig.configValueForKey(remoteConfigKey).also {
+                layoutJson = it.stringValue
+            }
+
+            remoteConfig.addOnConfigUpdateListener { configUpdate, _ ->
+                if (configUpdate != null) {
+                    remoteConfig.fetchAndActivateWithCompletionHandler { _, _ ->
+                        remoteConfig.configValueForKey(remoteConfigKey).also {
+                            layoutJson = it.stringValue
+                        }
                     }
                 }
             }
         }
-    }
 
-    App(layoutJson)
+        App(layoutJson)
+    }
 }

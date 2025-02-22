@@ -1,5 +1,5 @@
 import UIKit
-import ComposeApp
+import ComposeAppFirebase
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {

@@ -1,5 +1,5 @@
 PODS:
-  - ComposeApp (1.0):
+  - ComposeAppFirebase (1.0):
     - FirebaseAnalytics
     - FirebaseCore
     - FirebaseCoreInternal
@@ -100,7 +100,7 @@ PODS:
   - PromisesObjC (2.4.0)
 
 DEPENDENCIES:
-  - ComposeApp (from `../composeApp`)
+  - ComposeAppFirebase (from `../composeApp`)
   - FirebaseAnalytics
   - FirebaseCore
   - FirebaseRemoteConfig
@@ -121,11 +121,11 @@ SPEC REPOS:
     - PromisesObjC
 
 EXTERNAL SOURCES:
-  ComposeApp:
+  ComposeAppFirebase:
     :path: "../composeApp"
 
 SPEC CHECKSUMS:
-  ComposeApp: a142307e4be7d06b4ed5a6396b2a2c4caf1dd75b
+  ComposeAppFirebase: 182dd45c6110f7fe271754ecf6e30d92d8839fb1
   FirebaseABTesting: 7d6eee42b9137541eac2610e5fea3568d956707a
   FirebaseAnalytics: 4fd42def128146e24e480e89f310e3d8534ea42b
   FirebaseCore: 99fe0c4b44a39f37d99e6404e02009d2db5d718d
@@ -139,6 +139,6 @@ SPEC CHECKSUMS:
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
 
-PODFILE CHECKSUM: 7a9babdba9cd912587d41e804e16662f6e0ff03c
+PODFILE CHECKSUM: 5cbc24ca3ba8944feef6c2a33e0372c1ede253cd
 
 COCOAPODS: 1.16.2
