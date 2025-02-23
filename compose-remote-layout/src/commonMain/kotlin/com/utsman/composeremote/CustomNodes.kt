@@ -20,6 +20,7 @@ object CustomNodes {
         type: String,
         node: @Composable (NodeParam) -> Unit,
     ) {
+        println("cuaks..... register node...")
         nodes[type.lowercase()] = node
     }
 

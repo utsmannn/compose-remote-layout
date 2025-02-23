@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
+
 plugins {
     alias(libs.plugins.multiplatform)
     alias(libs.plugins.android.library)
@@ -7,18 +9,48 @@ plugins {
     id("convention.publication")
 }
 
-group = "io.github.utsmannn"
-version = project.findProperty("version")?.toString() ?: "0.0.1"
+// Package.swift
+// // swift-tools-version:5.3
+// import PackageDescription
+//
+// let package = Package(
+//   name: "ComposeRemoteLayout",
+//   platforms: [
+//     .iOS(.v14),
+//   ],
+//   products: [
+//      .library(name: "ComposeRemoteLayout", targets: ["ComposeRemoteLayout"])
+//   ],
+//   targets: [
+//      .binaryTarget(
+//         name: "ComposeRemoteLayout",
+//         path: "./ComposeRemoteLayout.xcframework")
+//   ]
+// )
 
 kotlin {
     jvmToolchain(17)
 
+    val xcframeworkName = "ComposeRemoteLayout"
+    val xcf = XCFramework(xcframeworkName)
+
     androidTarget { publishLibraryVariants("release") }
     jvm()
     js { browser() }
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
+    listOf(
+        iosX64(),
+        iosArm64(),
+        iosSimulatorArm64(),
+    ).forEach {
+        it.binaries.framework {
+            baseName = xcframeworkName
+
+            // Specify CFBundleIdentifier to uniquely identify the framework
+            binaryOption("bundleId", "com.utsman.composeremote.$xcframeworkName")
+            xcf.add(this)
+            isStatic = true
+        }
+    }
 
     sourceSets {
         commonMain.dependencies {
