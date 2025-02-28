@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -53,23 +54,19 @@ class RemoteViewControllerAdapter {
         viewDataBuilder: (Param) -> UIViewData,
     ) {
         CustomNodes.register(type) { param ->
-//            var viewData: UIViewData? by remember { mutableStateOf(null) }
-//
-//            LaunchedEffect(param.data) {
-//                viewData = viewDataBuilder.invoke(param.data)
-//            }
-            val viewData = viewDataBuilder.invoke(param.data)
-//            viewData = viewDataBuilder.invoke(param.data)
+            val viewData = remember(param.data) {
+                viewDataBuilder.invoke(param.data)
+            }
 
             UIKitView(
                 factory = {
-                    viewData!!.uiView
+                    viewData.uiView
                 },
                 update = {
                     it.layoutIfNeeded()
                 },
                 modifier = Modifier
-                    .size(width = viewData!!.widthDp.dp, height = viewData!!.heightDp.dp)
+                    .size(width = viewData.widthDp.dp, height = viewData.heightDp.dp)
                     .then(param.modifier),
             )
         }
@@ -97,8 +94,3 @@ class RemoteViewControllerAdapter {
         }
     }
 }
-
-// xcodebuild -create-xcframework \
-//  -framework path/to/ios-arm64/ComposeRemoteLayout.framework \
-//  -framework path/to/ios-arm64_x86_64-simulator/ComposeRemoteLayout.framework \
-//  -output ComposeRemoteLayout.xcframework
