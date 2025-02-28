@@ -54,8 +54,9 @@ private fun applyBaseModifier(
     val modifierOrder = ModifierOrderTracker.getCurrentOrder()
     val modifierMap = mutableMapOf<String, Modifier>()
 
+    var sizeModifier: Modifier = Modifier
+
     if (base.width != null || base.height != null || base.size != null) {
-        var sizeModifier: Modifier = Modifier
         base.width?.let { width ->
             sizeModifier = sizeModifier.then(Modifier.width(width.dp))
         }
@@ -65,11 +66,16 @@ private fun applyBaseModifier(
         base.size?.let { size ->
             sizeModifier = sizeModifier.then(Modifier.size(size.dp))
         }
-        if (sizeModifier != Modifier) {
-            modifierMap["width"] = sizeModifier
-            modifierMap["height"] = sizeModifier
-            modifierMap["size"] = sizeModifier
-        }
+    } else {
+        sizeModifier = sizeModifier
+            .then(Modifier.wrapContentWidth())
+            .then(Modifier.wrapContentHeight())
+    }
+
+    if (sizeModifier != Modifier) {
+        modifierMap["width"] = sizeModifier
+        modifierMap["height"] = sizeModifier
+        modifierMap["size"] = sizeModifier
     }
 
     if (base.fillMaxWidth == true || base.fillMaxHeight == true || base.fillMaxSize == true) {

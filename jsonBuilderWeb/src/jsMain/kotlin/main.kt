@@ -21,7 +21,6 @@ private var _textJson = MutableStateFlow("{}")
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
-    val anu = MutableStateFlow("")
     val body = document.getElementById("compose") ?: return
 
     Shared.registerCustomNode()
