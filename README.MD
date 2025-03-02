@@ -3,9 +3,10 @@
   <a href="https://github.com/utsmannn/compose-remote-layout/actions/workflows/publish.yaml"><img alt="Publish to Maven Central" src="https://github.com/utsmannn/compose-remote-layout/actions/workflows/publish.yaml/badge.svg"></a>
 </p>
 
-
 # Compose Remote Layout
-Article published on [Medium](https://medium.com/@utsmannn/server-driven-ui-with-compose-remote-layout-bdc902d973f8)
+
+Article published
+on [Medium](https://medium.com/@utsmannn/server-driven-ui-with-compose-remote-layout-bdc902d973f8)
 
 ## Background and Motivation
 
@@ -51,6 +52,10 @@ The compose-remote-layout module provides several core features:
     - Map JSON definitions to custom UI elements
     - Pass custom parameters and handle specific logic
 
+6. **iOS Support**
+    - Independent iOS implementation using SwiftUI
+    - Swift Package Manager integration
+
 ### Demo Video
 
 https://github.com/user-attachments/assets/6479f0c1-338e-4d1e-90e9-25c2ebf72395
@@ -71,6 +76,30 @@ implementation("io.github.utsmannn:compose-remote-layout-iosarm64:{version}")
 implementation("io.github.utsmannn:compose-remote-layout-js:{version}")
 ```
 
+### SPM Integration for iOS independent integration without Kotlin Multiplatform
+
+For iOS projects without Kotlin Multiplatform, use Swift Package Manager:
+
+Once you have your Swift package set up, adding ComposeRemoteLayoutSwift as a dependency is as easy
+as adding it to the dependencies value of your Package.swift or the Package list in Xcode.
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/utsmannn/compose-remote-layout-swift.git", .upToNextMajor(from: "0.0.1-alpha05"))
+]
+```
+
+Or add it via Xcode:
+- Open your project in Xcode
+- Go to File > Swift Packages > Add Package Dependency
+- Enter the package URL: `https://github.com/utsmannn/compose-remote-layout-swift.git`
+- Select the version you want to use (0.0.1-alpha05)
+- Click Finish
+- Add `import ComposeRemoteLayoutSwift` to your Swift files
+- Build your project
+
+See: [compose-remote-layout-swift](https://github.com/utsmannn/compose-remote-layout-swift)
+
 ## Usage Guide
 
 ### Default Usage
@@ -81,7 +110,7 @@ Basic implementation using built-in components:
 @Composable
 fun MyScreen(layoutJson: String) {
     val component = createLayoutComponent(layoutJson)
-   
+
     DynamicLayout(
         component = component,
         onClickHandler = { clickId ->
@@ -161,18 +190,18 @@ The library supports extensive modifiers through JSON:
 
 ```json
 "modifier": {
-   "base": {
-      "width": 200,
-      "height": 100,
-      "padding": {
-      "all": 16
-   },
-   "background": {
-         "color": "#FF0000",
-         "shape": "roundedcorner",
-         "radius": 8
-      }
-   }
+"base": {
+"width": 200,
+"height": 100,
+"padding": {
+"all": 16
+},
+"background": {
+"color": "#FF0000",
+"shape": "roundedcorner",
+"radius": 8
+}
+}
 }
 ```
 
@@ -522,7 +551,9 @@ To run the JSON builder:
 
 ### Firebase Remote Config Integration
 
-The [`remote-config-server`](https://github.com/utsmannn/compose-remote-firebase-remote-config-server) in the `jsonBuilderWeb` module provides:
+The [
+`remote-config-server`](https://github.com/utsmannn/compose-remote-firebase-remote-config-server) in
+the `jsonBuilderWeb` module provides:
 
 - Local development server for testing
 - Firebase Remote Config simulation
