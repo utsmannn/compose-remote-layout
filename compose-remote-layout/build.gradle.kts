@@ -9,29 +9,10 @@ plugins {
     id("convention.publication")
 }
 
-// Package.swift
-// // swift-tools-version:5.3
-// import PackageDescription
-//
-// let package = Package(
-//   name: "ComposeRemoteLayout",
-//   platforms: [
-//     .iOS(.v14),
-//   ],
-//   products: [
-//      .library(name: "ComposeRemoteLayout", targets: ["ComposeRemoteLayout"])
-//   ],
-//   targets: [
-//      .binaryTarget(
-//         name: "ComposeRemoteLayout",
-//         path: "./ComposeRemoteLayout.xcframework")
-//   ]
-// )
-
 kotlin {
     jvmToolchain(17)
 
-    val xcframeworkName = "ComposeRemoteLayout"
+    val xcframeworkName = "ComposeRemoteLayoutCore"
     val xcf = XCFramework(xcframeworkName)
 
     androidTarget { publishLibraryVariants("release") }
