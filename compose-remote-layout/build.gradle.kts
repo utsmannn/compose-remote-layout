@@ -9,6 +9,9 @@ plugins {
     id("convention.publication")
 }
 
+group = "io.github.utsmannn"
+version = project.findProperty("version")?.toString() ?: "0.0.1"
+
 kotlin {
     jvmToolchain(17)
 
