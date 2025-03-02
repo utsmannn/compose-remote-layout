@@ -20,7 +20,6 @@ object LayoutParser {
     }
 
     fun parseLayoutJson(jsonString: String): LayoutComponent? = try {
-        println("cuaks..... parse layout...")
         val jsonElement = json.parseToJsonElement(jsonString)
         val modifierOrder = extractModifierOrder(jsonElement)
         ModifierOrderTracker.setCurrentOrder(modifierOrder)
@@ -35,8 +34,6 @@ object LayoutParser {
     private fun parseComponentWrapper(element: JsonElement): ComponentWrapper {
         val jsonObject = element.jsonObject
         val (type, content) = jsonObject.entries.first()
-
-        println("cuaks.... exist...... -> $type | ${CustomNodes.exists(type)}")
 
         if (CustomNodes.exists(type)) {
             val contentObj = content.jsonObject

@@ -16,40 +16,57 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.UIKitView
 import androidx.compose.ui.window.ComposeUIViewController
 import com.utsman.composeremote.LayoutParser.parseLayoutJson
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import platform.CoreGraphics.CGFloat
 import platform.UIKit.UIView
 import platform.UIKit.UIViewController
 import kotlin.experimental.ExperimentalObjCName
 
-data class UIViewData(
+public data class UIViewData(
     val uiView: UIView,
     val widthDp: CGFloat,
     val heightDp: CGFloat,
 )
 
-typealias Param = Map<String, String>
+public typealias Param = Map<String, String>
 
 @OptIn(ExperimentalObjCName::class)
 @ObjCName(swiftName = "RemoteViewControllerAdapter")
-class RemoteViewControllerAdapter {
+public class RemoteViewControllerAdapter {
     private val jsonStringState: MutableStateFlow<String> =
         MutableStateFlow("{}")
 
+    private val clickHandler: MutableStateFlow<String> = MutableStateFlow("")
     private val bindValue = BindsValue()
 
-    fun setJsonString(jsonString: String) {
+    private val mainScope = MainScope()
+
+    public fun setJsonString(jsonString: String) {
         jsonStringState.value = jsonString
     }
 
-    fun setBindValue(
+    public fun setBindValue(
         key: String,
         value: Any,
     ) {
         bindValue.setValue(key, value)
     }
 
-    fun registerUiView(
+    public fun setClickHandler(
+        handler: (String) -> Unit,
+    ) {
+        mainScope.launch {
+            clickHandler.collectLatest {
+                if (it.isNotEmpty()) handler.invoke(it)
+            }
+        }
+    }
+
+    public fun registerUiView(
         type: String,
         viewDataBuilder: (Param) -> UIViewData,
     ) {
@@ -72,7 +89,7 @@ class RemoteViewControllerAdapter {
         }
     }
 
-    fun viewController(): UIViewController = ComposeUIViewController(
+    public fun viewController(): UIViewController = ComposeUIViewController(
         configure = {
             enforceStrictPlistSanityCheck = false
         },
@@ -89,6 +106,13 @@ class RemoteViewControllerAdapter {
                     component = component,
                     modifier = Modifier.wrapContentSize(),
                     bindValue = bindValue,
+                    onClickHandler = {
+                        mainScope.launch {
+                            clickHandler.value = it
+                            delay(50)
+                            clickHandler.value = ""
+                        }
+                    },
                 )
             }
         }

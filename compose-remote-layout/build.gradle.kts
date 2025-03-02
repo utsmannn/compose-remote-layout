@@ -12,7 +12,7 @@ plugins {
 kotlin {
     jvmToolchain(17)
 
-    val xcframeworkName = "ComposeRemoteLayout"
+    val xcframeworkName = "ComposeRemoteLayoutCore"
     val xcf = XCFramework(xcframeworkName)
 
     androidTarget { publishLibraryVariants("release") }

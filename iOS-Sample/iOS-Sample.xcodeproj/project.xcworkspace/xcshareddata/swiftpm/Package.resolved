@@ -1,0 +1,15 @@
+{
+  "originHash" : "d50dbaa69e14e2a6bb2f5df767e1415a242719d5828fa4b243279e39f79f424d",
+  "pins" : [
+    {
+      "identity" : "compose-remote-layout-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/utsmannn/compose-remote-layout-swift",
+      "state" : {
+        "revision" : "ed368afda64b116b103932f124ef726dc56c89fc",
+        "version" : "0.0.1-alpha05"
+      }
+    }
+  ],
+  "version" : 3
+}
