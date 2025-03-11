@@ -13,6 +13,13 @@ struct ContentView: View {
     @State private var jsonLayout: String = """
     {
       "column": {
+        "modifier": {
+            "base": {
+                "padding": {
+                    "all": 12
+                }
+            }
+        },
         "children": [
           {
             "text": {
