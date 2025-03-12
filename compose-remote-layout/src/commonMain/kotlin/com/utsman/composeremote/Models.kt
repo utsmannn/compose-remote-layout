@@ -172,7 +172,7 @@ data class BaseModifier(
     val border: BorderValues? = null,
     val shadow: ShadowValues? = null,
     val scrollable: Boolean? = false,
-    val clickable: Boolean? = false,
+    val clickId: String? = null,
     val alpha: Float? = null,
     val rotate: Float? = null,
     val scale: ScaleValues? = null,

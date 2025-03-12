@@ -85,7 +85,7 @@ private fun ChildDynamicLayout(
     modifier: Modifier = Modifier,
     path: String = "root",
     parentScrollable: Boolean = false,
-    onClickHandler: (String) -> Unit = {},
+    onClickHandler: (String) -> Unit,
 ) {
     val componentToRender =
         component
@@ -102,7 +102,7 @@ private fun ChildDynamicLayout(
         }
     }
 
-    val currentModifier = applyJsonModifier(modifier, componentToRender.scopedModifier)
+    val currentModifier = applyJsonModifier(modifier, componentToRender.scopedModifier, onClickHandler)
 
     when (componentToRender) {
         is LayoutComponent.Column ->
