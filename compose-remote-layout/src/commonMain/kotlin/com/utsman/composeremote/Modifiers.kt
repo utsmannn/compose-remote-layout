@@ -165,13 +165,7 @@ private fun applyBaseModifier(
         modifierMap["padding"] =
             when {
                 padding.all != null -> Modifier.padding(padding.all.dp)
-                else ->
-                    Modifier.padding(
-                        start = padding.start?.dp ?: padding.horizontal?.dp ?: 0.dp,
-                        top = padding.top?.dp ?: padding.vertical?.dp ?: 0.dp,
-                        end = padding.end?.dp ?: padding.horizontal?.dp ?: 0.dp,
-                        bottom = padding.bottom?.dp ?: padding.vertical?.dp ?: 0.dp,
-                    )
+                else -> Modifier
             }
     }
 
@@ -179,13 +173,7 @@ private fun applyBaseModifier(
         modifierMap["margin"] =
             when {
                 margin.all != null -> Modifier.padding(margin.all.dp)
-                else ->
-                    Modifier.padding(
-                        start = margin.start?.dp ?: margin.horizontal?.dp ?: 0.dp,
-                        top = margin.top?.dp ?: margin.vertical?.dp ?: 0.dp,
-                        end = margin.end?.dp ?: margin.horizontal?.dp ?: 0.dp,
-                        bottom = margin.bottom?.dp ?: margin.vertical?.dp ?: 0.dp,
-                    )
+                else -> Modifier
             }
     }
 
@@ -234,19 +222,25 @@ private fun applyBaseModifier(
     }
 
     var currentMod = mod
-    modifierOrder.forEach { key ->
-        modifierMap[key]?.let { modifier ->
-            currentMod = currentMod.then(modifier)
-        }
-    }
 
-    modifierMap.forEach { (key, modifier) ->
-        if (!modifierOrder.contains(key)) {
-            currentMod = currentMod.then(modifier)
+    modifierOrder
+        .filter { it != "margin" }
+        .forEach { key ->
+            modifierMap[key]?.let { modifier ->
+                currentMod = currentMod.then(modifier)
+            }
         }
-    }
 
-    return currentMod
+    modifierMap
+        .filter { it.key !in modifierOrder }
+        .forEach { (key, modifier) ->
+            if (!modifierOrder.contains(key)) {
+                currentMod = currentMod.then(modifier)
+            }
+        }
+
+    val marginModifier = modifierMap["margin"] ?: Modifier
+    return marginModifier.then(currentMod)
 }
 
 private fun applyColumnModifier(
