@@ -31,10 +31,11 @@ import androidx.compose.ui.unit.dp
 fun applyJsonModifier(
     base: Modifier = Modifier,
     scopedModifier: ScopedModifier?,
+    onClickHandler: (String) -> Unit,
 ): Modifier {
     if (scopedModifier == null) return base
 
-    var mod = applyBaseModifier(base, scopedModifier.base)
+    var mod = applyBaseModifier(base, scopedModifier.base, onClickHandler)
 
     mod =
         when (scopedModifier) {
@@ -50,6 +51,7 @@ fun applyJsonModifier(
 private fun applyBaseModifier(
     mod: Modifier,
     base: BaseModifier,
+    onClickHandler: (String) -> Unit,
 ): Modifier {
     val modifierOrder = ModifierOrderTracker.getCurrentOrder()
     val modifierMap = mutableMapOf<String, Modifier>()
@@ -177,8 +179,10 @@ private fun applyBaseModifier(
             }
     }
 
-    if (base.clickable == true) {
-        modifierMap["clickable"] = Modifier.clickable { }
+    if (base.clickId != null) {
+        modifierMap["clickId"] = Modifier.clickable {
+            onClickHandler(base.clickId)
+        }
     }
     if (base.scrollable == true) {
         modifierMap["scrollable"] = Modifier
