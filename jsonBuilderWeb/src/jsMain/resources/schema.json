@@ -4,110 +4,293 @@
   "description": "Schema for dynamic Jetpack Compose layouts",
   "type": "object",
   "oneOf": [
-    { "$ref": "#/definitions/ColumnComponent" },
-    { "$ref": "#/definitions/RowComponent" },
-    { "$ref": "#/definitions/BoxComponent" },
-    { "$ref": "#/definitions/TextComponent" },
-    { "$ref": "#/definitions/ButtonComponent" },
-    { "$ref": "#/definitions/CardComponent" },
-    { "$ref": "#/definitions/SpacerComponent" },
-    { "$ref": "#/definitions/CustomComponent" }
+    {
+      "$ref": "#/definitions/ColumnComponent"
+    },
+    {
+      "$ref": "#/definitions/RowComponent"
+    },
+    {
+      "$ref": "#/definitions/GridComponent"
+    },
+    {
+      "$ref": "#/definitions/BoxComponent"
+    },
+    {
+      "$ref": "#/definitions/TextComponent"
+    },
+    {
+      "$ref": "#/definitions/ButtonComponent"
+    },
+    {
+      "$ref": "#/definitions/CardComponent"
+    },
+    {
+      "$ref": "#/definitions/SpacerComponent"
+    },
+    {
+      "$ref": "#/definitions/CustomComponent"
+    }
   ],
   "definitions": {
     "BaseModifier": {
       "type": "object",
       "properties": {
-        "width": { "type": "integer", "description": "Width in dp" },
-        "height": { "type": "integer", "description": "Height in dp" },
-        "size": { "type": "integer", "description": "Size in dp (for square dimensions)" },
-        "fillMaxWidth": { "type": "boolean", "default": false },
-        "fillMaxHeight": { "type": "boolean", "default": false },
-        "fillMaxSize": { "type": "boolean", "default": false },
-        "padding": { "$ref": "#/definitions/PaddingValues" },
-        "margin": { "$ref": "#/definitions/MarginValues" },
-        "background": { "$ref": "#/definitions/StyleValues" },
-        "border": { "$ref": "#/definitions/BorderValues" },
-        "shadow": { "$ref": "#/definitions/ShadowValues" },
-        "scrollable": { "type": "boolean", "default": false },
-        "clickId": { "type": "string", "description": "ID for click handling" },
-        "alpha": { "type": "number", "minimum": 0, "maximum": 1 },
-        "rotate": { "type": "number", "description": "Rotation in degrees" },
-        "scale": { "$ref": "#/definitions/ScaleValues" },
-        "offset": { "$ref": "#/definitions/OffsetValues" },
-        "aspectRatio": { "type": "number", "description": "Width to height ratio" },
-        "clip": { "type": "boolean", "default": false },
-        "wrapContentHeight": { "type": "boolean", "default": false },
-        "wrapContentWidth": { "type": "boolean", "default": false }
+        "width": {
+          "type": "integer",
+          "description": "Width in dp"
+        },
+        "height": {
+          "type": "integer",
+          "description": "Height in dp"
+        },
+        "size": {
+          "type": "integer",
+          "description": "Size in dp (for square dimensions)"
+        },
+        "fillMaxWidth": {
+          "type": "boolean",
+          "default": false
+        },
+        "fillMaxHeight": {
+          "type": "boolean",
+          "default": false
+        },
+        "fillMaxSize": {
+          "type": "boolean",
+          "default": false
+        },
+        "padding": {
+          "$ref": "#/definitions/PaddingValues"
+        },
+        "margin": {
+          "$ref": "#/definitions/MarginValues"
+        },
+        "background": {
+          "$ref": "#/definitions/StyleValues"
+        },
+        "border": {
+          "$ref": "#/definitions/BorderValues"
+        },
+        "shadow": {
+          "$ref": "#/definitions/ShadowValues"
+        },
+        "scrollable": {
+          "type": "boolean",
+          "default": false
+        },
+        "clickId": {
+          "type": "string",
+          "description": "ID for click handling"
+        },
+        "alpha": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "rotate": {
+          "type": "number",
+          "description": "Rotation in degrees"
+        },
+        "scale": {
+          "$ref": "#/definitions/ScaleValues"
+        },
+        "offset": {
+          "$ref": "#/definitions/OffsetValues"
+        },
+        "aspectRatio": {
+          "type": "number",
+          "description": "Width to height ratio"
+        },
+        "clip": {
+          "type": "boolean",
+          "default": false
+        },
+        "wrapContentHeight": {
+          "type": "boolean",
+          "default": false
+        },
+        "wrapContentWidth": {
+          "type": "boolean",
+          "default": false
+        }
       }
     },
     "LayoutModifier": {
       "type": "object",
       "properties": {
-        "base": { "$ref": "#/definitions/BaseModifier" },
+        "base": {
+          "$ref": "#/definitions/BaseModifier"
+        },
         "verticalArrangement": {
           "type": "string",
-          "enum": ["top", "bottom", "center", "spacebetween", "spacearound", "spaceevenly"]
+          "description": "Vertical arrangement (can also be a numeric value for spacedBy in dp)",
+          "enum": [
+            "top",
+            "bottom",
+            "center",
+            "spacebetween",
+            "spacearound",
+            "spaceevenly"
+          ]
         },
         "horizontalAlignment": {
           "type": "string",
-          "enum": ["start", "end", "center"]
+          "enum": [
+            "start",
+            "end",
+            "center"
+          ]
         },
         "horizontalArrangement": {
           "type": "string",
-          "enum": ["start", "end", "center", "spacebetween", "spacearound", "spaceevenly"]
+          "description": "Horizontal arrangement (can also be a numeric value for spacedBy in dp)",
+          "enum": [
+            "start",
+            "end",
+            "center",
+            "spacebetween",
+            "spacearound",
+            "spaceevenly"
+          ]
         },
         "verticalAlignment": {
           "type": "string",
-          "enum": ["top", "bottom", "center"]
+          "enum": [
+            "top",
+            "bottom",
+            "center"
+          ]
         },
         "contentAlignment": {
           "type": "string",
-          "enum": ["center", "topstart", "topcenter", "topend", "centerstart", "centerend", "bottomstart", "bottomcenter", "bottomend"]
+          "enum": [
+            "center",
+            "topstart",
+            "topcenter",
+            "topend",
+            "centerstart",
+            "centerend",
+            "bottomstart",
+            "bottomcenter",
+            "bottomend"
+          ]
+        },
+        "span": {
+          "type": "integer",
+          "description": "Number of columns in a grid",
+          "minimum": 1,
+          "default": 1
         }
       }
     },
     "PaddingValues": {
       "type": "object",
       "properties": {
-        "all": { "type": "integer" },
-        "horizontal": { "type": "integer" },
-        "vertical": { "type": "integer" },
-        "start": { "type": "integer" },
-        "top": { "type": "integer" },
-        "end": { "type": "integer" },
-        "bottom": { "type": "integer" }
+        "all": {
+          "type": "integer",
+          "description": "Padding on all sides in dp"
+        },
+        "horizontal": {
+          "type": "integer",
+          "description": "Horizontal padding in dp"
+        },
+        "vertical": {
+          "type": "integer",
+          "description": "Vertical padding in dp"
+        },
+        "start": {
+          "type": "integer",
+          "description": "Start padding in dp"
+        },
+        "top": {
+          "type": "integer",
+          "description": "Top padding in dp"
+        },
+        "end": {
+          "type": "integer",
+          "description": "End padding in dp"
+        },
+        "bottom": {
+          "type": "integer",
+          "description": "Bottom padding in dp"
+        }
       }
     },
     "MarginValues": {
       "type": "object",
       "properties": {
-        "all": { "type": "integer" },
-        "horizontal": { "type": "integer" },
-        "vertical": { "type": "integer" },
-        "start": { "type": "integer" },
-        "top": { "type": "integer" },
-        "end": { "type": "integer" },
-        "bottom": { "type": "integer" }
+        "all": {
+          "type": "integer",
+          "description": "Margin on all sides in dp"
+        },
+        "horizontal": {
+          "type": "integer",
+          "description": "Horizontal margin in dp"
+        },
+        "vertical": {
+          "type": "integer",
+          "description": "Vertical margin in dp"
+        },
+        "start": {
+          "type": "integer",
+          "description": "Start margin in dp"
+        },
+        "top": {
+          "type": "integer",
+          "description": "Top margin in dp"
+        },
+        "end": {
+          "type": "integer",
+          "description": "End margin in dp"
+        },
+        "bottom": {
+          "type": "integer",
+          "description": "Bottom margin in dp"
+        }
       }
     },
     "StyleValues": {
       "type": "object",
       "properties": {
-        "color": { "type": "string", "description": "Color in hex format (#RGB, #RGBA, #RRGGBB, #RRGGBBAA)" },
-        "alpha": { "type": "number", "minimum": 0, "maximum": 1 },
+        "color": {
+          "type": "string",
+          "description": "Color in hex format (#RGB, #RGBA, #RRGGBB, #RRGGBBAA)"
+        },
+        "alpha": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
         "shape": {
           "type": "string",
-          "enum": ["rectangle", "circle", "roundedcorner"]
+          "enum": [
+            "rectangle",
+            "circle",
+            "roundedcorner"
+          ]
         },
-        "radius": { "type": "integer", "description": "Corner radius in dp for roundedcorner shape" }
+        "radius": {
+          "type": "integer",
+          "description": "Corner radius in dp for roundedcorner shape"
+        }
       }
     },
     "BorderValues": {
       "type": "object",
       "properties": {
-        "width": { "type": "integer", "default": 1, "description": "Border width in dp" },
-        "color": { "type": "string", "description": "Border color in hex format" },
-        "shape": { "$ref": "#/definitions/ShapeValues" }
+        "width": {
+          "type": "integer",
+          "default": 1,
+          "description": "Border width in dp"
+        },
+        "color": {
+          "type": "string",
+          "description": "Border color in hex format"
+        },
+        "shape": {
+          "$ref": "#/definitions/ShapeValues"
+        }
       }
     },
     "ShapeValues": {
@@ -115,47 +298,103 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["rectangle", "circle", "roundedcorner"],
+          "enum": [
+            "rectangle",
+            "circle",
+            "roundedcorner"
+          ],
           "default": "rectangle"
         },
-        "cornerRadius": { "type": "integer", "description": "Corner radius in dp for all corners" },
-        "topStart": { "type": "integer", "description": "Top start corner radius in dp" },
-        "topEnd": { "type": "integer", "description": "Top end corner radius in dp" },
-        "bottomStart": { "type": "integer", "description": "Bottom start corner radius in dp" },
-        "bottomEnd": { "type": "integer", "description": "Bottom end corner radius in dp" }
+        "cornerRadius": {
+          "type": "integer",
+          "description": "Corner radius in dp for all corners"
+        },
+        "topStart": {
+          "type": "integer",
+          "description": "Top start corner radius in dp"
+        },
+        "topEnd": {
+          "type": "integer",
+          "description": "Top end corner radius in dp"
+        },
+        "bottomStart": {
+          "type": "integer",
+          "description": "Bottom start corner radius in dp"
+        },
+        "bottomEnd": {
+          "type": "integer",
+          "description": "Bottom end corner radius in dp"
+        }
       }
     },
     "ShadowValues": {
       "type": "object",
       "properties": {
-        "elevation": { "type": "integer", "default": 4, "description": "Shadow elevation in dp" },
-        "shape": { "$ref": "#/definitions/ShapeValues" }
+        "elevation": {
+          "type": "integer",
+          "default": 4,
+          "description": "Shadow elevation in dp"
+        },
+        "shape": {
+          "$ref": "#/definitions/ShapeValues"
+        }
       }
     },
     "ScaleValues": {
       "type": "object",
       "properties": {
-        "scaleX": { "type": "number", "description": "Horizontal scale factor" },
-        "scaleY": { "type": "number", "description": "Vertical scale factor" }
+        "scaleX": {
+          "type": "number",
+          "description": "Horizontal scale factor"
+        },
+        "scaleY": {
+          "type": "number",
+          "description": "Vertical scale factor"
+        }
       }
     },
     "OffsetValues": {
       "type": "object",
       "properties": {
-        "x": { "type": "integer", "description": "Horizontal offset in dp" },
-        "y": { "type": "integer", "description": "Vertical offset in dp" }
+        "x": {
+          "type": "integer",
+          "description": "Horizontal offset in dp"
+        },
+        "y": {
+          "type": "integer",
+          "description": "Vertical offset in dp"
+        }
       }
     },
     "ComponentWrapper": {
       "oneOf": [
-        { "$ref": "#/definitions/ColumnComponent" },
-        { "$ref": "#/definitions/RowComponent" },
-        { "$ref": "#/definitions/BoxComponent" },
-        { "$ref": "#/definitions/TextComponent" },
-        { "$ref": "#/definitions/ButtonComponent" },
-        { "$ref": "#/definitions/CardComponent" },
-        { "$ref": "#/definitions/SpacerComponent" },
-        { "$ref": "#/definitions/CustomComponent" }
+        {
+          "$ref": "#/definitions/ColumnComponent"
+        },
+        {
+          "$ref": "#/definitions/RowComponent"
+        },
+        {
+          "$ref": "#/definitions/GridComponent"
+        },
+        {
+          "$ref": "#/definitions/BoxComponent"
+        },
+        {
+          "$ref": "#/definitions/TextComponent"
+        },
+        {
+          "$ref": "#/definitions/ButtonComponent"
+        },
+        {
+          "$ref": "#/definitions/CardComponent"
+        },
+        {
+          "$ref": "#/definitions/SpacerComponent"
+        },
+        {
+          "$ref": "#/definitions/CustomComponent"
+        }
       ]
     },
     "ColumnComponent": {
@@ -164,15 +403,21 @@
         "column": {
           "type": "object",
           "properties": {
-            "modifier": { "$ref": "#/definitions/LayoutModifier" },
+            "modifier": {
+              "$ref": "#/definitions/LayoutModifier"
+            },
             "children": {
               "type": "array",
-              "items": { "$ref": "#/definitions/ComponentWrapper" }
+              "items": {
+                "$ref": "#/definitions/ComponentWrapper"
+              }
             }
           }
         }
       },
-      "required": ["column"]
+      "required": [
+        "column"
+      ]
     },
     "RowComponent": {
       "type": "object",
@@ -180,15 +425,43 @@
         "row": {
           "type": "object",
           "properties": {
-            "modifier": { "$ref": "#/definitions/LayoutModifier" },
+            "modifier": {
+              "$ref": "#/definitions/LayoutModifier"
+            },
             "children": {
               "type": "array",
-              "items": { "$ref": "#/definitions/ComponentWrapper" }
+              "items": {
+                "$ref": "#/definitions/ComponentWrapper"
+              }
             }
           }
         }
       },
-      "required": ["row"]
+      "required": [
+        "row"
+      ]
+    },
+    "GridComponent": {
+      "type": "object",
+      "properties": {
+        "grid": {
+          "type": "object",
+          "properties": {
+            "modifier": {
+              "$ref": "#/definitions/LayoutModifier"
+            },
+            "children": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ComponentWrapper"
+              }
+            }
+          }
+        }
+      },
+      "required": [
+        "grid"
+      ]
     },
     "BoxComponent": {
       "type": "object",
@@ -196,15 +469,21 @@
         "box": {
           "type": "object",
           "properties": {
-            "modifier": { "$ref": "#/definitions/LayoutModifier" },
+            "modifier": {
+              "$ref": "#/definitions/LayoutModifier"
+            },
             "children": {
               "type": "array",
-              "items": { "$ref": "#/definitions/ComponentWrapper" }
+              "items": {
+                "$ref": "#/definitions/ComponentWrapper"
+              }
             }
           }
         }
       },
-      "required": ["box"]
+      "required": [
+        "box"
+      ]
     },
     "TextComponent": {
       "type": "object",
@@ -212,33 +491,105 @@
         "text": {
           "type": "object",
           "properties": {
-            "modifier": { "$ref": "#/definitions/LayoutModifier" },
-            "content": { "type": "string" },
-            "color": { "type": "string", "description": "Text color in hex format" },
-            "fontSize": { "type": "integer", "description": "Font size in sp" },
+            "modifier": {
+              "$ref": "#/definitions/LayoutModifier"
+            },
+            "content": {
+              "type": "string"
+            },
+            "color": {
+              "type": "string",
+              "description": "Text color in hex format"
+            },
+            "fontSize": {
+              "type": "integer",
+              "description": "Font size in sp"
+            },
             "fontWeight": {
               "type": "string",
-              "enum": ["thin", "w100", "extralight", "w200", "light", "w300", "normal", "regular", "w400", "medium", "w500", "semibold", "w600", "bold", "w700", "extrabold", "w800", "black", "w900"]
+              "enum": [
+                "thin",
+                "w100",
+                "extralight",
+                "w200",
+                "light",
+                "w300",
+                "normal",
+                "regular",
+                "w400",
+                "medium",
+                "w500",
+                "semibold",
+                "w600",
+                "bold",
+                "w700",
+                "extrabold",
+                "w800",
+                "black",
+                "w900"
+              ]
             },
             "fontStyle": {
               "type": "string",
-              "enum": ["normal", "italic"]
+              "enum": [
+                "normal",
+                "italic"
+              ]
             },
-            "letterSpacing": { "type": "integer", "description": "Letter spacing in sp" },
-            "lineHeight": { "type": "integer", "description": "Line height in sp" },
+            "letterSpacing": {
+              "type": "integer",
+              "description": "Letter spacing in sp"
+            },
+            "lineHeight": {
+              "type": "integer",
+              "description": "Line height in sp"
+            },
             "textAlign": {
               "type": "string",
-              "enum": ["start", "end", "center", "justify"]
+              "enum": [
+                "start",
+                "end",
+                "center",
+                "justify"
+              ]
             },
             "textDecoration": {
               "type": "string",
-              "enum": ["none", "underline", "linethrough", "underline linethrough"]
+              "enum": [
+                "none",
+                "underline",
+                "linethrough",
+                "underline linethrough"
+              ]
+            },
+            "maxLines": {
+              "type": "integer",
+              "description": "Maximum number of lines to display"
+            },
+            "minLines": {
+              "type": "integer",
+              "description": "Minimum number of lines to display",
+              "default": 1
+            },
+            "overflow": {
+              "type": "string",
+              "description": "Text overflow behavior",
+              "enum": [
+                "visible",
+                "ellipsis",
+                "clip"
+              ],
+              "default": "clip"
             }
           },
-          "required": ["content"]
+          "required": [
+            "content"
+          ]
         }
       },
-      "required": ["text"]
+      "required": [
+        "text"
+      ]
     },
     "ButtonComponent": {
       "type": "object",
@@ -246,37 +597,111 @@
         "button": {
           "type": "object",
           "properties": {
-            "modifier": { "$ref": "#/definitions/LayoutModifier" },
-            "content": { "type": "string" },
-            "clickId": { "type": "string" },
+            "modifier": {
+              "$ref": "#/definitions/LayoutModifier"
+            },
+            "content": {
+              "type": "string"
+            },
+            "clickId": {
+              "type": "string"
+            },
             "children": {
               "type": "array",
-              "items": { "$ref": "#/definitions/ComponentWrapper" }
+              "items": {
+                "$ref": "#/definitions/ComponentWrapper"
+              }
             },
-            "fontColor": { "type": "string", "description": "Text color in hex format" },
-            "fontSize": { "type": "integer", "description": "Font size in sp" },
+            "fontColor": {
+              "type": "string",
+              "description": "Text color in hex format"
+            },
+            "fontSize": {
+              "type": "integer",
+              "description": "Font size in sp"
+            },
             "fontWeight": {
               "type": "string",
-              "enum": ["thin", "w100", "extralight", "w200", "light", "w300", "normal", "regular", "w400", "medium", "w500", "semibold", "w600", "bold", "w700", "extrabold", "w800", "black", "w900"]
+              "enum": [
+                "thin",
+                "w100",
+                "extralight",
+                "w200",
+                "light",
+                "w300",
+                "normal",
+                "regular",
+                "w400",
+                "medium",
+                "w500",
+                "semibold",
+                "w600",
+                "bold",
+                "w700",
+                "extrabold",
+                "w800",
+                "black",
+                "w900"
+              ]
             },
             "fontStyle": {
               "type": "string",
-              "enum": ["normal", "italic"]
+              "enum": [
+                "normal",
+                "italic"
+              ]
             },
-            "letterSpacing": { "type": "integer", "description": "Letter spacing in sp" },
-            "lineHeight": { "type": "integer", "description": "Line height in sp" },
+            "letterSpacing": {
+              "type": "integer",
+              "description": "Letter spacing in sp"
+            },
+            "lineHeight": {
+              "type": "integer",
+              "description": "Line height in sp"
+            },
             "textAlign": {
               "type": "string",
-              "enum": ["start", "end", "center", "justify"]
+              "enum": [
+                "start",
+                "end",
+                "center",
+                "justify"
+              ]
             },
             "textDecoration": {
               "type": "string",
-              "enum": ["none", "underline", "linethrough", "underline linethrough"]
+              "enum": [
+                "none",
+                "underline",
+                "linethrough",
+                "underline linethrough"
+              ]
+            },
+            "maxLines": {
+              "type": "integer",
+              "description": "Maximum number of lines to display"
+            },
+            "minLines": {
+              "type": "integer",
+              "description": "Minimum number of lines to display",
+              "default": 1
+            },
+            "overflow": {
+              "type": "string",
+              "description": "Text overflow behavior",
+              "enum": [
+                "visible",
+                "ellipsis",
+                "clip"
+              ],
+              "default": "clip"
             }
           }
         }
       },
-      "required": ["button"]
+      "required": [
+        "button"
+      ]
     },
     "CardComponent": {
       "type": "object",
@@ -284,15 +709,21 @@
         "card": {
           "type": "object",
           "properties": {
-            "modifier": { "$ref": "#/definitions/LayoutModifier" },
+            "modifier": {
+              "$ref": "#/definitions/LayoutModifier"
+            },
             "children": {
               "type": "array",
-              "items": { "$ref": "#/definitions/ComponentWrapper" }
+              "items": {
+                "$ref": "#/definitions/ComponentWrapper"
+              }
             }
           }
         }
       },
-      "required": ["card"]
+      "required": [
+        "card"
+      ]
     },
     "SpacerComponent": {
       "type": "object",
@@ -300,13 +731,25 @@
         "spacer": {
           "type": "object",
           "properties": {
-            "modifier": { "$ref": "#/definitions/LayoutModifier" },
-            "height": { "type": "integer", "default": 0, "description": "Height in dp" },
-            "width": { "type": "integer", "default": 0, "description": "Width in dp" }
+            "modifier": {
+              "$ref": "#/definitions/LayoutModifier"
+            },
+            "height": {
+              "type": "integer",
+              "default": 0,
+              "description": "Height in dp"
+            },
+            "width": {
+              "type": "integer",
+              "default": 0,
+              "description": "Width in dp"
+            }
           }
         }
       },
-      "required": ["spacer"]
+      "required": [
+        "spacer"
+      ]
     },
     "CustomComponent": {
       "type": "object",
@@ -314,21 +757,34 @@
         "custom": {
           "type": "object",
           "properties": {
-            "modifier": { "$ref": "#/definitions/LayoutModifier" },
-            "type": { "type": "string", "description": "Custom component type" },
+            "modifier": {
+              "$ref": "#/definitions/LayoutModifier"
+            },
+            "type": {
+              "type": "string",
+              "description": "Custom component type"
+            },
             "data": {
               "type": "object",
-              "additionalProperties": { "type": "string" }
+              "additionalProperties": {
+                "type": "string"
+              }
             },
             "children": {
               "type": "array",
-              "items": { "$ref": "#/definitions/ComponentWrapper" }
+              "items": {
+                "$ref": "#/definitions/ComponentWrapper"
+              }
             }
           },
-          "required": ["type"]
+          "required": [
+            "type"
+          ]
         }
       },
-      "required": ["custom"]
+      "required": [
+        "custom"
+      ]
     }
   }
 }
