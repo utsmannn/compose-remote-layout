@@ -166,6 +166,12 @@ private fun applyBaseModifier(
     base.padding?.let { padding ->
         modifierMap["padding"] =
             when {
+                padding.horizontal != null -> Modifier.padding(horizontal = padding.horizontal.dp)
+                padding.vertical != null -> Modifier.padding(vertical = padding.vertical.dp)
+                padding.start != null -> Modifier.padding(start = padding.start.dp)
+                padding.top != null -> Modifier.padding(top = padding.top.dp)
+                padding.end != null -> Modifier.padding(end = padding.end.dp)
+                padding.bottom != null -> Modifier.padding(bottom = padding.bottom.dp)
                 padding.all != null -> Modifier.padding(padding.all.dp)
                 else -> Modifier
             }
@@ -174,6 +180,12 @@ private fun applyBaseModifier(
     base.margin?.let { margin ->
         modifierMap["margin"] =
             when {
+                margin.horizontal != null -> Modifier.padding(horizontal = margin.horizontal.dp)
+                margin.vertical != null -> Modifier.padding(vertical = margin.vertical.dp)
+                margin.start != null -> Modifier.padding(start = margin.start.dp)
+                margin.top != null -> Modifier.padding(top = margin.top.dp)
+                margin.end != null -> Modifier.padding(end = margin.end.dp)
+                margin.bottom != null -> Modifier.padding(bottom = margin.bottom.dp)
                 margin.all != null -> Modifier.padding(margin.all.dp)
                 else -> Modifier
             }
