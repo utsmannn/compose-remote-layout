@@ -37,14 +37,14 @@ fun applyJsonModifier(
 
     var mod = applyBaseModifier(base, scopedModifier.base, onClickHandler)
 
-//    mod =
-//        when (scopedModifier) {
-//            is ScopedModifier.Column -> applyColumnModifier(mod, scopedModifier)
-//            is ScopedModifier.Row -> applyRowModifier(mod, scopedModifier)
-//            is ScopedModifier.Grid -> applyGridModifier(mod, scopedModifier)
-//            is ScopedModifier.Box -> applyBoxModifier(mod, scopedModifier)
-//            is ScopedModifier.Default -> mod
-//        }
+    mod =
+        when (scopedModifier) {
+            is ScopedModifier.Column -> applyColumnModifier(mod, scopedModifier)
+            is ScopedModifier.Row -> applyRowModifier(mod, scopedModifier)
+            is ScopedModifier.Grid -> applyGridModifier(mod, scopedModifier)
+            is ScopedModifier.Box -> applyBoxModifier(mod, scopedModifier)
+            is ScopedModifier.Default -> mod
+        }
 
     return mod
 }
@@ -328,47 +328,47 @@ private fun applyGridModifier(
     mod: Modifier,
     scopedMod: ScopedModifier.Grid,
 ): Modifier {
-//    scopedMod.horizontalArrangement?.let { arrangement ->
-//        val horizontalArrangement =
-//            when (arrangement.lowercase()) {
-//                "start" -> Arrangement.Start
-//                "end" -> Arrangement.End
-//                "center" -> Arrangement.Center
-//                "spacebetween" -> Arrangement.SpaceBetween
-//                "spacearound" -> Arrangement.SpaceAround
-//                "spaceevenly" -> Arrangement.SpaceEvenly
-//                else -> {
-//                    val spacedBy = arrangement.toIntOrNull()
-//                    if (spacedBy != null) {
-//                        Arrangement.spacedBy(spacedBy.dp)
-//                    } else {
-//                        Arrangement.SpaceAround
-//                    }
-//                }
-//            }
-//        horizontalArrangement
-//    }
-//
-//    scopedMod.verticalArrangement?.let { arrangement ->
-//        val verticalAlignment =
-//            when (arrangement.lowercase()) {
-//                "top" -> Arrangement.Top
-//                "center" -> Arrangement.Center
-//                "bottom" -> Arrangement.Bottom
-//                "spacebetween" -> Arrangement.SpaceBetween
-//                "spacearound" -> Arrangement.SpaceAround
-//                "spaceevenly" -> Arrangement.SpaceEvenly
-//                else -> {
-//                    val spacedBy = arrangement.toIntOrNull()
-//                    if (spacedBy != null) {
-//                        Arrangement.spacedBy(spacedBy.dp)
-//                    } else {
-//                        Arrangement.SpaceAround
-//                    }
-//                }
-//            }
-//        verticalAlignment
-//    }
+    scopedMod.horizontalArrangement?.let { arrangement ->
+        val horizontalArrangement =
+            when (arrangement.lowercase()) {
+                "start" -> Arrangement.Start
+                "end" -> Arrangement.End
+                "center" -> Arrangement.Center
+                "spacebetween" -> Arrangement.SpaceBetween
+                "spacearound" -> Arrangement.SpaceAround
+                "spaceevenly" -> Arrangement.SpaceEvenly
+                else -> {
+                    val spacedBy = arrangement.toIntOrNull()
+                    if (spacedBy != null) {
+                        Arrangement.spacedBy(spacedBy.dp)
+                    } else {
+                        Arrangement.SpaceAround
+                    }
+                }
+            }
+        horizontalArrangement
+    }
+
+    scopedMod.verticalArrangement?.let { arrangement ->
+        val verticalAlignment =
+            when (arrangement.lowercase()) {
+                "top" -> Arrangement.Top
+                "center" -> Arrangement.Center
+                "bottom" -> Arrangement.Bottom
+                "spacebetween" -> Arrangement.SpaceBetween
+                "spacearound" -> Arrangement.SpaceAround
+                "spaceevenly" -> Arrangement.SpaceEvenly
+                else -> {
+                    val spacedBy = arrangement.toIntOrNull()
+                    if (spacedBy != null) {
+                        Arrangement.spacedBy(spacedBy.dp)
+                    } else {
+                        Arrangement.SpaceAround
+                    }
+                }
+            }
+        verticalAlignment
+    }
 
     return mod
 }

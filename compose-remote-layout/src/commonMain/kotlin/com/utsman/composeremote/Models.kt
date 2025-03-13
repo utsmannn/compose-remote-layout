@@ -12,6 +12,7 @@ sealed class LayoutComponent {
             is Column -> modifier?.toScopedModifier("column")
             is Row -> modifier?.toScopedModifier("row")
             is Box -> modifier?.toScopedModifier("box")
+            is Grid -> modifier?.toScopedModifier("grid")
             else -> modifier?.toScopedModifier("default")
         }
 
@@ -51,6 +52,9 @@ sealed class LayoutComponent {
         val lineHeight: Int? = null,
         val textAlign: String? = null,
         val textDecoration: String? = null,
+        val maxLines: Int? = null,
+        val minLines: Int? = null,
+        val overflow: String? = null,
     ) : LayoutComponent()
 
     @Serializable
@@ -67,6 +71,9 @@ sealed class LayoutComponent {
         val lineHeight: Int? = null,
         val textAlign: String? = null,
         val textDecoration: String? = null,
+        val maxLines: Int? = null,
+        val minLines: Int? = null,
+        val overflow: String? = null,
     ) : LayoutComponent()
 
     @Serializable
@@ -190,6 +197,8 @@ data class LayoutModifier(
         "grid" -> ScopedModifier.Grid(
             base = base,
             span = span ?: 1,
+            horizontalArrangement = horizontalArrangement,
+            verticalArrangement = verticalArrangement,
         )
 
         else -> ScopedModifier.Default(base)
@@ -209,7 +218,7 @@ data class BaseModifier(
     val background: StyleValues? = null,
     val border: BorderValues? = null,
     val shadow: ShadowValues? = null,
-    val scrollable: Boolean? = true,
+    val scrollable: Boolean? = false,
     val clickId: String? = null,
     val alpha: Float? = null,
     val rotate: Float? = null,
