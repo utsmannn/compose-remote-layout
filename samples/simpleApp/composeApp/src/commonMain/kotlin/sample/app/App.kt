@@ -62,31 +62,7 @@ fun App() {
 
     LaunchedEffect(Unit) {
         delay(3000)
-        jsonLayout = """
-{
-  "column": {
-    "modifier": {
-      "base": {
-        "padding": {
-          "all": 12
-        }
-      }
-    },
-    "children": [
-      {
-        "text": {
-          "content": "Counter: {counter}"
-        }
-      },
-      {
-        "cuaks": {
-            "title": "anjay mamen"
-        }
-      }
-    ]
-  }
-}
-    """
+        jsonLayout = Constant.home
     }
 
     LaunchedEffect(counter) {

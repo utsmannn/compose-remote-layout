@@ -86,6 +86,16 @@ object LayoutParser {
                 )
             }
 
+            "grid" -> {
+                val (children, modifier) = getChildrenModifier(content)
+                ComponentWrapper(
+                    grid = LayoutComponent.Grid(
+                        modifier = modifier,
+                        children = children,
+                    ),
+                )
+            }
+
             "box" -> {
                 val (children, modifier) = getChildrenModifier(content)
                 ComponentWrapper(
@@ -122,6 +132,7 @@ object LayoutParser {
         val modifier = content.jsonObject["modifier"]?.let {
             json.decodeFromJsonElement<LayoutModifier>(it)
         }
+
         return Pair(children, modifier)
     }
 

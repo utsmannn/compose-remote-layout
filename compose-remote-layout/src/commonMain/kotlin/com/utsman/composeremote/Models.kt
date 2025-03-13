@@ -12,17 +12,33 @@ sealed class LayoutComponent {
             is Column -> modifier?.toScopedModifier("column")
             is Row -> modifier?.toScopedModifier("row")
             is Box -> modifier?.toScopedModifier("box")
+            is Grid -> modifier?.toScopedModifier("grid")
             else -> modifier?.toScopedModifier("default")
         }
 
     @Serializable
-    data class Column(override val modifier: LayoutModifier? = null, val children: List<ComponentWrapper>? = null) : LayoutComponent()
+    data class Column(
+        override val modifier: LayoutModifier? = null,
+        val children: List<ComponentWrapper>? = null,
+    ) : LayoutComponent()
 
     @Serializable
-    data class Row(override val modifier: LayoutModifier? = null, val children: List<ComponentWrapper>? = null) : LayoutComponent()
+    data class Row(
+        override val modifier: LayoutModifier? = null,
+        val children: List<ComponentWrapper>? = null,
+    ) : LayoutComponent()
 
     @Serializable
-    data class Box(override val modifier: LayoutModifier? = null, val children: List<ComponentWrapper>? = null) : LayoutComponent()
+    data class Grid(
+        override val modifier: LayoutModifier? = null,
+        val children: List<ComponentWrapper>? = null,
+    ) : LayoutComponent()
+
+    @Serializable
+    data class Box(
+        override val modifier: LayoutModifier? = null,
+        val children: List<ComponentWrapper>? = null,
+    ) : LayoutComponent()
 
     @Serializable
     data class Text(
@@ -36,6 +52,9 @@ sealed class LayoutComponent {
         val lineHeight: Int? = null,
         val textAlign: String? = null,
         val textDecoration: String? = null,
+        val maxLines: Int? = null,
+        val minLines: Int? = null,
+        val overflow: String? = null,
     ) : LayoutComponent()
 
     @Serializable
@@ -52,10 +71,16 @@ sealed class LayoutComponent {
         val lineHeight: Int? = null,
         val textAlign: String? = null,
         val textDecoration: String? = null,
+        val maxLines: Int? = null,
+        val minLines: Int? = null,
+        val overflow: String? = null,
     ) : LayoutComponent()
 
     @Serializable
-    data class Card(override val modifier: LayoutModifier? = null, val children: List<ComponentWrapper>? = null) : LayoutComponent()
+    data class Card(
+        override val modifier: LayoutModifier? = null,
+        val children: List<ComponentWrapper>? = null,
+    ) : LayoutComponent()
 
     @Serializable
     data class Spacer(
@@ -77,6 +102,7 @@ sealed class LayoutComponent {
 data class ComponentWrapper(
     val column: LayoutComponent.Column? = null,
     val row: LayoutComponent.Row? = null,
+    val grid: LayoutComponent.Grid? = null,
     val box: LayoutComponent.Box? = null,
     val text: LayoutComponent.Text? = null,
     val button: LayoutComponent.Button? = null,
@@ -88,6 +114,7 @@ data class ComponentWrapper(
         get() {
             column?.let { return it }
             row?.let { return it }
+            grid?.let { return it }
             box?.let { return it }
             text?.let { return it }
             button?.let { return it }
@@ -120,7 +147,19 @@ sealed class ScopedModifier {
 
     @Serializable
     @SerialName("box")
-    data class Box(override val base: BaseModifier = BaseModifier(), val contentAlignment: String? = null) : ScopedModifier()
+    data class Box(
+        override val base: BaseModifier = BaseModifier(),
+        val contentAlignment: String? = null,
+    ) : ScopedModifier()
+
+    @Serializable
+    @SerialName("grid")
+    data class Grid(
+        override val base: BaseModifier = BaseModifier(),
+        val span: Int? = null,
+        val horizontalArrangement: String? = null,
+        val verticalArrangement: String? = null,
+    ) : ScopedModifier()
 
     @Serializable
     @SerialName("default")
@@ -135,6 +174,7 @@ data class LayoutModifier(
     val horizontalArrangement: String? = null,
     val verticalAlignment: String? = null,
     val contentAlignment: String? = null,
+    val span: Int? = null,
 ) {
     fun toScopedModifier(type: String): ScopedModifier = when (type) {
         "column" -> ScopedModifier.Column(
@@ -152,6 +192,13 @@ data class LayoutModifier(
         "box" -> ScopedModifier.Box(
             base = base,
             contentAlignment = contentAlignment,
+        )
+
+        "grid" -> ScopedModifier.Grid(
+            base = base,
+            span = span ?: 1,
+            horizontalArrangement = horizontalArrangement,
+            verticalArrangement = verticalArrangement,
         )
 
         else -> ScopedModifier.Default(base)
@@ -243,4 +290,7 @@ data class ShapeValues(
 )
 
 @Serializable
-data class ShadowValues(val elevation: Int = 4, val shape: ShapeValues? = null)
+data class ShadowValues(
+    val elevation: Int = 4,
+    val shape: ShapeValues? = null,
+)

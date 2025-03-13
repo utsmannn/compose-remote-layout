@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -28,6 +27,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.utsman.composeremote.LayoutParser.parseLayoutJson
@@ -89,7 +89,9 @@ private fun ChildDynamicLayout(
 ) {
     val componentToRender =
         component
-            ?: DynamicLayoutRenderer.getLastValidComponent(path)
+            ?: DynamicLayoutRenderer.getLastValidComponent(
+                path,
+            )
             ?: defaultComponent.component
 
     if (component != null) {
@@ -102,7 +104,11 @@ private fun ChildDynamicLayout(
         }
     }
 
-    val currentModifier = applyJsonModifier(modifier, componentToRender.scopedModifier, onClickHandler)
+    val currentModifier = applyJsonModifier(
+        modifier,
+        componentToRender.scopedModifier,
+        onClickHandler,
+    )
 
     when (componentToRender) {
         is LayoutComponent.Column ->
@@ -123,6 +129,16 @@ private fun ChildDynamicLayout(
                 onClickHandler,
             )
 
+        is LayoutComponent.Grid -> {
+            RenderGrid(
+                componentToRender,
+                currentModifier,
+                path,
+                parentScrollable,
+                onClickHandler,
+            )
+        }
+
         is LayoutComponent.Box ->
             RenderBox(
                 componentToRender,
@@ -132,7 +148,10 @@ private fun ChildDynamicLayout(
                 onClickHandler,
             )
 
-        is LayoutComponent.Text -> RenderText(componentToRender, currentModifier)
+        is LayoutComponent.Text -> RenderText(
+            componentToRender,
+            currentModifier,
+        )
 
         is LayoutComponent.Button ->
             RenderButton(
@@ -152,7 +171,9 @@ private fun ChildDynamicLayout(
                 onClickHandler,
             )
 
-        is LayoutComponent.Spacer -> RenderSpacer(componentToRender)
+        is LayoutComponent.Spacer -> RenderSpacer(
+            componentToRender,
+        )
 
         is LayoutComponent.Custom ->
             RenderCustomNode(
@@ -173,8 +194,10 @@ private fun RenderColumn(
     parentScrollable: Boolean,
     onClickHandler: (String) -> Unit,
 ) {
-    val scopedMod = component.scopedModifier as? ScopedModifier.Column
-    val isScrollable = scopedMod?.base?.scrollable == true && !parentScrollable
+    val scopedMod =
+        component.scopedModifier as? ScopedModifier.Column
+    val isScrollable =
+        scopedMod?.base?.scrollable == true && !parentScrollable
 
     val columnModifier =
         if (isScrollable) {
@@ -235,15 +258,19 @@ private fun RenderRow(
     parentScrollable: Boolean,
     onClickHandler: (String) -> Unit,
 ) {
-    val scopedMod = component.scopedModifier as? ScopedModifier.Row
-    val isScrollable = scopedMod?.base?.scrollable == true && !parentScrollable
+    val scopedMod =
+        component.scopedModifier as? ScopedModifier.Row
+    val isScrollable =
+        scopedMod?.base?.scrollable == true && !parentScrollable
 
     val rowModifier =
         if (isScrollable) {
             if (scopedMod?.base?.width != null) {
-                modifier.width(scopedMod.base.width.dp).horizontalScroll(rememberScrollState())
+                modifier.width(scopedMod.base.width.dp)
+                    .horizontalScroll(rememberScrollState())
             } else {
-                modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
+                modifier
+                    .horizontalScroll(rememberScrollState())
             }
         } else {
             modifier
@@ -290,6 +317,89 @@ private fun RenderRow(
 }
 
 @Composable
+private fun RenderGrid(
+    component: LayoutComponent.Grid,
+    modifier: Modifier,
+    path: String,
+    parentScrollable: Boolean,
+    onClickHandler: (String) -> Unit,
+) {
+    val scopedMod =
+        component.scopedModifier as? ScopedModifier.Grid
+    val isScrollable =
+        scopedMod?.base?.scrollable == true && !parentScrollable
+
+    val gridModifier =
+        if (isScrollable) {
+            if (scopedMod?.base?.width != null) {
+                modifier.width(scopedMod.base.width.dp)
+                    .horizontalScroll(rememberScrollState())
+            } else {
+                modifier
+                    .horizontalScroll(rememberScrollState())
+            }
+        } else {
+            modifier
+        }
+
+    val horizontalArrangement =
+        scopedMod?.horizontalArrangement?.let { arrangement ->
+            when (arrangement.lowercase()) {
+                "start" -> Arrangement.Start
+                "end" -> Arrangement.End
+                "center" -> Arrangement.Center
+                "spacebetween" -> Arrangement.SpaceBetween
+                "spacearound" -> Arrangement.SpaceAround
+                "spaceevenly" -> Arrangement.SpaceEvenly
+                else -> {
+                    val spacedBy = arrangement.toIntOrNull()
+                    if (spacedBy != null) {
+                        Arrangement.spacedBy(spacedBy.dp)
+                    } else {
+                        Arrangement.SpaceAround
+                    }
+                }
+            }
+        } ?: Arrangement.Start
+
+    val verticalArrangement =
+        scopedMod?.verticalArrangement?.let { arrangement ->
+            when (arrangement.lowercase()) {
+                "top" -> Arrangement.Top
+                "center" -> Arrangement.Center
+                "bottom" -> Arrangement.Bottom
+                "spacebetween" -> Arrangement.SpaceBetween
+                "spacearound" -> Arrangement.SpaceAround
+                "spaceevenly" -> Arrangement.SpaceEvenly
+                else -> {
+                    val spacedBy = arrangement.toIntOrNull()
+                    if (spacedBy != null) {
+                        Arrangement.spacedBy(spacedBy.dp)
+                    } else {
+                        Arrangement.SpaceAround
+                    }
+                }
+            }
+        } ?: Arrangement.SpaceAround
+
+    ListGrid(
+        items = component.children.orEmpty(),
+        columns = scopedMod?.span ?: 1,
+        modifier = gridModifier,
+        verticalArrangement = verticalArrangement,
+        horizontalArrangement = horizontalArrangement,
+    ) { index, wrapper ->
+        ChildDynamicLayout(
+            wrapper.component,
+            modifier = Modifier,
+            path = "$path-grid-$index",
+            parentScrollable = isScrollable,
+            onClickHandler = onClickHandler,
+        )
+    }
+}
+
+@Composable
 private fun RenderBox(
     component: LayoutComponent.Box,
     modifier: Modifier,
@@ -297,7 +407,8 @@ private fun RenderBox(
     parentScrollable: Boolean,
     onClickHandler: (String) -> Unit,
 ) {
-    val scopedMod = component.scopedModifier as? ScopedModifier.Box
+    val scopedMod =
+        component.scopedModifier as? ScopedModifier.Box
 
     val contentAlignment =
         scopedMod?.contentAlignment?.let { alignment ->
@@ -339,17 +450,36 @@ private fun RenderText(
     val bindsValue = LocalBindsValue.current
     val defaultTextStyle = LocalTextStyle.current
 
-    val color = component.color?.let { ColorParser.parseColor(it) } ?: defaultTextStyle.color
-    val fontSize = component.fontSize?.sp ?: defaultTextStyle.fontSize
-    val fontWeight = component.fontWeight?.toFontWeight() ?: defaultTextStyle.fontWeight
-    val fontStyle = component.fontStyle?.toFontStyle() ?: defaultTextStyle.fontStyle
-    val letterSpacing = component.letterSpacing?.sp ?: defaultTextStyle.letterSpacing
-    val lineHeight = component.lineHeight?.sp ?: defaultTextStyle.lineHeight
-    val textAlign = component.textAlign?.toTextAlign() ?: defaultTextStyle.textAlign
-    val textDecoration = component.textDecoration?.toTextDecoration() ?: defaultTextStyle.textDecoration
+    val color =
+        component.color?.let { ColorParser.parseColor(it) }
+            ?: defaultTextStyle.color
+    val fontSize =
+        component.fontSize?.sp ?: defaultTextStyle.fontSize
+    val fontWeight = component.fontWeight?.toFontWeight()
+        ?: defaultTextStyle.fontWeight
+    val fontStyle = component.fontStyle?.toFontStyle()
+        ?: defaultTextStyle.fontStyle
+    val letterSpacing = component.letterSpacing?.sp
+        ?: defaultTextStyle.letterSpacing
+    val lineHeight = component.lineHeight?.sp
+        ?: defaultTextStyle.lineHeight
+    val textAlign = component.textAlign?.toTextAlign()
+        ?: defaultTextStyle.textAlign
+    val textDecoration =
+        component.textDecoration?.toTextDecoration()
+            ?: defaultTextStyle.textDecoration
+
+    val maxLines = component.maxLines ?: Int.MAX_VALUE
+    val minLines = component.minLines ?: 1
+    val overflow = when (component.overflow?.lowercase()) {
+        "visible" -> TextOverflow.Visible
+        "ellipsis" -> TextOverflow.Ellipsis
+        else -> TextOverflow.Clip
+    }
 
     Text(
-        text = bindsValue.getValue(component) ?: component.content,
+        text = bindsValue.getValue(component)
+            ?: component.content,
         modifier = modifier,
         style = LocalTextStyle.current
             .copy(
@@ -362,6 +492,9 @@ private fun RenderText(
                 textAlign = textAlign,
                 textDecoration = textDecoration,
             ),
+        maxLines = maxLines,
+        minLines = minLines,
+        overflow = overflow,
     )
 }
 
@@ -384,17 +517,39 @@ private fun RenderButton(
         if (component.content != null) {
             val defaultTextStyle = LocalTextStyle.current
 
-            val color = component.fontColor?.let { ColorParser.parseColor(it) } ?: defaultTextStyle.color
-            val fontSize = component.fontSize?.sp ?: defaultTextStyle.fontSize
-            val fontWeight = component.fontWeight?.toFontWeight() ?: defaultTextStyle.fontWeight
-            val fontStyle = component.fontStyle?.toFontStyle() ?: defaultTextStyle.fontStyle
-            val letterSpacing = component.letterSpacing?.sp ?: defaultTextStyle.letterSpacing
-            val lineHeight = component.lineHeight?.sp ?: defaultTextStyle.lineHeight
-            val textAlign = component.textAlign?.toTextAlign() ?: defaultTextStyle.textAlign
-            val textDecoration = component.textDecoration?.toTextDecoration() ?: defaultTextStyle.textDecoration
+            val color = component.fontColor?.let {
+                ColorParser.parseColor(it)
+            } ?: defaultTextStyle.color
+            val fontSize = component.fontSize?.sp
+                ?: defaultTextStyle.fontSize
+            val fontWeight =
+                component.fontWeight?.toFontWeight()
+                    ?: defaultTextStyle.fontWeight
+            val fontStyle =
+                component.fontStyle?.toFontStyle()
+                    ?: defaultTextStyle.fontStyle
+            val letterSpacing = component.letterSpacing?.sp
+                ?: defaultTextStyle.letterSpacing
+            val lineHeight = component.lineHeight?.sp
+                ?: defaultTextStyle.lineHeight
+            val textAlign =
+                component.textAlign?.toTextAlign()
+                    ?: defaultTextStyle.textAlign
+            val textDecoration =
+                component.textDecoration?.toTextDecoration()
+                    ?: defaultTextStyle.textDecoration
+
+            val maxLines = component.maxLines ?: Int.MAX_VALUE
+            val minLines = component.minLines ?: 1
+            val overflow = when (component.overflow?.lowercase()) {
+                "visible" -> TextOverflow.Visible
+                "ellipsis" -> TextOverflow.Ellipsis
+                else -> TextOverflow.Clip
+            }
 
             Text(
-                text = bindsValue.getValue(component) ?: component.content,
+                text = bindsValue.getValue(component)
+                    ?: component.content,
                 style = LocalTextStyle.current
                     .copy(
                         color = color,
@@ -406,6 +561,9 @@ private fun RenderButton(
                         textAlign = textAlign,
                         textDecoration = textDecoration,
                     ),
+                maxLines = maxLines,
+                minLines = minLines,
+                overflow = overflow,
             )
         } else {
             component.children?.forEachIndexed { index, wrapper ->
@@ -466,9 +624,13 @@ private fun RenderCustomNode(
 ) {
     val bindsValue = LocalBindsValue.current
     CustomNodes.get(component.type)?.let { renderer ->
-        val newData = component.data.mapValues { (_, value) ->
-            bindsValue.getValue<String>(component, value) ?: value
-        }
+        val newData =
+            component.data.mapValues { (_, value) ->
+                bindsValue.getValue<String>(
+                    component,
+                    value,
+                ) ?: value
+            }
 
         renderer(
             CustomNodes.NodeParam(
@@ -521,6 +683,48 @@ private fun String.toTextDecoration(): TextDecoration? = when (lowercase()) {
 
 @Composable
 fun createLayoutComponent(textJson: String): LayoutComponent? {
-    val layoutNode by remember(textJson) { derivedStateOf { parseLayoutJson(textJson) } }
+    val layoutNode by remember(textJson) {
+        derivedStateOf {
+            parseLayoutJson(
+                textJson,
+            )
+        }
+    }
     return layoutNode
+}
+
+@Composable
+private fun <T> ListGrid(
+    items: List<T>,
+    columns: Int,
+    modifier: Modifier = Modifier,
+    verticalArrangement: Arrangement.Vertical,
+    horizontalArrangement: Arrangement.Horizontal,
+    itemContent: @Composable (Int, T) -> Unit,
+) {
+    val rows = (items.size + columns - 1) / columns
+
+    Column(modifier = modifier, verticalArrangement = verticalArrangement) {
+        for (rowIndex in 0 until rows) {
+            Row(
+                modifier = Modifier.fillMaxHeight(),
+                horizontalArrangement = horizontalArrangement,
+            ) {
+                for (columnIndex in 0 until columns) {
+                    val itemIndex = rowIndex * columns + columnIndex
+                    if (itemIndex < items.size) {
+                        Box(
+                            modifier = Modifier
+                                .weight(1f),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            itemContent(itemIndex, items[itemIndex])
+                        }
+                    } else {
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+                }
+            }
+        }
+    }
 }

@@ -41,6 +41,7 @@ fun applyJsonModifier(
         when (scopedModifier) {
             is ScopedModifier.Column -> applyColumnModifier(mod, scopedModifier)
             is ScopedModifier.Row -> applyRowModifier(mod, scopedModifier)
+            is ScopedModifier.Grid -> applyGridModifier(mod, scopedModifier)
             is ScopedModifier.Box -> applyBoxModifier(mod, scopedModifier)
             is ScopedModifier.Default -> mod
         }
@@ -166,6 +167,12 @@ private fun applyBaseModifier(
     base.padding?.let { padding ->
         modifierMap["padding"] =
             when {
+                padding.horizontal != null -> Modifier.padding(horizontal = padding.horizontal.dp)
+                padding.vertical != null -> Modifier.padding(vertical = padding.vertical.dp)
+                padding.start != null -> Modifier.padding(start = padding.start.dp)
+                padding.top != null -> Modifier.padding(top = padding.top.dp)
+                padding.end != null -> Modifier.padding(end = padding.end.dp)
+                padding.bottom != null -> Modifier.padding(bottom = padding.bottom.dp)
                 padding.all != null -> Modifier.padding(padding.all.dp)
                 else -> Modifier
             }
@@ -174,6 +181,12 @@ private fun applyBaseModifier(
     base.margin?.let { margin ->
         modifierMap["margin"] =
             when {
+                margin.horizontal != null -> Modifier.padding(horizontal = margin.horizontal.dp)
+                margin.vertical != null -> Modifier.padding(vertical = margin.vertical.dp)
+                margin.start != null -> Modifier.padding(start = margin.start.dp)
+                margin.top != null -> Modifier.padding(top = margin.top.dp)
+                margin.end != null -> Modifier.padding(end = margin.end.dp)
+                margin.bottom != null -> Modifier.padding(bottom = margin.bottom.dp)
                 margin.all != null -> Modifier.padding(margin.all.dp)
                 else -> Modifier
             }
@@ -304,6 +317,55 @@ private fun applyRowModifier(
                 "bottom" -> Alignment.Bottom
                 "center" -> Alignment.CenterVertically
                 else -> null
+            }
+        verticalAlignment
+    }
+
+    return mod
+}
+
+private fun applyGridModifier(
+    mod: Modifier,
+    scopedMod: ScopedModifier.Grid,
+): Modifier {
+    scopedMod.horizontalArrangement?.let { arrangement ->
+        val horizontalArrangement =
+            when (arrangement.lowercase()) {
+                "start" -> Arrangement.Start
+                "end" -> Arrangement.End
+                "center" -> Arrangement.Center
+                "spacebetween" -> Arrangement.SpaceBetween
+                "spacearound" -> Arrangement.SpaceAround
+                "spaceevenly" -> Arrangement.SpaceEvenly
+                else -> {
+                    val spacedBy = arrangement.toIntOrNull()
+                    if (spacedBy != null) {
+                        Arrangement.spacedBy(spacedBy.dp)
+                    } else {
+                        Arrangement.SpaceAround
+                    }
+                }
+            }
+        horizontalArrangement
+    }
+
+    scopedMod.verticalArrangement?.let { arrangement ->
+        val verticalAlignment =
+            when (arrangement.lowercase()) {
+                "top" -> Arrangement.Top
+                "center" -> Arrangement.Center
+                "bottom" -> Arrangement.Bottom
+                "spacebetween" -> Arrangement.SpaceBetween
+                "spacearound" -> Arrangement.SpaceAround
+                "spaceevenly" -> Arrangement.SpaceEvenly
+                else -> {
+                    val spacedBy = arrangement.toIntOrNull()
+                    if (spacedBy != null) {
+                        Arrangement.spacedBy(spacedBy.dp)
+                    } else {
+                        Arrangement.SpaceAround
+                    }
+                }
             }
         verticalAlignment
     }
