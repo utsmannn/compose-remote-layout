@@ -16,13 +16,28 @@ sealed class LayoutComponent {
         }
 
     @Serializable
-    data class Column(override val modifier: LayoutModifier? = null, val children: List<ComponentWrapper>? = null) : LayoutComponent()
+    data class Column(
+        override val modifier: LayoutModifier? = null,
+        val children: List<ComponentWrapper>? = null,
+    ) : LayoutComponent()
 
     @Serializable
-    data class Row(override val modifier: LayoutModifier? = null, val children: List<ComponentWrapper>? = null) : LayoutComponent()
+    data class Row(
+        override val modifier: LayoutModifier? = null,
+        val children: List<ComponentWrapper>? = null,
+    ) : LayoutComponent()
 
     @Serializable
-    data class Box(override val modifier: LayoutModifier? = null, val children: List<ComponentWrapper>? = null) : LayoutComponent()
+    data class Grid(
+        override val modifier: LayoutModifier? = null,
+        val children: List<ComponentWrapper>? = null,
+    ) : LayoutComponent()
+
+    @Serializable
+    data class Box(
+        override val modifier: LayoutModifier? = null,
+        val children: List<ComponentWrapper>? = null,
+    ) : LayoutComponent()
 
     @Serializable
     data class Text(
@@ -55,7 +70,10 @@ sealed class LayoutComponent {
     ) : LayoutComponent()
 
     @Serializable
-    data class Card(override val modifier: LayoutModifier? = null, val children: List<ComponentWrapper>? = null) : LayoutComponent()
+    data class Card(
+        override val modifier: LayoutModifier? = null,
+        val children: List<ComponentWrapper>? = null,
+    ) : LayoutComponent()
 
     @Serializable
     data class Spacer(
@@ -77,6 +95,7 @@ sealed class LayoutComponent {
 data class ComponentWrapper(
     val column: LayoutComponent.Column? = null,
     val row: LayoutComponent.Row? = null,
+    val grid: LayoutComponent.Grid? = null,
     val box: LayoutComponent.Box? = null,
     val text: LayoutComponent.Text? = null,
     val button: LayoutComponent.Button? = null,
@@ -88,6 +107,7 @@ data class ComponentWrapper(
         get() {
             column?.let { return it }
             row?.let { return it }
+            grid?.let { return it }
             box?.let { return it }
             text?.let { return it }
             button?.let { return it }
@@ -120,7 +140,19 @@ sealed class ScopedModifier {
 
     @Serializable
     @SerialName("box")
-    data class Box(override val base: BaseModifier = BaseModifier(), val contentAlignment: String? = null) : ScopedModifier()
+    data class Box(
+        override val base: BaseModifier = BaseModifier(),
+        val contentAlignment: String? = null,
+    ) : ScopedModifier()
+
+    @Serializable
+    @SerialName("grid")
+    data class Grid(
+        override val base: BaseModifier = BaseModifier(),
+        val span: Int? = null,
+        val horizontalArrangement: String? = null,
+        val verticalArrangement: String? = null,
+    ) : ScopedModifier()
 
     @Serializable
     @SerialName("default")
@@ -135,6 +167,7 @@ data class LayoutModifier(
     val horizontalArrangement: String? = null,
     val verticalAlignment: String? = null,
     val contentAlignment: String? = null,
+    val span: Int? = null,
 ) {
     fun toScopedModifier(type: String): ScopedModifier = when (type) {
         "column" -> ScopedModifier.Column(
@@ -154,6 +187,11 @@ data class LayoutModifier(
             contentAlignment = contentAlignment,
         )
 
+        "grid" -> ScopedModifier.Grid(
+            base = base,
+            span = span ?: 1,
+        )
+
         else -> ScopedModifier.Default(base)
     }
 }
@@ -171,7 +209,7 @@ data class BaseModifier(
     val background: StyleValues? = null,
     val border: BorderValues? = null,
     val shadow: ShadowValues? = null,
-    val scrollable: Boolean? = false,
+    val scrollable: Boolean? = true,
     val clickId: String? = null,
     val alpha: Float? = null,
     val rotate: Float? = null,
@@ -243,4 +281,7 @@ data class ShapeValues(
 )
 
 @Serializable
-data class ShadowValues(val elevation: Int = 4, val shape: ShapeValues? = null)
+data class ShadowValues(
+    val elevation: Int = 4,
+    val shape: ShapeValues? = null,
+)

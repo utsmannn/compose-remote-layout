@@ -4,6 +4,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.LocalTextStyle
@@ -123,6 +123,16 @@ private fun ChildDynamicLayout(
                 onClickHandler,
             )
 
+        is LayoutComponent.Grid -> {
+            RenderGrid(
+                componentToRender,
+                currentModifier,
+                path,
+                parentScrollable,
+                onClickHandler,
+            )
+        }
+
         is LayoutComponent.Box ->
             RenderBox(
                 componentToRender,
@@ -179,9 +189,9 @@ private fun RenderColumn(
     val columnModifier =
         if (isScrollable) {
             if (scopedMod?.base?.height != null) {
-                modifier.height(scopedMod.base.height.dp).verticalScroll(rememberScrollState())
+                modifier.height(scopedMod.base.height.dp) // .verticalScroll(rememberScrollState())
             } else {
-                modifier.fillMaxHeight().verticalScroll(rememberScrollState())
+                modifier.fillMaxHeight() // .verticalScroll(rememberScrollState())
             }
         } else {
             modifier
@@ -287,6 +297,87 @@ private fun RenderRow(
             )
         }
     }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun RenderGrid(
+    component: LayoutComponent.Grid,
+    modifier: Modifier,
+    path: String,
+    parentScrollable: Boolean,
+    onClickHandler: (String) -> Unit,
+) {
+    // val scopedMod = component.scopedModifier as? ScopedModifier.Grid
+//    val isScrollable = scopedMod?.base?.scrollable == true && !parentScrollable
+
+//    val gridModifier =
+//        if (isScrollable) {
+//            if (scopedMod?.base?.width != null) {
+//                modifier.width(scopedMod.base.width.dp).horizontalScroll(rememberScrollState())
+//            } else {
+//                modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
+//            }
+//        } else {
+//            modifier
+//        }
+
+//    val horizontalArrangement =
+//        scopedMod?.horizontalArrangement?.let { arrangement ->
+//            when (arrangement.lowercase()) {
+//                "start" -> Arrangement.Start
+//                "end" -> Arrangement.End
+//                "center" -> Arrangement.Center
+//                "spacebetween" -> Arrangement.SpaceBetween
+//                "spacearound" -> Arrangement.SpaceAround
+//                "spaceevenly" -> Arrangement.SpaceEvenly
+//                else -> {
+//                    val spacedBy = arrangement.toIntOrNull()
+//                    if (spacedBy != null) {
+//                        Arrangement.spacedBy(spacedBy.dp)
+//                    } else {
+//                        Arrangement.SpaceAround
+//                    }
+//                }
+//            }
+//        } ?: Arrangement.Start
+//
+//    val verticalArrangement =
+//        scopedMod?.verticalArrangement?.let { arrangement ->
+//            when (arrangement.lowercase()) {
+//                "top" -> Arrangement.Top
+//                "center" -> Arrangement.Center
+//                "bottom" -> Arrangement.Bottom
+//                "spacebetween" -> Arrangement.SpaceBetween
+//                "spacearound" -> Arrangement.SpaceAround
+//                "spaceevenly" -> Arrangement.SpaceEvenly
+//                else -> {
+//                    val spacedBy = arrangement.toIntOrNull()
+//                    if (spacedBy != null) {
+//                        Arrangement.spacedBy(spacedBy.dp)
+//                    } else {
+//                        Arrangement.SpaceAround
+//                    }
+//                }
+//            }
+//        } ?: Arrangement.SpaceAround
+
+//    FlowRow(
+//        modifier = gridModifier,
+//        maxItemsInEachRow = scopedMod?.span ?: 1,
+//        verticalArrangement = verticalArrangement,
+//        horizontalArrangement = horizontalArrangement,
+//    ) {
+//        component.children?.forEachIndexed { index, wrapper ->
+//            ChildDynamicLayout(
+//                wrapper.component,
+//                modifier = Modifier,
+//                path = "$path-grid-$index",
+//                parentScrollable = isScrollable,
+//                onClickHandler = onClickHandler,
+//            )
+//        }
+//    }
 }
 
 @Composable
