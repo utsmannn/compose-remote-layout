@@ -1,5 +1,7 @@
 package com.utsman.composeremote
 
+import androidx.compose.foundation.gestures.ScrollableDefaults
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,6 +12,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
@@ -24,7 +28,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -378,7 +381,6 @@ private fun RenderRow(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun RenderGrid(
     component: LayoutComponent.Grid,
@@ -395,32 +397,6 @@ private fun RenderGrid(
 
     val isScrollable =
         scopedMod?.base?.scrollable == true && (!parentScrollable || (parentOrientation != orientation))
-
-    val currentScrollCache =
-        LocalCacheScrollPosition.current
-
-    val scrollState = rememberScrollState()
-
-    val scrollDetector = rememberScrollStopDetector(
-        scrollState = scrollState,
-    )
-
-    LaunchedEffect(scrollDetector) {
-        if (isScrollable) {
-            val scrollPosition = scrollState.value
-            if (scrollPosition > 0) {
-                currentScrollCache.put(path, scrollPosition)
-            }
-        }
-    }
-
-    LaunchedEffect(scrollState, isScrollable) {
-        if (isScrollable) {
-            val scrollPosition =
-                currentScrollCache.get(path)
-            scrollState.scrollTo(scrollPosition)
-        }
-    }
 
     val horizontalArrangement =
         scopedMod?.horizontalArrangement?.let { arrangement ->
@@ -464,35 +440,77 @@ private fun RenderGrid(
 
     if (orientation == "horizontal") {
         val gridModifier =
-            if (isScrollable) {
-                if (scopedMod.base.height != null) {
-                    modifier.height(scopedMod.base.height.dp)
-                        .horizontalScroll(scrollState)
-                } else {
-                    modifier
-                        .horizontalScroll(scrollState)
-                }
+            if (scopedMod.base.height != null) {
+                modifier.height(scopedMod.base.height.dp)
             } else {
                 modifier
             }
 
-        HorizontalGrid(
-            items = component.children.orEmpty(),
-            rows = scopedMod.rows ?: 1,
-            modifier = gridModifier,
-            horizontalArrangement = horizontalArrangement,
-            verticalArrangement = verticalArrangement,
-        ) { index, wrapper ->
-            ChildDynamicLayout(
-                wrapper.component,
-                modifier = Modifier,
-                path = "$path-horizontal-grid-$index",
-                parentScrollable = isScrollable,
-                parentOrientation = parentOrientation,
-                onClickHandler = onClickHandler,
-            )
+        if (isScrollable) {
+            val enableSnap = scopedMod.enableSnapHorizontal ?: false
+            ScrollableHorizontalGrid(
+                items = component.children.orEmpty(),
+                rows = scopedMod.rows ?: 1,
+                modifier = gridModifier,
+                horizontalArrangement = horizontalArrangement,
+                verticalArrangement = verticalArrangement,
+                enableSnap = enableSnap,
+                path = path,
+            ) { index, wrapper ->
+                ChildDynamicLayout(
+                    wrapper.component,
+                    modifier = Modifier,
+                    path = "$path-horizontal-grid-$index",
+                    parentScrollable = isScrollable,
+                    parentOrientation = parentOrientation,
+                    onClickHandler = onClickHandler,
+                )
+            }
+        } else {
+            HorizontalGrid(
+                items = component.children.orEmpty(),
+                rows = scopedMod.rows ?: 1,
+                modifier = gridModifier,
+                horizontalArrangement = horizontalArrangement,
+                verticalArrangement = verticalArrangement,
+            ) { index, wrapper ->
+                ChildDynamicLayout(
+                    wrapper.component,
+                    modifier = Modifier,
+                    path = "$path-horizontal-grid-$index",
+                    parentScrollable = isScrollable,
+                    parentOrientation = parentOrientation,
+                    onClickHandler = onClickHandler,
+                )
+            }
         }
     } else {
+        val currentScrollCache =
+            LocalCacheScrollPosition.current
+
+        val scrollState = rememberScrollState()
+
+        val scrollDetector = rememberScrollStopDetector(
+            scrollState = scrollState,
+        )
+
+        LaunchedEffect(scrollDetector) {
+            if (isScrollable) {
+                val scrollPosition = scrollState.value
+                if (scrollPosition > 0) {
+                    currentScrollCache.put(path, scrollPosition)
+                }
+            }
+        }
+
+        LaunchedEffect(scrollState, isScrollable) {
+            if (isScrollable) {
+                val scrollPosition =
+                    currentScrollCache.get(path)
+                scrollState.scrollTo(scrollPosition)
+            }
+        }
+
         val gridModifier =
             if (isScrollable) {
                 if (scopedMod?.base?.width != null) {
@@ -903,6 +921,79 @@ private fun <T> HorizontalGrid(
                                 IntrinsicSize.Min,
                             ),
                         )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun <T> ScrollableHorizontalGrid(
+    items: List<T>,
+    rows: Int,
+    modifier: Modifier = Modifier,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
+    verticalArrangement: Arrangement.Vertical = Arrangement.Top,
+    enableSnap: Boolean,
+    path: String,
+    itemContent: @Composable (Int, T) -> Unit,
+) {
+    val columns = (items.size + rows - 1) / rows
+    val listState = rememberLazyListState()
+
+    val currentScrollCache =
+        LocalCacheScrollOffsetPosition.current
+
+    val scrollDetector = rememberLazyScrollStopDetector(
+        lazyListState = listState,
+    )
+
+    LaunchedEffect(scrollDetector) {
+        listState.layoutInfo
+        val itemPosition = listState.firstVisibleItemIndex
+        val scrollPosition = listState.firstVisibleItemScrollOffset
+        if (scrollPosition > 0) {
+            currentScrollCache.put(path, Pair(itemPosition, scrollPosition))
+        }
+    }
+
+    LaunchedEffect(listState) {
+        val (scrollPosition, offset) =
+            currentScrollCache.get(path)
+
+        listState.scrollToItem(scrollPosition, offset)
+    }
+
+    val flingBehavior = if (enableSnap) {
+        rememberSnapFlingBehavior(listState)
+    } else {
+        ScrollableDefaults.flingBehavior()
+    }
+
+    LazyRow(
+        state = listState,
+        modifier = modifier,
+        horizontalArrangement = horizontalArrangement,
+        flingBehavior = flingBehavior,
+    ) {
+        items(columns) { columnIndex ->
+            Column(
+                verticalArrangement = verticalArrangement,
+            ) {
+                for (rowIndex in 0 until rows) {
+                    val itemIndex = columnIndex * rows + rowIndex
+                    if (itemIndex < items.size) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            itemContent(
+                                itemIndex,
+                                items[itemIndex],
+                            )
+                        }
+                    } else {
+                        Spacer(modifier = Modifier.height(IntrinsicSize.Min))
                     }
                 }
             }

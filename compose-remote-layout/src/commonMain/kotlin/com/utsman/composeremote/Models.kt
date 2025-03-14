@@ -159,6 +159,7 @@ sealed class ScopedModifier {
         val columns: Int? = null,
         val rows: Int? = null,
         val orientation: String? = null,
+        val enableSnapHorizontal: Boolean? = false,
         val horizontalArrangement: String? = null,
         val verticalArrangement: String? = null,
     ) : ScopedModifier()
@@ -179,6 +180,7 @@ data class LayoutModifier(
     val columns: Int? = null,
     val rows: Int? = null,
     val orientation: String? = null,
+    val enableSnapHorizontal: Boolean? = false,
 ) {
     fun toScopedModifier(type: String): ScopedModifier = when (type) {
         "column" -> ScopedModifier.Column(
@@ -203,6 +205,7 @@ data class LayoutModifier(
             columns = columns ?: 1,
             rows = rows ?: 1,
             orientation = orientation ?: "vertical",
+            enableSnapHorizontal = enableSnapHorizontal,
             horizontalArrangement = horizontalArrangement,
             verticalArrangement = verticalArrangement,
         )

@@ -19,12 +19,26 @@ class CacheScrollPosition {
     fun remove(key: String): Int? = map.remove(key)
 
     fun clear() = map.clear()
+}
 
-    operator fun plus(other: CacheScrollPosition): CacheScrollPosition {
-        val otherMap = other.map
-        map.putAll(otherMap)
-        return this
-    }
+class CacheScrollOffsetPosition {
+    private val map = mutableMapOf<String, Pair<Int, Int>>()
+
+    fun put(
+        key: String,
+        value: Pair<Int, Int>,
+    ): Pair<Int, Int>? = map.put(key, value)
+
+    fun get(
+        key: String?,
+    ): Pair<Int, Int> = map[key] ?: Pair(0, 0)
+
+    val size get() = map.size
+
+    fun remove(key: String): Pair<Int, Int>? = map.remove(key)
+
+    fun clear() = map.clear()
 }
 
 val LocalCacheScrollPosition = compositionLocalOf { CacheScrollPosition() }
+val LocalCacheScrollOffsetPosition = compositionLocalOf { CacheScrollOffsetPosition() }
