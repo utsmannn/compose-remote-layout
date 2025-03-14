@@ -9,16 +9,17 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.flow.Flow
 
-class KtorHttpLayoutFetcher : LayoutFetcher {
-    private val client = HttpClient {
-        install(Logging) {
-            level = LogLevel.BODY
-        }
-        install(HttpCache)
+val KtorClientDefault = HttpClient {
+    install(Logging) {
+        level = LogLevel.BODY
     }
+    install(HttpCache)
+}
 
+class KtorHttpLayoutFetcher(
+    private val client: HttpClient = KtorClientDefault,
+) : LayoutFetcher {
     override suspend fun fetchLayout(url: String): Result<String> = try {
-        println("Fetching layout from: $url")
         val response: HttpResponse = client.get(url)
         val layoutText = response.bodyAsText()
         Result.success(layoutText)
@@ -27,9 +28,14 @@ class KtorHttpLayoutFetcher : LayoutFetcher {
     }
 
     override fun fetchLayoutAsFlow(url: String): Flow<ResultLayout<String>> = ResultLayout.flow {
-        println("Fetching layout from: $url")
         val response: HttpResponse = client.get(url)
-        response.bodyAsText()
+        val content = response.bodyAsText()
+        if (!content.startsWith("{")) {
+            throw IllegalStateException(
+                "Invalid layout content",
+            )
+        }
+        content
     }
 
     fun close() {

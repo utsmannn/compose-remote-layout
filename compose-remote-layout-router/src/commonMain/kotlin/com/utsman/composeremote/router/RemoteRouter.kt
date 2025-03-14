@@ -29,7 +29,7 @@ interface RemoteRouter {
     fun reload()
 }
 
-class ResultRemoteRouterImpl(
+internal class ResultRemoteRouterImpl(
     private val fetcher: LayoutFetcher,
     private val scope: CoroutineScope,
 ) : RemoteRouter {

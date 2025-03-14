@@ -3,6 +3,7 @@
 package com.utsman.composeremote
 
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -13,7 +14,7 @@ import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 
 @Composable
-fun rememberScrollStopDetector(
+internal fun rememberScrollStopDetector(
     scrollState: ScrollState,
     debounceTime: Long = 100,
     onScrollStart: (() -> Unit)? = null,
@@ -70,7 +71,88 @@ fun rememberScrollStopDetector(
     }
 }
 
-data class ScrollStopDetectorState(
+@Composable
+internal fun rememberLazyScrollStopDetector(
+    lazyListState: LazyListState,
+    debounceTime: Long = 100,
+    onScrollStart: (() -> Unit)? = null,
+    onScrollStopped: ((index: Int, offset: Int) -> Unit)? = null,
+): LazyScrollStopDetectorState {
+    var isScrolling by remember { mutableStateOf(false) }
+    var stoppedIndex by remember { mutableStateOf(0) }
+    var stoppedOffset by remember { mutableStateOf(0) }
+    var lastScrollChangeTime by remember { mutableStateOf(0L) }
+
+    LaunchedEffect(lazyListState) {
+        var previousScrolling = false
+
+        while (true) {
+            val currentlyScrolling =
+                lazyListState.isScrollInProgress
+            val currentIndex =
+                lazyListState.firstVisibleItemIndex
+            val currentOffset =
+                lazyListState.firstVisibleItemScrollOffset
+            val currentTime =
+                Clock.System.now().toEpochMilliseconds()
+
+            if (currentlyScrolling && !previousScrolling) {
+                isScrolling = true
+                lastScrollChangeTime = currentTime
+                onScrollStart?.invoke()
+            }
+
+            if (stoppedIndex != currentIndex || stoppedOffset != currentOffset) {
+                stoppedIndex = currentIndex
+                stoppedOffset = currentOffset
+                lastScrollChangeTime = currentTime
+            }
+
+            if (!currentlyScrolling &&
+                isScrolling &&
+                (currentTime - lastScrollChangeTime > debounceTime)
+            ) {
+                isScrolling = false
+                onScrollStopped?.invoke(
+                    currentIndex,
+                    currentOffset,
+                )
+            }
+
+            previousScrolling = currentlyScrolling
+            delay(16)
+        }
+    }
+
+    return remember(
+        isScrolling,
+        lazyListState.firstVisibleItemIndex,
+        lazyListState.firstVisibleItemScrollOffset,
+        stoppedIndex,
+        stoppedOffset,
+    ) {
+        LazyScrollStopDetectorState(
+            isScrolling = isScrolling,
+            currentIndex = lazyListState.firstVisibleItemIndex,
+            currentOffset = lazyListState.firstVisibleItemScrollOffset,
+            stoppedIndex = stoppedIndex,
+            stoppedOffset = stoppedOffset,
+        )
+    }
+}
+
+internal data class LazyScrollStopDetectorState(
+    val isScrolling: Boolean,
+    val currentIndex: Int,
+    val currentOffset: Int,
+    val stoppedIndex: Int,
+    val stoppedOffset: Int,
+) {
+    val isAtStoppedPosition: Boolean
+        get() = currentIndex == stoppedIndex && currentOffset == stoppedOffset
+}
+
+internal data class ScrollStopDetectorState(
     val isScrolling: Boolean,
     val currentPosition: Int,
     val stoppedPosition: Int,

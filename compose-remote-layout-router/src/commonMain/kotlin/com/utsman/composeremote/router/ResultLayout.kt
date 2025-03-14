@@ -65,6 +65,7 @@ sealed class ResultLayout<out T> {
             try {
                 emit(Success(block()))
             } catch (e: Exception) {
+                e.printStackTrace()
                 emit(Failure(e))
             }
         }

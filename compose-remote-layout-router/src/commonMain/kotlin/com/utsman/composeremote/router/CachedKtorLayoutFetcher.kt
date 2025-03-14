@@ -12,12 +12,12 @@ class CachedKtorLayoutFetcher(
     private val maxCacheSize: Int = 100,
     private val cacheTtlMillis: Long = 15.minutes.inWholeMilliseconds,
 ) : LayoutFetcher {
-    private val cache = ConcurrentHashMap<String, CacheEntry>()
+    private val cache =
+        ConcurrentHashMap<String, CacheEntry>()
 
     private val cacheMutex = Mutex()
 
     override suspend fun fetchLayout(url: String): Result<String> {
-        println("Fetching layout cached from: $url")
         val cachedEntry = cache.get(url)
         if (cachedEntry != null && !isExpired(cachedEntry)) {
             return Result.success(cachedEntry.layout)
@@ -33,7 +33,14 @@ class CachedKtorLayoutFetcher(
                     oldestKey?.let { cache.remove(it) }
                 }
 
-                cache.put(url, CacheEntry(layout, Clock.System.now().toEpochMilliseconds()))
+                cache.put(
+                    url,
+                    CacheEntry(
+                        layout,
+                        Clock.System.now()
+                            .toEpochMilliseconds(),
+                    ),
+                )
             }
         }
 
@@ -41,30 +48,46 @@ class CachedKtorLayoutFetcher(
     }
 
     override fun fetchLayoutAsFlow(url: String): Flow<ResultLayout<String>> = flow {
-        println("Fetching layout cached from: $url")
         emit(ResultLayout.Loading)
 
         try {
             val cachedEntry = cache.get(url)
-            if (cachedEntry != null && !isExpired(cachedEntry)) {
+            if (cachedEntry != null &&
+                !isExpired(
+                    cachedEntry,
+                )
+            ) {
                 emit(ResultLayout.success(cachedEntry.layout))
                 return@flow
             }
 
-            delegate.fetchLayoutAsFlow(url).collect { result ->
-                if (result is ResultLayout.Success) {
-                    cacheMutex.withLock {
-                        if (cache.size >= maxCacheSize) {
-                            val oldestKey = findOldestEntry()
-                            oldestKey?.let { cache.remove(it) }
+            delegate.fetchLayoutAsFlow(url)
+                .collect { result ->
+                    if (result is ResultLayout.Success) {
+                        cacheMutex.withLock {
+                            if (cache.size >= maxCacheSize) {
+                                val oldestKey =
+                                    findOldestEntry()
+                                oldestKey?.let {
+                                    cache.remove(
+                                        it,
+                                    )
+                                }
+                            }
+
+                            cache.put(
+                                url,
+                                CacheEntry(
+                                    result.data,
+                                    Clock.System.now()
+                                        .toEpochMilliseconds(),
+                                ),
+                            )
                         }
-
-                        cache.put(url, CacheEntry(result.data, Clock.System.now().toEpochMilliseconds()))
                     }
-                }
 
-                emit(result)
-            }
+                    emit(result)
+                }
         } catch (e: Exception) {
             emit(ResultLayout.failure(e))
         }
@@ -110,4 +133,8 @@ class CachedKtorLayoutFetcher(
 fun KtorHttpLayoutFetcher.cached(
     maxCacheSize: Int = 100,
     cacheTtlMillis: Long = 15.minutes.inWholeMilliseconds,
-): CachedKtorLayoutFetcher = CachedKtorLayoutFetcher(this, maxCacheSize, cacheTtlMillis)
+): CachedKtorLayoutFetcher = CachedKtorLayoutFetcher(
+    this,
+    maxCacheSize,
+    cacheTtlMillis,
+)
