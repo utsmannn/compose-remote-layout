@@ -31,7 +31,9 @@ dependencyResolutionManagement {
 }
 includeBuild("convention-plugins")
 include(":compose-remote-layout")
+include(":compose-remote-layout-router")
 include(":samples:simpleApp:composeApp")
 include(":samples:firebaseApp:composeApp")
+include(":samples:routerApp:composeApp")
 include(":samples:sharedCompose")
 include(":jsonBuilderWeb")
