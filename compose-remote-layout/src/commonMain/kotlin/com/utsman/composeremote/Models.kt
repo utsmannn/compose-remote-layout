@@ -156,7 +156,9 @@ sealed class ScopedModifier {
     @SerialName("grid")
     data class Grid(
         override val base: BaseModifier = BaseModifier(),
-        val span: Int? = null,
+        val columns: Int? = null,
+        val rows: Int? = null,
+        val orientation: String? = null,
         val horizontalArrangement: String? = null,
         val verticalArrangement: String? = null,
     ) : ScopedModifier()
@@ -174,7 +176,9 @@ data class LayoutModifier(
     val horizontalArrangement: String? = null,
     val verticalAlignment: String? = null,
     val contentAlignment: String? = null,
-    val span: Int? = null,
+    val columns: Int? = null,
+    val rows: Int? = null,
+    val orientation: String? = null,
 ) {
     fun toScopedModifier(type: String): ScopedModifier = when (type) {
         "column" -> ScopedModifier.Column(
@@ -196,7 +200,9 @@ data class LayoutModifier(
 
         "grid" -> ScopedModifier.Grid(
             base = base,
-            span = span ?: 1,
+            columns = columns ?: 1,
+            rows = rows ?: 1,
+            orientation = orientation ?: "vertical",
             horizontalArrangement = horizontalArrangement,
             verticalArrangement = verticalArrangement,
         )
