@@ -393,10 +393,6 @@ private fun RenderGrid(
 
     val orientation = scopedMod?.orientation
 
-    println("cuasks parent orientation ----> current: $orientation | parent: $parentOrientation")
-    println("cuasks parent scrollable ----> $parentScrollable")
-    println("cuasks scrollable ----> ${scopedMod?.base?.scrollable}")
-
     val isScrollable =
         scopedMod?.base?.scrollable == true && (!parentScrollable || (parentOrientation != orientation))
 
@@ -467,7 +463,6 @@ private fun RenderGrid(
         } ?: Arrangement.SpaceAround
 
     if (orientation == "horizontal") {
-        println("cuasks scrollable ----> $isScrollable | height -> ${scopedMod.base.height}")
         val gridModifier =
             if (isScrollable) {
                 if (scopedMod.base.height != null) {

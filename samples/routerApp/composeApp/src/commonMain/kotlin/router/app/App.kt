@@ -2,11 +2,12 @@ package router.app
 
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import com.utsman.composeremote.router.ComposeRemoteRouter
 import com.utsman.composeremote.router.KtorHttpLayoutFetcher
-import com.utsman.composeremote.router.NavigationEventContainer
 import com.utsman.composeremote.router.ResultRouterFactory
 import com.utsman.composeremote.router.cached
 
@@ -23,18 +24,16 @@ fun App() {
             )
         }
 
-        val navigationEventContainer =
-            remember { NavigationEventContainer() }
+        val isRoot by router.isRoot.collectAsState()
 
-        BackPress {
-            navigationEventContainer.pop()
+        BackPress(!isRoot) {
+            router.popUrl()
         }
 
         ComposeRemoteRouter(
             baseUrl = "https://crl-marketplace.codeutsman.com",
             initialPath = "home",
             router = router,
-            navigationEventContainer = navigationEventContainer,
         )
     }
 }

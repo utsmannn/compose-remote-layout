@@ -14,6 +14,8 @@ interface RemoteRouter {
 
     val previousUrl: String?
 
+    val isRoot: StateFlow<Boolean>
+
     val layoutContent: StateFlow<ResultLayout<String>>
 
     fun pushUrl(url: String)
@@ -45,6 +47,11 @@ class ResultRemoteRouterImpl(
     override val previousUrl: String?
         get() = if (urlStack.size > 1) urlStack[urlStack.size - 2] else null
 
+    private val _isRoot: MutableStateFlow<Boolean> =
+        MutableStateFlow(true)
+    override val isRoot: StateFlow<Boolean>
+        get() = _isRoot
+
     override fun pushUrl(url: String) {
         if (url.isNotEmpty()) {
             urlStack.add(url)
@@ -73,6 +80,7 @@ class ResultRemoteRouterImpl(
     override fun clearHistory() {
         val currentUrl = this.currentUrl
         urlStack.clear()
+        calculateIsRoot()
         if (currentUrl.isNotEmpty()) {
             urlStack.add(currentUrl)
         }
@@ -93,9 +101,14 @@ class ResultRemoteRouterImpl(
                 fetcher.fetchLayoutAsFlow(url)
                     .collectLatest { result ->
                         _layoutContent.value = result
+                        calculateIsRoot()
                     }
             }
         }
+    }
+
+    private fun calculateIsRoot() {
+        _isRoot.value = urlStack.size <= 1
     }
 }
 
