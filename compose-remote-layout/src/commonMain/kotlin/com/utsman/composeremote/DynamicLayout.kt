@@ -18,6 +18,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -61,7 +62,7 @@ fun DynamicLayout(
     modifier: Modifier = Modifier,
     path: String = "root",
     parentScrollable: Boolean = false,
-    bindValue: BindsValue = BindsValue(),
+    bindValue: BindsValue = remember { BindsValue() },
     onClickHandler: (String) -> Unit = {},
 ) {
     val currentBindsValue = LocalBindsValue.current
@@ -199,12 +200,38 @@ private fun RenderColumn(
     val isScrollable =
         scopedMod?.base?.scrollable == true && !parentScrollable
 
+    val currentScrollCache = LocalCacheScrollPosition.current
+
+    val scrollState = rememberScrollState()
+
+    val scrollDetector = rememberScrollStopDetector(
+        scrollState = scrollState,
+    )
+
+    LaunchedEffect(scrollDetector) {
+        if (isScrollable) {
+            val scrollPosition = scrollState.value
+            if (scrollPosition > 0) {
+                currentScrollCache.put(path, scrollPosition)
+            }
+        }
+    }
+
+    LaunchedEffect(scrollState, isScrollable) {
+        if (isScrollable) {
+            val scrollPosition = currentScrollCache.get(path)
+            scrollState.scrollTo(scrollPosition)
+        }
+    }
+
     val columnModifier =
         if (isScrollable) {
             if (scopedMod?.base?.height != null) {
-                modifier.height(scopedMod.base.height.dp).verticalScroll(rememberScrollState())
+                modifier.height(scopedMod.base.height.dp)
+                    .verticalScroll(scrollState)
             } else {
-                modifier.fillMaxHeight().verticalScroll(rememberScrollState())
+                modifier.fillMaxHeight()
+                    .verticalScroll(scrollState)
             }
         } else {
             modifier
@@ -263,14 +290,38 @@ private fun RenderRow(
     val isScrollable =
         scopedMod?.base?.scrollable == true && !parentScrollable
 
+    val currentScrollCache = LocalCacheScrollPosition.current
+
+    val scrollState = rememberScrollState()
+
+    val scrollDetector = rememberScrollStopDetector(
+        scrollState = scrollState,
+    )
+
+    LaunchedEffect(scrollDetector) {
+        if (isScrollable) {
+            val scrollPosition = scrollState.value
+            if (scrollPosition > 0) {
+                currentScrollCache.put(path, scrollPosition)
+            }
+        }
+    }
+
+    LaunchedEffect(scrollState, isScrollable) {
+        if (isScrollable) {
+            val scrollPosition = currentScrollCache.get(path)
+            scrollState.scrollTo(scrollPosition)
+        }
+    }
+
     val rowModifier =
         if (isScrollable) {
             if (scopedMod?.base?.width != null) {
                 modifier.width(scopedMod.base.width.dp)
-                    .horizontalScroll(rememberScrollState())
+                    .horizontalScroll(scrollState)
             } else {
                 modifier
-                    .horizontalScroll(rememberScrollState())
+                    .horizontalScroll(scrollState)
             }
         } else {
             modifier
@@ -329,14 +380,38 @@ private fun RenderGrid(
     val isScrollable =
         scopedMod?.base?.scrollable == true && !parentScrollable
 
+    val currentScrollCache = LocalCacheScrollPosition.current
+
+    val scrollState = rememberScrollState()
+
+    val scrollDetector = rememberScrollStopDetector(
+        scrollState = scrollState,
+    )
+
+    LaunchedEffect(scrollDetector) {
+        if (isScrollable) {
+            val scrollPosition = scrollState.value
+            if (scrollPosition > 0) {
+                currentScrollCache.put(path, scrollPosition)
+            }
+        }
+    }
+
+    LaunchedEffect(scrollState, isScrollable) {
+        if (isScrollable) {
+            val scrollPosition = currentScrollCache.get(path)
+            scrollState.scrollTo(scrollPosition)
+        }
+    }
+
     val gridModifier =
         if (isScrollable) {
             if (scopedMod?.base?.width != null) {
                 modifier.width(scopedMod.base.width.dp)
-                    .horizontalScroll(rememberScrollState())
+                    .horizontalScroll(scrollState)
             } else {
                 modifier
-                    .horizontalScroll(rememberScrollState())
+                    .horizontalScroll(scrollState)
             }
         } else {
             modifier
@@ -539,13 +614,15 @@ private fun RenderButton(
                 component.textDecoration?.toTextDecoration()
                     ?: defaultTextStyle.textDecoration
 
-            val maxLines = component.maxLines ?: Int.MAX_VALUE
+            val maxLines =
+                component.maxLines ?: Int.MAX_VALUE
             val minLines = component.minLines ?: 1
-            val overflow = when (component.overflow?.lowercase()) {
-                "visible" -> TextOverflow.Visible
-                "ellipsis" -> TextOverflow.Ellipsis
-                else -> TextOverflow.Clip
-            }
+            val overflow =
+                when (component.overflow?.lowercase()) {
+                    "visible" -> TextOverflow.Visible
+                    "ellipsis" -> TextOverflow.Ellipsis
+                    else -> TextOverflow.Clip
+                }
 
             Text(
                 text = bindsValue.getValue(component)
@@ -704,21 +781,28 @@ private fun <T> ListGrid(
 ) {
     val rows = (items.size + columns - 1) / columns
 
-    Column(modifier = modifier, verticalArrangement = verticalArrangement) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = verticalArrangement,
+    ) {
         for (rowIndex in 0 until rows) {
             Row(
                 modifier = Modifier.fillMaxHeight(),
                 horizontalArrangement = horizontalArrangement,
             ) {
                 for (columnIndex in 0 until columns) {
-                    val itemIndex = rowIndex * columns + columnIndex
+                    val itemIndex =
+                        rowIndex * columns + columnIndex
                     if (itemIndex < items.size) {
                         Box(
                             modifier = Modifier
                                 .weight(1f),
                             contentAlignment = Alignment.Center,
                         ) {
-                            itemContent(itemIndex, items[itemIndex])
+                            itemContent(
+                                itemIndex,
+                                items[itemIndex],
+                            )
                         }
                     } else {
                         Spacer(modifier = Modifier.weight(1f))
