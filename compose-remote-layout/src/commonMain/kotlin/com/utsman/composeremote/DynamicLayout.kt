@@ -4,6 +4,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -23,6 +24,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -75,6 +77,7 @@ fun DynamicLayout(
             modifier,
             path,
             parentScrollable,
+            parentOrientation = "unknown",
             onClickHandler,
         )
     }
@@ -86,6 +89,7 @@ private fun ChildDynamicLayout(
     modifier: Modifier = Modifier,
     path: String = "root",
     parentScrollable: Boolean = false,
+    parentOrientation: String,
     onClickHandler: (String) -> Unit,
 ) {
     val componentToRender =
@@ -136,6 +140,7 @@ private fun ChildDynamicLayout(
                 currentModifier,
                 path,
                 parentScrollable,
+                parentOrientation,
                 onClickHandler,
             )
         }
@@ -200,7 +205,8 @@ private fun RenderColumn(
     val isScrollable =
         scopedMod?.base?.scrollable == true && !parentScrollable
 
-    val currentScrollCache = LocalCacheScrollPosition.current
+    val currentScrollCache =
+        LocalCacheScrollPosition.current
 
     val scrollState = rememberScrollState()
 
@@ -219,7 +225,8 @@ private fun RenderColumn(
 
     LaunchedEffect(scrollState, isScrollable) {
         if (isScrollable) {
-            val scrollPosition = currentScrollCache.get(path)
+            val scrollPosition =
+                currentScrollCache.get(path)
             scrollState.scrollTo(scrollPosition)
         }
     }
@@ -271,6 +278,7 @@ private fun RenderColumn(
                 modifier = Modifier,
                 path = "$path-column-$index",
                 parentScrollable = isScrollable,
+                parentOrientation = "vertical",
                 onClickHandler = onClickHandler,
             )
         }
@@ -290,7 +298,8 @@ private fun RenderRow(
     val isScrollable =
         scopedMod?.base?.scrollable == true && !parentScrollable
 
-    val currentScrollCache = LocalCacheScrollPosition.current
+    val currentScrollCache =
+        LocalCacheScrollPosition.current
 
     val scrollState = rememberScrollState()
 
@@ -309,7 +318,8 @@ private fun RenderRow(
 
     LaunchedEffect(scrollState, isScrollable) {
         if (isScrollable) {
-            val scrollPosition = currentScrollCache.get(path)
+            val scrollPosition =
+                currentScrollCache.get(path)
             scrollState.scrollTo(scrollPosition)
         }
     }
@@ -361,26 +371,37 @@ private fun RenderRow(
                 modifier = Modifier,
                 path = "$path-row-$index",
                 parentScrollable = isScrollable,
+                parentOrientation = "horizontal",
                 onClickHandler = onClickHandler,
             )
         }
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun RenderGrid(
     component: LayoutComponent.Grid,
     modifier: Modifier,
     path: String,
     parentScrollable: Boolean,
+    parentOrientation: String,
     onClickHandler: (String) -> Unit,
 ) {
     val scopedMod =
         component.scopedModifier as? ScopedModifier.Grid
-    val isScrollable =
-        scopedMod?.base?.scrollable == true && !parentScrollable
 
-    val currentScrollCache = LocalCacheScrollPosition.current
+    val orientation = scopedMod?.orientation
+
+    println("cuasks parent orientation ----> current: $orientation | parent: $parentOrientation")
+    println("cuasks parent scrollable ----> $parentScrollable")
+    println("cuasks scrollable ----> ${scopedMod?.base?.scrollable}")
+
+    val isScrollable =
+        scopedMod?.base?.scrollable == true && (!parentScrollable || (parentOrientation != orientation))
+
+    val currentScrollCache =
+        LocalCacheScrollPosition.current
 
     val scrollState = rememberScrollState()
 
@@ -399,23 +420,11 @@ private fun RenderGrid(
 
     LaunchedEffect(scrollState, isScrollable) {
         if (isScrollable) {
-            val scrollPosition = currentScrollCache.get(path)
+            val scrollPosition =
+                currentScrollCache.get(path)
             scrollState.scrollTo(scrollPosition)
         }
     }
-
-    val gridModifier =
-        if (isScrollable) {
-            if (scopedMod?.base?.width != null) {
-                modifier.width(scopedMod.base.width.dp)
-                    .horizontalScroll(scrollState)
-            } else {
-                modifier
-                    .horizontalScroll(scrollState)
-            }
-        } else {
-            modifier
-        }
 
     val horizontalArrangement =
         scopedMod?.horizontalArrangement?.let { arrangement ->
@@ -457,20 +466,67 @@ private fun RenderGrid(
             }
         } ?: Arrangement.SpaceAround
 
-    ListGrid(
-        items = component.children.orEmpty(),
-        columns = scopedMod?.span ?: 1,
-        modifier = gridModifier,
-        verticalArrangement = verticalArrangement,
-        horizontalArrangement = horizontalArrangement,
-    ) { index, wrapper ->
-        ChildDynamicLayout(
-            wrapper.component,
-            modifier = Modifier,
-            path = "$path-grid-$index",
-            parentScrollable = isScrollable,
-            onClickHandler = onClickHandler,
-        )
+    if (orientation == "horizontal") {
+        println("cuasks scrollable ----> $isScrollable | height -> ${scopedMod.base.height}")
+        val gridModifier =
+            if (isScrollable) {
+                if (scopedMod.base.height != null) {
+                    modifier.height(scopedMod.base.height.dp)
+                        .horizontalScroll(scrollState)
+                } else {
+                    modifier
+                        .horizontalScroll(scrollState)
+                }
+            } else {
+                modifier
+            }
+
+        HorizontalGrid(
+            items = component.children.orEmpty(),
+            rows = scopedMod.rows ?: 1,
+            modifier = gridModifier,
+            horizontalArrangement = horizontalArrangement,
+            verticalArrangement = verticalArrangement,
+        ) { index, wrapper ->
+            ChildDynamicLayout(
+                wrapper.component,
+                modifier = Modifier,
+                path = "$path-horizontal-grid-$index",
+                parentScrollable = isScrollable,
+                parentOrientation = parentOrientation,
+                onClickHandler = onClickHandler,
+            )
+        }
+    } else {
+        val gridModifier =
+            if (isScrollable) {
+                if (scopedMod?.base?.width != null) {
+                    modifier.width(scopedMod.base.width.dp)
+                        .verticalScroll(scrollState)
+                } else {
+                    modifier
+                        .verticalScroll(scrollState)
+                }
+            } else {
+                modifier
+            }
+
+        VerticalGrid(
+            items = component.children.orEmpty(),
+            columns = scopedMod?.columns ?: 1,
+            modifier = gridModifier,
+            verticalArrangement = verticalArrangement,
+            horizontalArrangement = horizontalArrangement,
+        ) { index, wrapper ->
+            ChildDynamicLayout(
+                wrapper.component,
+                modifier = Modifier,
+                path = "$path-vertical-grid-$index",
+                parentScrollable = isScrollable,
+                parentOrientation = parentOrientation,
+                onClickHandler = onClickHandler,
+            )
+        }
     }
 }
 
@@ -511,6 +567,7 @@ private fun RenderBox(
                 modifier = Modifier,
                 path = "$path-box-$index",
                 parentScrollable = parentScrollable,
+                parentOrientation = "unknown",
                 onClickHandler = onClickHandler,
             )
         }
@@ -649,6 +706,7 @@ private fun RenderButton(
                     modifier = Modifier,
                     path = "$path-button-$index",
                     parentScrollable = parentScrollable,
+                    parentOrientation = "unknown",
                     onClickHandler = onClickHandler,
                 )
             }
@@ -674,6 +732,7 @@ private fun RenderCard(
                 modifier = Modifier,
                 path = "$path-card-$index",
                 parentScrollable = parentScrollable,
+                parentOrientation = "unknown",
                 onClickHandler = onClickHandler,
             )
         }
@@ -771,7 +830,7 @@ fun createLayoutComponent(textJson: String): LayoutComponent? {
 }
 
 @Composable
-private fun <T> ListGrid(
+private fun <T> VerticalGrid(
     items: List<T>,
     columns: Int,
     modifier: Modifier = Modifier,
@@ -806,6 +865,49 @@ private fun <T> ListGrid(
                         }
                     } else {
                         Spacer(modifier = Modifier.weight(1f))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun <T> HorizontalGrid(
+    items: List<T>,
+    rows: Int,
+    modifier: Modifier = Modifier,
+    horizontalArrangement: Arrangement.Horizontal,
+    verticalArrangement: Arrangement.Vertical,
+    itemContent: @Composable (Int, T) -> Unit,
+) {
+    val columns = (items.size + rows - 1) / rows
+
+    Row(
+        modifier = modifier,
+        horizontalArrangement = horizontalArrangement,
+    ) {
+        for (columnIndex in 0 until columns) {
+            Column(
+                verticalArrangement = verticalArrangement,
+            ) {
+                for (rowIndex in 0 until rows) {
+                    val itemIndex = columnIndex * rows + rowIndex
+                    if (itemIndex < items.size) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            itemContent(
+                                itemIndex,
+                                items[itemIndex],
+                            )
+                        }
+                    } else {
+                        Spacer(
+                            modifier = Modifier.height(
+                                IntrinsicSize.Min,
+                            ),
+                        )
                     }
                 }
             }
