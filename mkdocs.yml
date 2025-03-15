@@ -2,6 +2,11 @@
 
 site_name: Compose Remote Layout
 site_url: https://utsmannn.github.io/compose-remote-layout
+site_description: >-
+  Server-Driven UI component with Compose Multiplatform
+
+copyright: Copyright &copy; 2025 Muhammad Utsman
+
 theme:
   name: material
   palette:
@@ -10,8 +15,12 @@ theme:
     accent: green
   features:
     - navigation.tabs
-    - navigation.tabs.sticky
     - navigation.indexes
+    - navigation.sections
+    - navigation.top
+
+repo_name: utsmannn/compose-remote-layout
+repo_url: https://github.com/utsmannn/compose-remote-layout
 
 markdown_extensions:
   - pymdownx.highlight:
@@ -23,5 +32,8 @@ nav:
       - Overview: index.md
       - Installation: 01-getting-started/01-installation.md
       - Basic Usage: 01-getting-started/02-basic-setup.md
-      - Integrate with Remote Source: 01-getting-started/03-integrated-remote-sources.md
-      - Understanding JSON Layout Structure: 01-getting-started/04-layout-json-structure.md
+  - Setup:
+      - Integrate with Remote Source: 02-setup/03-integrated-remote-sources.md
+      - Understanding JSON Layout Structure: 02-setup/04-layout-json-structure.md
+      - Bind Values: 02-setup/05-bind-values.md
+      - Bind Actions: 02-setup/06-bind-actions.md
