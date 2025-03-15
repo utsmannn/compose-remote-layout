@@ -12,6 +12,12 @@ plugins {
 group = "io.github.utsmannn"
 version = project.findProperty("version")?.toString() ?: "0.0.1"
 
+mavenPublish {
+    artifactId = "compose-remote-layout"
+    moduleName = "Compose Remote Layout"
+    moduleDescription = "Compose Remote Layout is a library to create dynamic layout from remote json"
+}
+
 kotlin {
     jvmToolchain(17)
 

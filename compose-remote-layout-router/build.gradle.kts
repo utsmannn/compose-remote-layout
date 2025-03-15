@@ -12,6 +12,12 @@ plugins {
 group = "io.github.utsmannn"
 version = project.findProperty("version")?.toString() ?: "0.0.1"
 
+mavenPublish {
+    artifactId = "compose-remote-layout-router"
+    moduleName = "Compose Remote Layout Router"
+    moduleDescription = "Compose Remote Layout Router is a library for handle navigation and layout from remote json"
+}
+
 kotlin {
     jvmToolchain(17)
 

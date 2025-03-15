@@ -1,3 +1,5 @@
+@file:Suppress("ktlint:standard:no-wildcard-imports")
+
 // Publishing your Kotlin Multiplatform library to Maven Central
 // https://dev.to/kotlin/how-to-build-and-publish-a-kotlin-multiplatform-library-going-public-4a8k
 
@@ -17,6 +19,13 @@ ext["signing.password"] = null
 ext["signing.secretKeyRingFile"] = null
 ext["ossrhUsername"] = null
 ext["ossrhPassword"] = null
+
+open class MavenPublishConfig {
+    var artifactId: String? = null
+    var moduleName: String? = null
+    var moduleDescription: String? = null
+    var moduleVersion: String? = null
+}
 
 // Grabbing secrets from local.properties file or from environment variables, which could be used on CI
 val secretPropsFile = project.rootProject.file("local.properties")
@@ -40,6 +49,8 @@ val javadocJar by tasks.registering(Jar::class) {
 
 fun getExtraString(name: String) = ext[name]?.toString()
 
+val mavenPublish = extensions.create<MavenPublishConfig>("mavenPublish")
+
 publishing {
     // Configure maven central repository
     repositories {
@@ -56,11 +67,15 @@ publishing {
     publications.withType<MavenPublication> {
         // Stub javadoc.jar artifact
         artifact(javadocJar.get())
+        mavenPublish.artifactId?.let {
+            artifactId = it
+        }
 
         // Provide artifacts information requited by Maven Central
         pom {
-            name.set("Compose Remote Layout")
-            description.set("Kotlin Multiplatform library")
+            name.set(mavenPublish.moduleName ?: project.name)
+            description.set(mavenPublish.moduleDescription ?: "Kotlin Multiplatform library")
+
             url.set("https://github.com/utsmannn/compose-remote-layout")
 
             licenses {
