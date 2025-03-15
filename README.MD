@@ -25,7 +25,7 @@ This library was created to solve several key challenges:
 
 ## Key Features
 
-The compose-remote-layout module provides several core features:
+The `compose-remote-layout` module provides several core features:
 
 1. **Component System**
     - Built-in support for basic Compose components (Column, Row, Box, Text, Button, Card)
@@ -90,6 +90,7 @@ dependencies: [
 ```
 
 Or add it via Xcode:
+
 - Open your project in Xcode
 - Go to File > Swift Packages > Add Package Dependency
 - Enter the package URL: `https://github.com/utsmannn/compose-remote-layout-swift.git`
@@ -190,18 +191,18 @@ The library supports extensive modifiers through JSON:
 
 ```json
 "modifier": {
-"base": {
-"width": 200,
-"height": 100,
-"padding": {
-"all": 16
-},
-"background": {
-"color": "#FF0000",
-"shape": "roundedcorner",
-"radius": 8
-}
-}
+      "base": {
+      "width": 200,
+      "height": 100,
+      "padding": {
+         "all": 16
+      },
+      "background": {
+         "color": "#FF0000",
+         "shape": "roundedcorner",
+         "radius": 8
+      }
+  }
 }
 ```
 
@@ -234,123 +235,9 @@ Different components support specific modifiers:
 }
 ```
 
-# How It Works
-
-The library operates through several interconnected systems that handle JSON parsing, component
-rendering, and state management. Let's explore how each part works.
-
-## Core Flow
-
-The basic flow of the library follows this sequence:
-
-```mermaid
-sequenceDiagram
-    participant App
-    participant LayoutParser
-    participant DynamicLayout
-    participant Components
-    participant BindsValue
-    
-    App->>LayoutParser: parseLayoutJson(jsonString)
-    activate LayoutParser
-    LayoutParser-->>App: LayoutComponent
-    deactivate LayoutParser
-    
-    App->>DynamicLayout: DynamicLayout(component)
-    activate DynamicLayout
-    DynamicLayout->>Components: Render UI Elements
-    Components->>BindsValue: Check Dynamic Values
-    BindsValue-->>Components: Current Values
-    Components-->>DynamicLayout: Rendered UI
-    deactivate DynamicLayout
-```
-
-Implementation example:
-
-```kotlin
-@Composable
-fun MyScreen() {
-    val jsonLayout = """
-    {
-      "column": {
-        "children": [
-          {
-            "text": {
-              "content": "Hello World"
-            }
-          }
-        ]
-      }
-    }
-    """
-
-    val component = createLayoutComponent(jsonLayout)
-    DynamicLayout(component = component)
-}
-```
-
-## JSON Parsing and Component Creation
-
-Here's how the library processes JSON into UI components:
-
-```mermaid
-sequenceDiagram
-participant Client
-participant Parser
-participant ComponentBuilder
-participant CustomNodes
-
-    Client->>Parser: JSON String
-    activate Parser
-    Parser->>Parser: Validate JSON
-    Parser->>ComponentBuilder: Build Components
-    ComponentBuilder->>CustomNodes: Check Custom Components
-    CustomNodes-->>ComponentBuilder: Component Definitions
-    ComponentBuilder-->>Parser: Component Tree
-    Parser-->>Client: LayoutComponent
-    deactivate Parser
-```
-
-Example of handling parsed layouts:
-
-```kotlin
-@Composable
-fun LayoutScreen() {
-    var layout by remember { mutableStateOf("") }
-
-    LaunchedEffect(Unit) {
-        layout = fetchLayoutFromServer()
-    }
-
-    val component = createLayoutComponent(layout)
-    DynamicLayout(component = component)
-}
-```
-
 ## Value Binding System
 
 The value binding system manages dynamic content updates:
-
-```mermaid
-
-sequenceDiagram
-participant App
-participant BindsValue
-participant DynamicLayout
-participant Component
-
-    App->>BindsValue: setValue("counter", 1)
-    activate BindsValue
-    BindsValue->>BindsValue: Update State
-    deactivate BindsValue
-    
-    DynamicLayout->>Component: Render
-    Component->>BindsValue: Get Value
-    BindsValue-->>Component: Current Value
-    Component->>Component: Update UI
-```
-
-Implementation example:
 
 ```kotlin
 @Composable
@@ -383,78 +270,9 @@ fun CounterExample() {
 }
 ```
 
-## Custom Component Registration
-
-The process for registering and using custom components:
-
-```mermaid
-sequenceDiagram
-participant App
-participant CustomNodes
-participant DynamicLayout
-participant Component
-
-    App->>CustomNodes: register("banner", composable)
-    App->>DynamicLayout: JSON with "banner"
-    DynamicLayout->>CustomNodes: get("banner")
-    CustomNodes-->>DynamicLayout: Composable
-    DynamicLayout->>Component: Render Custom Component
-```
-
-Example implementation:
-
-```kotlin
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        // Register custom component
-        CustomNodes.register("banner") { param ->
-            Column(modifier = param.modifier) {
-                Text(param.data["title"] ?: "")
-                Text(param.data["message"] ?: "")
-            }
-        }
-
-        setContent {
-            // Use custom component
-            DynamicLayout(
-                component = createLayoutComponent(
-                    """
-                {
-                  "banner": {
-                    "data": {
-                      "title": "Welcome",
-                      "message": "Hello!"
-                    }
-                  }
-                }
-                """
-                )
-            )
-        }
-    }
-}
-```
-
 ## Event Handling Flow
 
 The event system handles user interactions:
-
-```mermaid
-sequenceDiagram
-participant User
-participant Component
-participant DynamicLayout
-participant App
-
-    User->>Component: Click
-    Component->>DynamicLayout: clickId
-    DynamicLayout->>App: onClickHandler
-    App->>App: Handle Event
-```
-
-Implementation example:
 
 ```kotlin
 @Composable
@@ -477,45 +295,6 @@ fun ButtonExample() {
                 }
             }
         }
-    )
-}
-```
-
-## Layout Updates and Caching
-
-Updates and caching flow:
-
-```mermaid
-sequenceDiagram
-participant App
-participant DynamicLayout
-participant Cache
-participant Components
-
-    App->>DynamicLayout: New Layout
-    DynamicLayout->>Cache: Save Component
-    DynamicLayout->>Components: Update UI
-    Components->>Cache: Get Cached Values
-    Cache-->>Components: Cached Components
-    Components-->>DynamicLayout: Updated UI
-```
-
-Example with remote updates:
-
-```kotlin
-@Composable
-fun DynamicUpdates() {
-    var layout by remember { mutableStateOf("") }
-
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(5000)
-            layout = fetchNewLayout()
-        }
-    }
-
-    DynamicLayout(
-        component = createLayoutComponent(layout)
     )
 }
 ```

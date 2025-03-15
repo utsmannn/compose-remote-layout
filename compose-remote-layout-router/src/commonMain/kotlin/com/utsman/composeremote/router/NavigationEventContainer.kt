@@ -16,16 +16,16 @@ class NavigationEventContainer {
     }
 
     fun push(path: String) {
-        navigationEvents.value = NavigationEvent.Push(url(path))
+        navigationEvents.value = NavigationEvent.Push(path)
     }
 
     fun replace(path: String) {
         navigationEvents.value =
-            NavigationEvent.Replace(url(path))
+            NavigationEvent.Replace(path)
     }
 
     fun home(path: String) {
-        navigationEvents.value = NavigationEvent.Home(url(path))
+        navigationEvents.value = NavigationEvent.Home(path)
     }
 
     fun pop() {
@@ -36,7 +36,9 @@ class NavigationEventContainer {
         navigationEvents.value = NavigationEvent.Reload
     }
 
-    private fun url(path: String): String = "$baseUrl/${path.removePrefix("/")}"
+    fun clear() {
+        navigationEvents.value = null
+    }
 
     suspend fun collectNavigationEvent(block: (NavigationEvent) -> Unit) {
         navigationEvents.collect { event ->

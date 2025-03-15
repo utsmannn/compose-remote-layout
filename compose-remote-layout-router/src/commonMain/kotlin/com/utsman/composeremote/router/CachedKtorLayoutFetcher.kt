@@ -8,7 +8,7 @@ import kotlinx.datetime.Clock
 import kotlin.time.Duration.Companion.minutes
 
 class CachedKtorLayoutFetcher(
-    private val delegate: KtorHttpLayoutFetcher,
+    private val delegate: LayoutFetcher,
     private val maxCacheSize: Int = 100,
     private val cacheTtlMillis: Long = 15.minutes.inWholeMilliseconds,
 ) : LayoutFetcher {

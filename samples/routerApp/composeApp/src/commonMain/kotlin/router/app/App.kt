@@ -1,6 +1,9 @@
 package router.app
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -21,19 +24,27 @@ fun App() {
             ResultRouterFactory().createRouter(
                 scope = scope,
                 fetcher = cachedFetcher,
+                baseUrl = "https://crl-marketplace.codeutsman.com",
             )
         }
 
         val isRoot by router.isRoot.collectAsState()
 
         BackPress(!isRoot) {
-            router.popUrl()
+            router.popPath()
         }
 
         ComposeRemoteRouter(
-            baseUrl = "https://crl-marketplace.codeutsman.com",
-            initialPath = "home",
+            initialPath = "/home",
             router = router,
+            loadingContent = { path ->
+                Column {
+                    Text(
+                        text = "loading: $path",
+                    )
+                    CircularProgressIndicator()
+                }
+            },
         )
     }
 }
