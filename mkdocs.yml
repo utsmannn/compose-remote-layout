@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
+
+site_name: Compose Remote Layout
+site_url: https://utsmannn.github.io/compose-remote-layout
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: green
+    accent: green
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.indexes
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+
+nav:
+  - Getting started:
+      - Overview: index.md
+      - Installation: 01-getting-started/01-installation.md
+      - Basic Usage: 01-getting-started/02-basic-setup.md
+      - Integrate with Remote Source: 01-getting-started/03-integrated-remote-sources.md
+      - Understanding JSON Layout Structure: 01-getting-started/04-layout-json-structure.md
