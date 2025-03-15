@@ -41,4 +41,5 @@ jobs:
           SIGNING_SECRET_KEY_RING_FILE: ${{ github.workspace }}/secring.gpg
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          ./gradlew publishAllPublicationsToSonatypeRepository -Pversion=$VERSION
+          ./gradlew :compose-remote-layout:publishAllPublicationsToSonatypeRepository -Pversion=$VERSION
+          ./gradlew :compose-remote-layout-router:publishAllPublicationsToSonatypeRepository -Pversion=$VERSION
