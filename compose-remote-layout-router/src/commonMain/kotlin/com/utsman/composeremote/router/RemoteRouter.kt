@@ -8,58 +8,86 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 interface RemoteRouter {
+    val baseUrl: String
+
     val urlStack: MutableList<String>
 
-    val currentUrl: String
+    val currentUrl: StateFlow<String>
 
-    val previousUrl: String?
+    val previousUrl: StateFlow<String?>
+
+    val currentPath: StateFlow<String>
+
+    val previousPath: StateFlow<String?>
 
     val isRoot: StateFlow<Boolean>
 
     val layoutContent: StateFlow<ResultLayout<String>>
 
-    fun pushUrl(url: String)
+    fun pushPath(path: String)
 
-    fun popUrl(): Boolean
+    fun popPath(): Boolean
 
-    fun replaceUrl(url: String)
+    fun replacePath(path: String)
 
     fun clearHistory()
 
     fun reload()
+
+    enum class TransitionType {
+        PUSH,
+        POP,
+        REPLACE,
+        RELOAD,
+        NONE,
+    }
 }
 
 internal class ResultRemoteRouterImpl(
     private val fetcher: LayoutFetcher,
     private val scope: CoroutineScope,
+    override val baseUrl: String,
 ) : RemoteRouter {
     override val urlStack: MutableList<String> =
         mutableListOf()
 
     private val _layoutContent =
         MutableStateFlow<ResultLayout<String>>(ResultLayout.Loading)
+
     override val layoutContent =
         _layoutContent.asStateFlow()
 
-    override val currentUrl: String
-        get() = urlStack.lastOrNull() ?: ""
+    private val _currentUrl: MutableStateFlow<String> =
+        MutableStateFlow("")
+    override val currentUrl: StateFlow<String>
+        get() = _currentUrl
 
-    override val previousUrl: String?
-        get() = if (urlStack.size > 1) urlStack[urlStack.size - 2] else null
+    private val _previousUrl: MutableStateFlow<String?> =
+        MutableStateFlow(null)
+    override val previousUrl: StateFlow<String?>
+        get() = _previousUrl
+
+    private val _currentPath: MutableStateFlow<String> = MutableStateFlow("/")
+    override val currentPath: StateFlow<String>
+        get() = _currentPath
+
+    private val _previousPath: MutableStateFlow<String?> = MutableStateFlow(null)
+    override val previousPath: StateFlow<String?>
+        get() = _previousPath
 
     private val _isRoot: MutableStateFlow<Boolean> =
         MutableStateFlow(true)
     override val isRoot: StateFlow<Boolean>
         get() = _isRoot
 
-    override fun pushUrl(url: String) {
-        if (url.isNotEmpty()) {
-            urlStack.add(url)
+    override fun pushPath(path: String) {
+        if (path.isNotEmpty()) {
+            urlStack.add(url(path))
             loadLayoutForCurrentUrl()
         }
     }
 
-    override fun popUrl(): Boolean = if (urlStack.size > 1) {
+    override fun popPath(): Boolean = if (urlStack.size > 1) {
         urlStack.removeAt(urlStack.size - 1)
         loadLayoutForCurrentUrl()
         true
@@ -67,33 +95,35 @@ internal class ResultRemoteRouterImpl(
         false
     }
 
-    override fun replaceUrl(url: String) {
-        if (urlStack.isNotEmpty() && url.isNotEmpty()) {
-            urlStack[urlStack.size - 1] = url
-            loadLayoutForCurrentUrl()
-        } else if (url.isNotEmpty()) {
-            urlStack.add(url)
-            loadLayoutForCurrentUrl()
+    override fun replacePath(path: String) {
+        if (urlStack.isNotEmpty() && path.isNotEmpty()) {
+            urlStack[urlStack.size - 1] = url(path)
+        } else if (path.isNotEmpty()) {
+            urlStack.add(url(path))
         }
+
+        loadLayoutForCurrentUrl()
     }
 
     override fun clearHistory() {
-        val currentUrl = this.currentUrl
+        val currentUrl = this.currentUrl.value
         urlStack.clear()
-        calculateIsRoot()
         if (currentUrl.isNotEmpty()) {
             urlStack.add(currentUrl)
         }
+
+        calculateIsRoot()
     }
 
     override fun reload() {
-        if (currentUrl.isNotEmpty()) {
+        if (currentUrl.value.isNotEmpty()) {
             loadLayoutForCurrentUrl()
         }
     }
 
     private fun loadLayoutForCurrentUrl() {
-        val url = currentUrl
+        calculateIsRoot()
+        val url = currentUrl.value
         if (url.isNotEmpty()) {
             _layoutContent.value = ResultLayout.Loading
 
@@ -108,7 +138,20 @@ internal class ResultRemoteRouterImpl(
     }
 
     private fun calculateIsRoot() {
+        _currentUrl.value = urlStack.lastOrNull().orEmpty()
+        _previousUrl.value = if (urlStack.size > 1) urlStack[urlStack.size - 2] else null
+        _currentPath.value = getPath(currentUrl.value).orEmpty()
+        _previousPath.value = getPath(previousUrl.value)
         _isRoot.value = urlStack.size <= 1
+    }
+
+    private fun url(path: String): String = "$baseUrl/${path.removePrefix("/")}"
+
+    private fun getPath(url: String?): String? = if (url != null) {
+        "/" + url.removePrefix(baseUrl)
+            .removePrefix("/")
+    } else {
+        null
     }
 }
 
@@ -116,5 +159,6 @@ class ResultRouterFactory {
     fun createRouter(
         scope: CoroutineScope,
         fetcher: LayoutFetcher = KtorHttpLayoutFetcher(),
-    ): RemoteRouter = ResultRemoteRouterImpl(fetcher, scope)
+        baseUrl: String,
+    ): RemoteRouter = ResultRemoteRouterImpl(fetcher, scope, baseUrl)
 }

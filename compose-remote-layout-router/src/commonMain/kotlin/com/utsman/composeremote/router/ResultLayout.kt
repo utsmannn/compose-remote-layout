@@ -43,7 +43,7 @@ sealed class ResultLayout<out T> {
         onLoading: @Composable () -> R,
         onSuccess: @Composable (T) -> R,
         onFailure: @Composable (Throwable, String) -> R,
-    ): R = when (this) {
+    ) = when (this) {
         is Loading -> onLoading()
         is Success -> onSuccess(data)
         is Failure -> onFailure(error, message)
@@ -57,8 +57,6 @@ sealed class ResultLayout<out T> {
             message: String = error.message
                 ?: "Unknown error",
         ): ResultLayout<Nothing> = Failure(error, message)
-
-        fun loading(): ResultLayout<Nothing> = Loading
 
         fun <T> flow(block: suspend () -> T): Flow<ResultLayout<T>> = kotlinx.coroutines.flow.flow {
             emit(Loading)

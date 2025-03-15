@@ -189,20 +189,20 @@ Use in JSON:
 The library supports extensive modifiers through JSON:
 
 ```json
-"modifier": {
-"base": {
-"width": 200,
-"height": 100,
-"padding": {
-"all": 16
-},
-"background": {
-"color": "#FF0000",
-"shape": "roundedcorner",
-"radius": 8
-}
-}
-}
+  "modifier": {
+    "base": {
+      "width": 200,
+      "height": 100,
+      "padding": {
+        "all": 16
+      },
+      "background": {
+        "color": "#FF0000",
+        "shape": "roundedcorner",
+        "radius": 8
+      }
+    }
+  }
 ```
 
 ### Scoped Modifiers
