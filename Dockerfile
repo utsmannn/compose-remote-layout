@@ -10,4 +10,4 @@ RUN chmod +x ./gradlew
 
 EXPOSE 8080
 
-CMD ["./gradlew", ":jsonBuilderWeb:jsBrowserRun", "--continuous", "--args='--host=0.0.0.0'"]
+CMD ["./gradlew", ":jsonBuilderWeb:jsBrowserRun"]
