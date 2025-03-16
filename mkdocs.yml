@@ -18,6 +18,7 @@ theme:
     - navigation.indexes
     - navigation.sections
     - navigation.top
+    - content.code.copy
 
 repo_name: utsmannn/compose-remote-layout
 repo_url: https://github.com/utsmannn/compose-remote-layout
@@ -25,8 +26,11 @@ repo_url: https://github.com/utsmannn/compose-remote-layout
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
   - pymdownx.superfences
-
 nav:
   - Getting started:
       - Overview: index.md

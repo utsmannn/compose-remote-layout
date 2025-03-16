@@ -1150,3 +1150,8 @@ Now that you understand how to handle user actions in your dynamic layouts, you 
    functionality
 2. Explore [navigation](../03-advanced/02-navigation.md) between different layout screens
 3. Study [advanced patterns](../03-advanced/03-advanced-patterns.md) for complex use cases
+
+
+# Json Editor
+
+<iframe src="http://127.0.0.1:5500/index.html" width="100%" height="600px" frameborder="0" allowfullscreen></iframe>
