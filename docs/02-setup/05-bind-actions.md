@@ -1146,12 +1146,5 @@ fun SelectionExample() {
 
 Now that you understand how to handle user actions in your dynamic layouts, you can:
 
-1. Learn about [custom components](../03-advanced/01-custom-components.md) to extend the
-   functionality
-2. Explore [navigation](../03-advanced/02-navigation.md) between different layout screens
-3. Study [advanced patterns](../03-advanced/03-advanced-patterns.md) for complex use cases
-
-
-# Json Editor
-
-<iframe src="http://127.0.0.1:5500/index.html" width="100%" height="600px" frameborder="0" allowfullscreen></iframe>
+1. Explore the [JSON structure](../../03-json-structure/04-layout-json-structure) in detail to create
+   effective layouts

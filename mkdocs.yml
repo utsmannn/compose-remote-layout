@@ -31,6 +31,7 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+
 nav:
   - Getting started:
       - Overview: index.md
@@ -38,6 +39,8 @@ nav:
       - Basic Usage: 01-getting-started/02-basic-setup.md
   - Setup:
       - Integrate with Remote Source: 02-setup/03-integrated-remote-sources.md
-      - Understanding JSON Layout Structure: 02-setup/04-layout-json-structure.md
-      - Bind Values: 02-setup/05-bind-values.md
-      - Bind Actions: 02-setup/06-bind-actions.md
+      - Bind Values: 02-setup/04-bind-values.md
+      - Bind Actions: 02-setup/05-bind-actions.md
+  - JSON Layout Structure:
+      - Understanding JSON Layout Structure: 03-json-structure/06-layout-json-structure.md
+      - Live editor: 03-json-structure/07-live-editor.md

@@ -232,9 +232,9 @@ Get started with Compose Remote Layout:
 Learn more about the library's core features:
 
 - [Remote Sources](./02-setup/03-integrated-remote-sources.md) - Integrate with APIs and config services
-- [JSON Structure](./02-setup/04-layout-json-structure.md) - Learn the layout format
-- [Bind Values](./02-setup/05-bind-values.md) - Create dynamic content
-- [Bind Actions](./02-setup/06-bind-actions.md) - Handle user interactions
+- [JSON Structure](03-json-structure/06-layout-json-structure) - Learn the layout format
+- [Bind Values](./02-setup/04-bind-values) - Create dynamic content
+- [Bind Actions](./02-setup/05-bind-actions) - Handle user interactions
 
 ## Sample Projects
 

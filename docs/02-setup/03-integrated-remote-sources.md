@@ -512,8 +512,6 @@ DynamicLayout(component = component)
 
 Now that you understand how to integrate remote layouts, you can:
 
-1. Explore the [JSON structure](../04-layout-json-structure) in detail to create
-   effective layouts
-2. Learn about [binding values](../05-bind-values) to add dynamic content
-3. Implement [action handling](../06-bind-actions) for user interactions
-4. Check out the sample apps in the repository for complete implementations
+1. Learn about [binding values](../05-bind-values) to add dynamic content
+2. Implement [action handling](../06-bind-actions) for user interactions
+3. Check out the sample apps in the repository for complete implementations
