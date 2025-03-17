@@ -3,7 +3,6 @@
 <head>
     <title>JSON builder for Compose Remote Layout</title>
     <link rel="stylesheet" href="styles.css">
-    <script type="application/javascript" src="skiko.js"></script>
 </head>
 <body>
 <div class="container">
@@ -124,9 +123,37 @@
     </div>
 </div>
 
-<!-- Scripts -->
+<script type="application/javascript" src="skiko.js"></script>
+
+<!-- 2. Muat file 731.js yang ada di direktori Anda -->
+<script type="application/javascript" src="731.js"></script>
+
+<!-- 3. Muat jsonBuilderWeb.js -->
 <script type="application/javascript" src="jsonBuilderWeb.js"></script>
+
+<!-- 4. Muat dependensi eksternal -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.js"></script>
+
+<!-- 5. Muat index.js terakhir karena kemungkinan bergantung pada semua file lainnya -->
 <script src="index.js"></script>
+
+<!-- Tambahkan script untuk debugging -->
+<script>
+    // Tambahkan handler untuk memantau pemuatan WASM
+    window.addEventListener('load', function() {
+        console.log("Checking if Skiko is loaded properly...");
+
+        // Periksa apakah skiko.wasm dimuat dengan benar
+        setTimeout(function() {
+            if (typeof window.skiko === 'undefined') {
+                console.error("Skiko not loaded properly!");
+                document.getElementById('statusMessage').textContent = "Error: WASM not loaded correctly";
+            } else {
+                console.log("Skiko loaded successfully");
+                document.getElementById('statusMessage').textContent = "WASM loaded successfully";
+            }
+        }, 2000); // Berikan waktu 2 detik untuk loading
+    });
+</script>
 </body>
 </html>
