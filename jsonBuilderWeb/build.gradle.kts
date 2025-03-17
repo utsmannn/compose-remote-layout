@@ -7,7 +7,11 @@ plugins {
 
 kotlin {
     js(IR) {
-        browser()
+        browser {
+            runTask {
+                devServerProperty = devServerProperty.get().copy(open = false)
+            }
+        }
         binaries.executable()
     }
 
