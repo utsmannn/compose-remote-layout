@@ -28,5 +28,9 @@ kotlin {
 
             api("io.github.qdsfdhvh:image-loader:1.10.0")
         }
+
+        jsMain.dependencies {
+            implementation(npm("path-browserify", "1.0.1"))
+        }
     }
 }
