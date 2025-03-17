@@ -1,0 +1,16 @@
+services:
+  jsonbuilder-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8080"
+    environment:
+      - GRADLE_OPTS="-Dorg.gradle.daemon=true -Dorg.gradle.parallel=true -Dkotlin.incremental=true"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
