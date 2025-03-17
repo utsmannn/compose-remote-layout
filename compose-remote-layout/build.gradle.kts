@@ -1,4 +1,6 @@
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
     alias(libs.plugins.multiplatform)
@@ -27,6 +29,25 @@ kotlin {
     androidTarget { publishLibraryVariants("release") }
     jvm()
     js { browser() }
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        moduleName = "composeRemoteLayout"
+        browser {
+            val rootDirPath = project.rootDir.path
+            val projectDirPath = project.projectDir.path
+            commonWebpackConfig {
+                outputFileName = "composeRemoteLayout.js"
+                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+                    static = (static ?: mutableListOf()).apply {
+                        // Serve sources to debug inside browser
+                        add(rootDirPath)
+                        add(projectDirPath)
+                    }
+                }
+            }
+        }
+        binaries.executable()
+    }
     listOf(
         iosX64(),
         iosArm64(),

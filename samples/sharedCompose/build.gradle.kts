@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
+
 plugins {
     alias(libs.plugins.multiplatform)
     alias(libs.plugins.compose.compiler)
@@ -13,6 +16,25 @@ kotlin {
     androidTarget()
     jvm()
     js { browser() }
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        moduleName = "sharedCompose"
+        browser {
+            val rootDirPath = project.rootDir.path
+            val projectDirPath = project.projectDir.path
+            commonWebpackConfig {
+                outputFileName = "sharedCompose.js"
+                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+                    static = (static ?: mutableListOf()).apply {
+                        // Serve sources to debug inside browser
+                        add(rootDirPath)
+                        add(projectDirPath)
+                    }
+                }
+            }
+        }
+        binaries.executable()
+    }
     listOf(
         iosX64(),
         iosArm64(),

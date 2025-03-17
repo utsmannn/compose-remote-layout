@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
+
 plugins {
     alias(libs.plugins.multiplatform)
     alias(libs.plugins.compose.compiler)
@@ -6,10 +9,22 @@ plugins {
 }
 
 kotlin {
-    js(IR) {
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        moduleName = "wasmJsonBuilderWeb"
         browser {
-            runTask {
-                devServerProperty = devServerProperty.get().copy(open = false)
+            val rootDirPath = project.rootDir.path
+            val projectDirPath = project.projectDir.path
+            commonWebpackConfig {
+                outputFileName = "wasmJsonBuilderWeb.js"
+                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+                    static = (static ?: mutableListOf()).apply {
+                        // Serve sources to debug inside browser
+                        add(rootDirPath)
+                        add(projectDirPath)
+                    }
+                    port = 8082
+                }
             }
         }
         binaries.executable()
@@ -29,8 +44,29 @@ kotlin {
             api("io.github.qdsfdhvh:image-loader:1.10.0")
         }
 
-        jsMain.dependencies {
+        wasmJsMain.dependencies {
             implementation(npm("path-browserify", "1.0.1"))
         }
     }
+}
+
+tasks.register<Copy>("copyWasmJsToRoot") {
+    description = "Copy WasmJs build output to root project directory"
+    group = "build"
+
+    dependsOn("wasmJsBrowserDevelopmentExecutableDistribution")
+
+    val destFolder = file("${project.rootDir}/wasmJsDist")
+    if (!destFolder.exists()) {
+        println("Creating wasmJsDist folder ...")
+        destFolder.mkdirs()
+    }
+
+    println("Copying wasmJs build output to wasmJsDist directory ...")
+    from("${layout.buildDirectory}/dist/wasmJs/developmentExecutable")
+    into("${project.rootDir}/wasmJsDist")
+}
+
+tasks.named("wasmJsBrowserDevelopmentExecutableDistribution").configure {
+    finalizedBy("copyWasmJsToRoot")
 }
