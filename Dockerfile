@@ -1,12 +1,10 @@
-FROM eclipse-temurin:17-jdk
+FROM node:18-alpine
 
-RUN apt-get update && apt-get install -y curl unzip
+RUN npm install -g live-server
 
 WORKDIR /app
 
-COPY . .
-
-RUN chmod +x ./gradlew
+COPY ./wasmJsDist ./wasmJsDist
 
 EXPOSE 8080
 
