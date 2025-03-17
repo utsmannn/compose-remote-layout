@@ -10,4 +10,4 @@ RUN chmod +x ./gradlew
 
 EXPOSE 8080
 
-CMD ["./gradlew", ":jsonBuilderWeb:jsBrowserRun"]
+CMD ["live-server", "--cors", "--mount=/:./wasmJsDist"]

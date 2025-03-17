@@ -63,7 +63,7 @@ tasks.register<Copy>("copyWasmJsToRoot") {
     }
 
     println("Copying wasmJs build output to wasmJsDist directory ...")
-    from("${layout.buildDirectory}/dist/wasmJs/developmentExecutable")
+    from("$buildDir/dist/wasmJs/developmentExecutable")
     into("${project.rootDir}/wasmJsDist")
 }
 
