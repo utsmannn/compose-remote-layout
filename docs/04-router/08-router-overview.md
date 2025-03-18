@@ -1,13 +1,9 @@
 ## Introduction
 
-Compose Remote Layout Router is a powerful navigation system designed specifically for dynamic,
-server-driven UIs in Compose applications. It enables developers to create flexible, updateable
+Compose Remote Layout Router is a powerful navigation system designed specifically for Compose
+Remote Layout. It enables developers to create flexible, updateable
 applications where both the UI components and navigation flow can be controlled remotely from a
 server without requiring app updates.
-
-Server-driven UI (SDUI) decouples the UI definition from the client application by delivering layout
-information from a server. Compose Remote Layout Router extends this concept to navigation, allowing
-complete user journeys to be defined and updated remotely.
 
 ## Key Features
 
