@@ -7,11 +7,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -438,10 +442,14 @@ private fun RenderGrid(
             }
         } ?: Arrangement.SpaceAround
 
+    val padding = scopedMod?.base?.padding ?: com.utsman.composeremote.PaddingValues()
+    val contentPadding = padding.toComposePaddingValue()
+
     if (orientation == "horizontal") {
         val gridModifier =
             if (scopedMod.base.height != null) {
-                modifier.height(scopedMod.base.height.dp)
+                modifier
+                    .height(scopedMod.base.height.dp)
             } else {
                 modifier
             }
@@ -455,6 +463,7 @@ private fun RenderGrid(
                 horizontalArrangement = horizontalArrangement,
                 verticalArrangement = verticalArrangement,
                 enableSnap = enableSnap,
+                contentPadding = contentPadding,
                 path = path,
             ) { index, wrapper ->
                 ChildDynamicLayout(
@@ -467,11 +476,17 @@ private fun RenderGrid(
                 )
             }
         } else {
+            val paddingModifier = gridModifier.then(
+                Modifier.padding(contentPadding),
+            )
+
+            val isFillMaxWidth = scopedMod.base.fillMaxWidth
             HorizontalGrid(
                 items = component.children.orEmpty(),
                 rows = scopedMod.rows ?: 1,
-                modifier = gridModifier,
+                modifier = paddingModifier,
                 horizontalArrangement = horizontalArrangement,
+                isFillMaxWidth = isFillMaxWidth ?: false,
                 verticalArrangement = verticalArrangement,
             ) { index, wrapper ->
                 ChildDynamicLayout(
@@ -524,10 +539,14 @@ private fun RenderGrid(
                 modifier
             }
 
+        val paddingModifier = gridModifier.then(
+            Modifier.padding(contentPadding),
+        )
+
         VerticalGrid(
             items = component.children.orEmpty(),
             columns = scopedMod?.columns ?: 1,
-            modifier = gridModifier,
+            modifier = paddingModifier,
             verticalArrangement = verticalArrangement,
             horizontalArrangement = horizontalArrangement,
         ) { index, wrapper ->
@@ -892,7 +911,8 @@ private fun <T> HorizontalGrid(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal,
     verticalArrangement: Arrangement.Vertical,
-    itemContent: @Composable (Int, T) -> Unit,
+    isFillMaxWidth: Boolean,
+    itemContent: @Composable RowScope.(Int, T) -> Unit,
 ) {
     val columns = (items.size + rows - 1) / rows
 
@@ -900,8 +920,14 @@ private fun <T> HorizontalGrid(
         modifier = modifier,
         horizontalArrangement = horizontalArrangement,
     ) {
+        val itemMod = if (isFillMaxWidth) {
+            Modifier.weight(1f / rows)
+        } else {
+            Modifier.wrapContentWidth()
+        }
         for (columnIndex in 0 until columns) {
             Column(
+                modifier = itemMod,
                 verticalArrangement = verticalArrangement,
             ) {
                 for (rowIndex in 0 until rows) {
@@ -911,6 +937,7 @@ private fun <T> HorizontalGrid(
                             contentAlignment = Alignment.Center,
                         ) {
                             itemContent(
+                                this@Row,
                                 itemIndex,
                                 items[itemIndex],
                             )
@@ -937,6 +964,7 @@ private fun <T> ScrollableHorizontalGrid(
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     enableSnap: Boolean,
     path: String,
+    contentPadding: PaddingValues = PaddingValues(),
     itemContent: @Composable (Int, T) -> Unit,
 ) {
     val columns = (items.size + rows - 1) / rows
@@ -976,6 +1004,7 @@ private fun <T> ScrollableHorizontalGrid(
         modifier = modifier,
         horizontalArrangement = horizontalArrangement,
         flingBehavior = flingBehavior,
+        contentPadding = contentPadding,
     ) {
         items(columns) { columnIndex ->
             Column(

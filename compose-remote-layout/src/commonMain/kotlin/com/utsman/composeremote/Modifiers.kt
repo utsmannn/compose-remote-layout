@@ -35,7 +35,7 @@ fun applyJsonModifier(
 ): Modifier {
     if (scopedModifier == null) return base
 
-    var mod = applyBaseModifier(base, scopedModifier.base, onClickHandler)
+    var mod = applyBaseModifier(base, scopedModifier, onClickHandler)
 
     mod =
         when (scopedModifier) {
@@ -51,9 +51,11 @@ fun applyJsonModifier(
 
 private fun applyBaseModifier(
     mod: Modifier,
-    base: BaseModifier,
+    scopedModifier: ScopedModifier,
     onClickHandler: (String) -> Unit,
 ): Modifier {
+    val base = scopedModifier.base
+
     val modifierOrder = ModifierOrderTracker.getCurrentOrder()
     val modifierMap = mutableMapOf<String, Modifier>()
 
@@ -164,18 +166,20 @@ private fun applyBaseModifier(
             )
     }
 
-    base.padding?.let { padding ->
-        modifierMap["padding"] =
-            when {
-                padding.horizontal != null -> Modifier.padding(horizontal = padding.horizontal.dp)
-                padding.vertical != null -> Modifier.padding(vertical = padding.vertical.dp)
-                padding.start != null -> Modifier.padding(start = padding.start.dp)
-                padding.top != null -> Modifier.padding(top = padding.top.dp)
-                padding.end != null -> Modifier.padding(end = padding.end.dp)
-                padding.bottom != null -> Modifier.padding(bottom = padding.bottom.dp)
-                padding.all != null -> Modifier.padding(padding.all.dp)
-                else -> Modifier
-            }
+    if (scopedModifier !is ScopedModifier.Grid) {
+        base.padding?.let { padding ->
+            modifierMap["padding"] =
+                when {
+                    padding.horizontal != null -> Modifier.padding(horizontal = padding.horizontal.dp)
+                    padding.vertical != null -> Modifier.padding(vertical = padding.vertical.dp)
+                    padding.start != null -> Modifier.padding(start = padding.start.dp)
+                    padding.top != null -> Modifier.padding(top = padding.top.dp)
+                    padding.end != null -> Modifier.padding(end = padding.end.dp)
+                    padding.bottom != null -> Modifier.padding(bottom = padding.bottom.dp)
+                    padding.all != null -> Modifier.padding(padding.all.dp)
+                    else -> Modifier
+                }
+        }
     }
 
     base.margin?.let { margin ->
