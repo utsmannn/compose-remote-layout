@@ -803,6 +803,4 @@ Here's an example of a simple profile card:
 
 Now that you understand the JSON structure for layouts, you can:
 
-1. Explore [binding values](../05-bind-values) to create dynamic content
-2. Learn about [handling user actions](../06-bind-actions) for interactive UIs
-3. Create [custom components](../03-advanced/01-custom-components) for specialized needs
+1. Try the [Live Editor JSON](../07-live-editor) for build and create your dynamic content

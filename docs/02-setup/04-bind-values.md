@@ -574,5 +574,3 @@ missing values stay as `{key}` in the output.*
 Now that you understand how to use bind values, learn about:
 
 1. [Handling user actions](../06-bind-actions.md) with click events
-2. [Creating custom components](../01-custom-components.md) for specialized UI elements
-3. [Implementing navigation](../03-advanced/02-navigation.md) between different layout screens

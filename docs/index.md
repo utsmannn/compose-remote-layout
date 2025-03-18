@@ -7,9 +7,12 @@
 
 ## Overview
 
-Compose Remote Layout empowers you to dynamically update your UI without app store submissions. Built for Compose Multiplatform, this library transforms JSON into native UI components, giving you the flexibility to modify interfaces on the fly.
+Compose Remote Layout empowers you to dynamically update your UI without app store submissions.
+Built for Compose Multiplatform, this library transforms JSON into native UI components, giving you
+the flexibility to modify interfaces on the fly.
 
 By enabling server-driven UI within the Compose ecosystem, you can:
+
 - Update your app's look and feel instantly
 - A/B test different layouts with different user segments
 - Fix UI issues without emergency releases
@@ -17,7 +20,8 @@ By enabling server-driven UI within the Compose ecosystem, you can:
 
 ## Why Use Compose Remote Layout?
 
-While solutions like React Native and Flutter offer dynamic UI updates, they require learning new frameworks or languages. Compose Remote Layout brings these capabilities to Compose developers:
+While solutions like React Native and Flutter offer dynamic UI updates, they require learning new
+frameworks or languages. Compose Remote Layout brings these capabilities to Compose developers:
 
 - **No New Languages to Learn** - Stay within the Compose ecosystem
 - **Native Performance** - Uses standard Compose components under the hood
@@ -125,7 +129,7 @@ Extend the library with your own components:
 CustomNodes.register("profile_card") { param ->
     val name = param.data["name"] ?: "Unknown"
     val avatarUrl = param.data["avatar_url"]
-    
+
     Card(modifier = param.modifier) {
         // Your custom implementation
     }
@@ -227,7 +231,8 @@ Get started with Compose Remote Layout:
 
 Learn more about the library's core features:
 
-- [Remote Sources](./02-setup/03-integrated-remote-sources.md) - Integrate with APIs and config services
+- [Remote Sources](./02-setup/03-integrated-remote-sources.md) - Integrate with APIs and config
+  services
 - [JSON Structure](03-json-structure/06-layout-json-structure) - Learn the layout format
 - [Bind Values](./02-setup/04-bind-values) - Create dynamic content
 - [Bind Actions](./02-setup/05-bind-actions) - Handle user interactions
@@ -236,9 +241,15 @@ Learn more about the library's core features:
 
 Explore complete examples in the repository:
 
-- **[Firebase Integration](https://github.com/utsmannn/compose-remote-layout/tree/master/samples/firebaseApp)** - Complete implementation with Firebase Remote Config
-- **[Custom Components](https://github.com/utsmannn/compose-remote-layout/tree/master/samples/customComponents)** - Examples of extending the library
-- **[Form Builder](https://github.com/utsmannn/compose-remote-layout/tree/master/samples/formBuilder)** - Dynamic form creation and validation
+- *
+  *[Firebase Integration](https://github.com/utsmannn/compose-remote-layout/tree/master/samples/firebaseApp)
+  ** - Complete implementation with Firebase Remote Config
+- *
+  *[Custom Components](https://github.com/utsmannn/compose-remote-layout/tree/master/samples/customComponents)
+  ** - Examples of extending the library
+- *
+  *[Form Builder](https://github.com/utsmannn/compose-remote-layout/tree/master/samples/formBuilder)
+  ** - Dynamic form creation and validation
 
 ## JSON Builder Tool
 
@@ -264,6 +275,7 @@ Compose Remote Layout is currently in alpha stage. While functional for many use
 - Performance optimizations are ongoing
 
 We recommend:
+
 - Using this library for experimental projects
 - Contributing feedback and bug reports
 - Waiting for stable releases before critical production use
