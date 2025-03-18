@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JSON builder for Compose Local Layout</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="application/javascript" src="skiko.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="editor-container">
+        <div id="editor"></div>
+        <div class="button-container">
+            <div id="statusMessage" class="status-message"></div>
+            <div id="loadingBar" class="loading-bar">
+                <div class="progress"></div>
+            </div>
+            <button id="formatBtn" class="editor-btn">Format JSON</button>
+        </div>
+    </div>
+    <div id="text_container"></div>
+    <div id="compose"></div>
+</div>
+
+<!-- Scripts -->
+<script type="importmap">
+    {
+      "imports": {
+        "@js-joda/core": "https://cdn.jsdelivr.net/npm/@js-joda/core@5.6.4/dist/js-joda.min.js"
+      }
+    }
+</script>
+<script type="application/javascript" src="jsonBuilderWeb.js"></script>
+<!--<script type="module" src="jsonBuilderWeb.mjs"></script>-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.js"></script>
+<script type="application/javascript" src="index.js"></script>
+</body>
+</html>

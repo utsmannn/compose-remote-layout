@@ -1,0 +1,150 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    height: 100vh;
+    overflow: hidden;
+    width: 100%;
+}
+
+/* Main container layout */
+.container {
+    display: flex;
+    gap: 10px;
+    padding: 20px;
+    height: 100vh;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.editor-container {
+    position: relative;
+    flex: 2;
+    min-width: 0; /* Important for flex container */
+    height: calc(100vh - 40px);
+}
+
+#editor {
+    width: 100%;
+    height: 100%;
+    border: 1px solid #ccc;
+}
+
+#compose {
+    flex: 1;
+    min-width: 300px;
+    max-width: 40%;
+    height: calc(100vh - 40px);
+    border: 1px solid #ccc;
+    background: #f5f5f5;
+}
+
+#text_container {
+    display: none;
+}
+
+/* Button container styles */
+.button-container {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    z-index: 100;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.editor-btn {
+    padding: 6px 12px;
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border: 1px solid #454545;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.editor-btn:hover {
+    background-color: #2d2d2d;
+    border-color: #666666;
+}
+
+.editor-btn.save {
+    background-color: #2c5282;
+}
+
+.editor-btn.save:hover {
+    background-color: #2a4365;
+}
+
+/* Status message styles */
+.status-message {
+    font-size: 12px;
+    color: #e0e0e0;
+    margin-right: 10px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.status-message.show {
+    opacity: 1;
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 1024px) {
+    .container {
+        padding: 10px;
+    }
+
+    #compose {
+        min-width: 250px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        height: auto;
+        overflow-y: auto;
+    }
+
+    .editor-container {
+        height: 60vh;
+        flex: none;
+    }
+
+    #compose {
+        height: 40vh;
+        max-width: 100%;
+        min-width: 100%;
+    }
+
+    .button-container {
+        position: static;
+        margin-top: 10px;
+        justify-content: flex-end;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .container {
+        padding: 5px;
+        gap: 5px;
+    }
+
+    .button-container {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+
+    .editor-btn {
+        width: calc(50% - 5px);
+        text-align: center;
+    }
+}
