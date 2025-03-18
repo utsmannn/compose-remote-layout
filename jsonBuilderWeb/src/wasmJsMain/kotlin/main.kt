@@ -19,8 +19,22 @@ import shared.compose.Shared
 @Suppress("ktlint:standard:backing-property-naming")
 private var _textJson = MutableStateFlow("{}")
 
+private fun setupGlobalFunctions(onUpdate: (String) -> Unit = {}) {
+    js(
+        """
+            window.updateJsonContent = function(content) {
+                onUpdate(content);
+            };
+        """,
+    )
+}
+
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
+    setupGlobalFunctions {
+        _textJson.value = it
+    }
+
     val body = document.getElementById("compose") ?: return
 
     Shared.registerCustomNode()
@@ -48,10 +62,4 @@ fun main() {
             }
         }
     }
-}
-
-@OptIn(ExperimentalJsExport::class)
-@JsExport
-fun updateEditorContent(content: String) {
-    _textJson.value = content
 }

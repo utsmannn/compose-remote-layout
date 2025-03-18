@@ -11,15 +11,16 @@ plugins {
 kotlin {
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
-        moduleName = "wasmJsonBuilderWeb"
+        moduleName = "jsonBuilderWeb"
         browser {
             val rootDirPath = project.rootDir.path
             val projectDirPath = project.projectDir.path
             commonWebpackConfig {
-                outputFileName = "wasmJsonBuilderWeb.js"
+                outputFileName = "jsonBuilderWeb.js"
                 devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
                     static = (static ?: mutableListOf()).apply {
                         // Serve sources to debug inside browser
+                        open = false
                         add(rootDirPath)
                         add(projectDirPath)
                     }
@@ -44,9 +45,9 @@ kotlin {
             api("io.github.qdsfdhvh:image-loader:1.10.0")
         }
 
-        wasmJsMain.dependencies {
-            implementation(npm("path-browserify", "1.0.1"))
-        }
+//        wasmJsMain.dependencies {
+//            implementation(npm("path-browserify", "1.0.1"))
+//        }
     }
 }
 
