@@ -1,10 +1,6 @@
 # Compose Remote Layout
 
-**Server-Driven UI for Compose Multiplatform**
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/utsmannn/compose-remote-layout/master/images/logo.png" width="120" />
-</p>
+**Server-Driven UI Component for Compose Multiplatform**
 
 [![Maven Central Version](https://img.shields.io/maven-central/v/io.github.utsmannn/compose-remote-layout)](https://central.sonatype.com/artifact/io.github.utsmannn/compose-remote-layout)
 [![Publish to Maven Central](https://github.com/utsmannn/compose-remote-layout/actions/workflows/publish.yaml/badge.svg)](https://github.com/utsmannn/compose-remote-layout/actions/workflows/publish.yaml)
