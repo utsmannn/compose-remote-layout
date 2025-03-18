@@ -9,12 +9,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -22,11 +16,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.utsman.composeremote.BindsValue
-import com.utsman.composeremote.DynamicLayout
 import com.utsman.composeremote.LayoutParser.parseLayoutJson
 
 typealias TransitionSpec = (type: RemoteRouter.TransitionType, durationMillis: Int) -> ContentTransform
@@ -71,12 +62,9 @@ fun ComposeRemoteRouter(
     bindsValue: BindsValue = remember { BindsValue() },
     onClickHandler: (String) -> Unit = {},
     onNavigateHandler: (NavigationEvent) -> Unit = {},
-    errorContent: @Composable ((Throwable, String) -> Unit)? = null,
-    loadingContent: @Composable BoxScope.(String) -> Unit = {
-        CircularProgressIndicator()
-    },
     animationDuration: Int = 300,
     transitionSpec: TransitionSpec = ::defaultTransitionSpec,
+    onRenderEvent: @Composable (RenderEvent) -> Unit,
 ) {
     val layoutResult by router.layoutContent.collectAsState()
     val baseUrl = remember { router.baseUrl }
@@ -91,7 +79,8 @@ fun ComposeRemoteRouter(
         navigationEventContainer.setBaseUrl(baseUrl)
     }
 
-    val initialUrl = "$baseUrl/${initialPath.removePrefix("/")}"
+    val initialUrl =
+        "$baseUrl/${initialPath.removePrefix("/")}"
     LaunchedEffect(initialPath) {
         if (initialUrl.isNotEmpty()) {
             router.pushPath(initialPath)
@@ -219,50 +208,41 @@ fun ComposeRemoteRouter(
                 animationDuration,
             )
         },
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier,
         label = "Screen Transition",
     ) { currentLayoutResult ->
+        val currentPath by router.currentPath.collectAsState()
+
         currentLayoutResult.foldCompose(
             onLoading = {
-                Box(
-                    modifier = modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    val currentPath by router.currentPath.collectAsState()
-                    loadingContent.invoke(this, currentPath)
-                }
+                onRenderEvent.invoke(
+                    RenderEvent.Loading(
+                        currentPath,
+                    ),
+                )
             },
             onSuccess = { layoutJson ->
                 val layoutComponent =
                     parseLayoutJson(layoutJson)
 
-                DynamicLayout(
-                    component = layoutComponent,
-                    modifier = Modifier.fillMaxSize(),
-                    bindValue = extendedBindsValue,
-                    onClickHandler = {
-                        enhancedClickHandler(it)
-                    },
-                )
+                if (layoutComponent != null) {
+                    onRenderEvent.invoke(
+                        RenderEvent.RenderedLayout(
+                            layoutComponent,
+                            currentPath,
+                            bindsValue,
+                            enhancedClickHandler,
+                        ),
+                    )
+                }
             },
             onFailure = { error, message ->
-                if (errorContent != null) {
-                    errorContent(error, message)
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            text = "Error loading layout: $message",
-                            modifier = Modifier.align(
-                                Alignment.Center,
-                            ),
-                        )
-                    }
-                }
+                onRenderEvent.invoke(
+                    RenderEvent.Failure(
+                        error,
+                        message,
+                    ),
+                )
             },
         )
     }
