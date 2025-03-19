@@ -47,7 +47,7 @@ jobs:
           # Copy build output to wasmJsDist
           cp -r samples/routerApp/build/dist/wasmJs/developmentExecutable/* samples/routerApp/wasmJsDist/ || true
           
-          echo "Contents of wasmJsDist:"
+          echo "Contents of wasmJsDist: "
           ls -la samples/routerApp/wasmJsDist/
 
       - name: Set up Docker Buildx
