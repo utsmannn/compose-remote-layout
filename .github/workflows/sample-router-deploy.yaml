@@ -3,27 +3,31 @@ name: Build and Deploy WASM Application
 on:
   pull_request:
     types: [closed]
-    branches: [ main ]
+    branches: [ main ]  # Target branch for the merge
+    paths:
+      - 'samples/**'    # Only trigger when changes are in the samples directory
   push:
-    branches: [ '*' ]
-  workflow_dispatch:
+    branches: [ '*' ]   # All branches
+  workflow_dispatch:    # Allow manual triggering
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    if: (github.event_name == 'push' && contains(github.event.head_commit.message, '--sample-deploy'))
+    if: |
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true && startsWith(github.head_ref, 'samples/')) ||
+      (github.event_name == 'push' && contains(github.event.head_commit.message, '--sample-deploy'))
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          submodules: false
+          submodules: false  # Ignore git submodules
 
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: 'temurin'  # Using Eclipse Temurin distribution
+          java-version: '17'       # Matches your jvmToolchain in build.gradle.kts
           cache: 'gradle'
 
       - name: Grant execute permission for gradlew
@@ -31,6 +35,20 @@ jobs:
 
       - name: Build WASM with Gradle
         run: ./gradlew :samples:routerApp:composeApp:wasmJsBrowserDevelopmentExecutableDistribution
+
+      - name: Check WASM build output
+        run: |
+          echo "Checking if wasmJsDist folder was created"
+          ls -la samples/routerApp/
+          
+          # Create wasmJsDist if it doesn't exist
+          mkdir -p samples/routerApp/wasmJsDist
+          
+          # Copy build output to wasmJsDist
+          cp -r samples/routerApp/build/dist/wasmJs/developmentExecutable/* samples/routerApp/wasmJsDist/ || true
+          
+          echo "Contents of wasmJsDist:"
+          ls -la samples/routerApp/wasmJsDist/
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -55,8 +73,9 @@ jobs:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USERNAME }}
           key: ${{ secrets.VM_SSH_KEY }}
-          source: "wasm-server.tar.gz,samples/routerApp/docker-compose.yaml"
+          source: "wasm-server.tar.gz,samples/routerApp/docker-compose.yaml,samples/routerApp/Dockerfile,samples/routerApp/wasmJsDist/**"
           target: "~/wasm-deployment"
+          strip_components: 0
 
       - name: Execute remote deployment commands
         uses: appleboy/ssh-action@master
