@@ -1,0 +1,73 @@
+name: Build and Deploy WASM Application
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [ main ]
+    paths:
+      - 'samples/**'
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'samples/')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Build WASM with Gradle
+        run: ./gradlew :samples:routerApp:wasmJsBrowserDevelopmentExecutableDistribution
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./samples/routerApp
+          dockerfile: ./samples/routerApp/Dockerfile
+          push: false
+          load: true
+          tags: wasm-server:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Save Docker image
+        run: docker save wasm-server:latest | gzip > wasm-server.tar.gz
+
+      - name: Deploy to VM
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USERNAME }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          source: "wasm-server.tar.gz,samples/routerApp/docker-compose.yaml"
+          target: "~/wasm-deployment"
+
+      - name: Execute remote deployment commands
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USERNAME }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          script: |
+            cd ~/wasm-deployment
+            docker load < wasm-server.tar.gz
+            mv samples/routerApp/docker-compose.yaml ./docker-compose.yaml
+            docker-compose down
+            docker-compose up -d
+            docker image prune -f
