@@ -1,0 +1,8 @@
+services:
+  wasm-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8084:8080"
+    restart: unless-stopped

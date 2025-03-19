@@ -1148,3 +1148,5 @@ Now that you understand how to handle user actions in your dynamic layouts, you 
 
 1. Explore the [JSON structure](../../03-json-structure/04-layout-json-structure) in detail to create
    effective layouts
+2. Learn about how to register [Custom Components](../05a-custom-node.md)
+   for more complex UI elements

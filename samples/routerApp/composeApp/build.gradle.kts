@@ -1,4 +1,6 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
     alias(libs.plugins.multiplatform)
@@ -12,8 +14,25 @@ kotlin {
 
     androidTarget()
     jvm()
-    js {
-        browser()
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        moduleName = "sampleRouterApp"
+        browser {
+            val rootDirPath = project.rootDir.path
+            val projectDirPath = project.projectDir.path
+            commonWebpackConfig {
+                outputFileName = "sampleRouterApp.js"
+                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+                    static = (static ?: mutableListOf()).apply {
+                        // Serve sources to debug inside browser
+                        open = false
+                        add(rootDirPath)
+                        add(projectDirPath)
+                    }
+                    port = 8083
+                }
+            }
+        }
         binaries.executable()
     }
     listOf(
@@ -72,4 +91,25 @@ compose.desktop {
             packageVersion = "1.0.0"
         }
     }
+}
+
+tasks.register<Copy>("copyWasmJsToRoot") {
+    description = "Copy WasmJs build output to root project directory"
+    group = "build"
+
+    dependsOn("wasmJsBrowserDevelopmentExecutableDistribution")
+
+    val destFolder = file("${project.projectDir}/../wasmJsDist")
+    if (!destFolder.exists()) {
+        println("Creating wasmJsDist folder ...")
+        destFolder.mkdirs()
+    }
+
+    println("Copying wasmJs build output to wasmJsDist directory ...")
+    from("$buildDir/dist/wasmJs/developmentExecutable")
+    into(destFolder)
+}
+
+tasks.named("wasmJsBrowserDevelopmentExecutableDistribution").configure {
+    finalizedBy("copyWasmJsToRoot")
 }
