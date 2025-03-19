@@ -3,12 +3,12 @@ name: Build and Deploy WASM Application
 on:
   pull_request:
     types: [closed]
-    branches: [ main ]  # Target branch for the merge
+    branches: [ main ]
     paths:
-      - 'samples/**'    # Only trigger when changes are in the samples directory
+      - 'samples/**'
   push:
-    branches: [ '*' ]   # All branches
-  workflow_dispatch:    # Allow manual triggering
+    branches: [ '*' ]
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -21,13 +21,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          submodules: false  # Ignore git submodules
+          submodules: false
 
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'  # Using Eclipse Temurin distribution
-          java-version: '17'       # Matches your jvmToolchain in build.gradle.kts
+          distribution: 'temurin'
+          java-version: '17'
           cache: 'gradle'
 
       - name: Grant execute permission for gradlew
@@ -87,6 +87,7 @@ jobs:
             cd ~/wasm-deployment
             docker load < wasm-server.tar.gz
             mv samples/routerApp/docker-compose.yaml ./docker-compose.yaml
+            mv samples/routerApp/Dockerfile ./Dockerfile
             docker compose down
             docker compose up -d
             docker image prune -f
