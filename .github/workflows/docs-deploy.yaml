@@ -1,15 +1,20 @@
-name: ci
+name: Build and Deploy Documentation
+
 on:
   pull_request:
-    types:
-      - closed
-    branches:
-      - main
+    types: [closed]
+    branches: [ main ]
+  push:
+    branches: [ '*' ]
+  workflow_dispatch:
+
 permissions:
   contents: write
 jobs:
   deploy:
-    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'docs/')
+    if: |
+      (github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'docs/')) ||
+      (github.event_name == 'push' && contains(github.event.head_commit.message, '--docs-deploy'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
