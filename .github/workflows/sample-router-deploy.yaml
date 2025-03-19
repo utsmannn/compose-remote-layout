@@ -30,7 +30,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build WASM with Gradle
-        run: ./gradlew :samples:routerApp:wasmJsBrowserDevelopmentExecutableDistribution
+        run: ./gradlew :samples:routerApp:composeApp:wasmJsBrowserDevelopmentExecutableDistribution
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
