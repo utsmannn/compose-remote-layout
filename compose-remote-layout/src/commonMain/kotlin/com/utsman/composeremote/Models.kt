@@ -1,5 +1,6 @@
 package com.utsman.composeremote
 
+import androidx.compose.ui.unit.dp
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -159,6 +160,7 @@ sealed class ScopedModifier {
         val columns: Int? = null,
         val rows: Int? = null,
         val orientation: String? = null,
+        val weight: Int? = 1,
         val enableSnapHorizontal: Boolean? = false,
         val horizontalArrangement: String? = null,
         val verticalArrangement: String? = null,
@@ -248,7 +250,23 @@ data class PaddingValues(
     val top: Int? = null,
     val end: Int? = null,
     val bottom: Int? = null,
-)
+) {
+    fun toComposePaddingValue(): androidx.compose.foundation.layout.PaddingValues = if (horizontal != null && vertical != null) {
+        androidx.compose.foundation.layout.PaddingValues(
+            horizontal = horizontal.dp,
+            vertical = vertical.dp,
+        )
+    } else if (all != null) {
+        androidx.compose.foundation.layout.PaddingValues(all.dp)
+    } else {
+        androidx.compose.foundation.layout.PaddingValues(
+            start = start?.dp ?: 0.dp,
+            top = top?.dp ?: 0.dp,
+            end = end?.dp ?: 0.dp,
+            bottom = bottom?.dp ?: 0.dp,
+        )
+    }
+}
 
 @Serializable
 data class MarginValues(

@@ -1,0 +1,65 @@
+# yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
+
+site_name: Compose Remote Layout
+site_url: https://utsmannn.github.io/compose-remote-layout
+site_description: >-
+  Server-Driven UI component with Compose Multiplatform
+
+copyright: Copyright &copy; 2025 Muhammad Utsman
+
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: green
+    accent: green
+  favicon: images/favicon.png
+  icon:
+    repo: fontawesome/brands/github
+    logo: material/image-filter-drama
+  features:
+    - navigation.tabs
+    - navigation.indexes
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+
+repo_name: utsmannn/compose-remote-layout
+repo_url: https://github.com/utsmannn/compose-remote-layout
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.details
+
+extra:
+  analytics:
+    provider: google
+    property: G-D8MEYP6N5L
+  version:
+    provider: mike
+
+nav:
+  - Getting started:
+      - Overview: index.md
+      - Installation: 01-getting-started/01-installation.md
+      - Basic Usage: 01-getting-started/02-basic-setup.md
+  - Setup:
+      - Integrate with Remote Source: 02-setup/03-integrated-remote-sources.md
+      - Bind Values: 02-setup/04-bind-values.md
+      - Bind Actions: 02-setup/05-bind-actions.md
+      - Custom Compose Component: 02-setup/05a-custom-node.md
+  - JSON Layout Structure:
+      - Understanding JSON Layout Structure: 03-json-structure/06-layout-json-structure.md
+      - Live editor: 03-json-structure/07-live-editor.md
+  - Navigation and Routing:
+      - Router Overview: 04-router/08-router-overview.md
+      - Installation and Basic Usage: 04-router/09-router-installation-and-basic-usage.md
+      - Navigation & Route: 04-router/10-navigation-and-route.md
+      - Layout Fetcher and Caching: 04-router/11-layout-fetcher-and-caching.md
+      - Live example: 04-router/12-live-example.md
