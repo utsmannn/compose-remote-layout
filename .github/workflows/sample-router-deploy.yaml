@@ -84,6 +84,9 @@ jobs:
           username: ${{ secrets.VM_USERNAME }}
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
+            if [ -d ~/wasm-deployment ]; then
+              rm -rf ~/wasm-deployment
+            fi
             cd ~/wasm-deployment
             docker load < wasm-server.tar.gz
             mv samples/routerApp/docker-compose.yaml ./docker-compose.yaml
