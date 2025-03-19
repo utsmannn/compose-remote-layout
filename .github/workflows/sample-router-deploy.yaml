@@ -11,8 +11,6 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'samples/')
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
