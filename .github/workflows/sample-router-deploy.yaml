@@ -6,16 +6,22 @@ on:
     branches: [ main ]
     paths:
       - 'samples/**'
+  push:
+    branches: [ '*' ]
   workflow_dispatch:
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true && startsWith(github.head_ref, 'samples/')) ||
+      (github.event_name == 'push' && contains(github.event.head_commit.message, '--sample-deploy'))
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          submodules: false
+          submodules: false  # Ignore git submodules
 
       - name: Set up JDK
         uses: actions/setup-java@v3
