@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -129,6 +130,9 @@ internal class ResultRemoteRouterImpl(
 
             scope.launch {
                 fetcher.fetchLayoutAsFlow(url)
+                    .catch {
+                        _layoutContent.value = ResultLayout.failure(it)
+                    }
                     .collectLatest { result ->
                         _layoutContent.value = result
                         calculateIsRoot()
