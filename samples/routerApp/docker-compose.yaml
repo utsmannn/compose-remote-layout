@@ -4,5 +4,5 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8084:80"  # Nginx uses port 80 by default
+      - "8084:8080"
     restart: unless-stopped
