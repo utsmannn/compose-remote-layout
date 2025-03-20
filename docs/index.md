@@ -5,6 +5,8 @@
 [![Maven Central Version](https://img.shields.io/maven-central/v/io.github.utsmannn/compose-remote-layout)](https://central.sonatype.com/artifact/io.github.utsmannn/compose-remote-layout)
 [![Publish to Maven Central](https://github.com/utsmannn/compose-remote-layout/actions/workflows/publish.yaml/badge.svg)](https://github.com/utsmannn/compose-remote-layout/actions/workflows/publish.yaml)
 
+<iframe width="1000" height="475" src="https://www.youtube.com/embed/_YNtB3ZkAFM?si=vtxVwvuOIQL4F1xd" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 ## Overview
 
 Compose Remote Layout empowers you to dynamically update your UI without app store submissions.
@@ -241,15 +243,18 @@ Learn more about the library's core features:
 
 Explore complete examples in the repository:
 
-- *
-  *[Firebase Integration](https://github.com/utsmannn/compose-remote-layout/tree/master/samples/firebaseApp)
-  ** - Complete implementation with Firebase Remote Config
-- *
-  *[Custom Components](https://github.com/utsmannn/compose-remote-layout/tree/master/samples/customComponents)
-  ** - Examples of extending the library
-- *
-  *[Form Builder](https://github.com/utsmannn/compose-remote-layout/tree/master/samples/formBuilder)
-  ** - Dynamic form creation and validation
+-
+    *
+*[Firebase Integration](https://github.com/utsmannn/compose-remote-layout/tree/master/samples/firebaseApp)
+** - Complete implementation with Firebase Remote Config
+-
+    *
+*[Custom Components](https://github.com/utsmannn/compose-remote-layout/tree/master/samples/customComponents)
+** - Examples of extending the library
+-
+    *
+*[Form Builder](https://github.com/utsmannn/compose-remote-layout/tree/master/samples/formBuilder)
+** - Dynamic form creation and validation
 
 ## JSON Builder Tool
 
