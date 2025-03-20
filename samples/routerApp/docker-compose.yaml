@@ -4,7 +4,5 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8084:8080"
+      - "8084:80"  # Nginx uses port 80 by default
     restart: unless-stopped
-    # volumes:
-    #  - ./wasmJsDist:/app
