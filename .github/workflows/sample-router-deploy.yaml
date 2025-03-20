@@ -86,6 +86,7 @@ jobs:
           script: |
             cd ~/wasm-deployment
             docker load < wasm-server.tar.gz
+            rm -r ./wasmJsDist
             mv samples/routerApp/docker-compose.yaml ./docker-compose.yaml
             mv samples/routerApp/Dockerfile ./Dockerfile
             mv samples/routerApp/wasmJsDist ./wasmJsDist
