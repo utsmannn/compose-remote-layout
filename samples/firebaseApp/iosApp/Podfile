@@ -1,3 +1,5 @@
+source 'https://cdn.cocoapods.org'
+
 # Uncomment the next line to define a global platform for your project
 platform :ios, '17.0'
 
@@ -8,6 +10,7 @@ target 'iosApp' do
   # Pods for iosApp
   pod 'FirebaseAnalytics'
   pod 'FirebaseCore'
+  pod 'FirebaseCoreInternal'
   pod 'FirebaseRemoteConfig'
   pod 'ComposeAppFirebase', :path => '../composeApp'
 

@@ -73,7 +73,7 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.androidx.activityCompose)
 
-            implementation(platform("com.google.firebase:firebase-bom:33.9.0"))
+            implementation(project.dependencies.platform("com.google.firebase:firebase-bom:33.9.0"))
             implementation("com.google.firebase:firebase-config")
             implementation("com.google.firebase:firebase-analytics")
         }
