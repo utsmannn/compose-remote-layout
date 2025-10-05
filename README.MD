@@ -56,7 +56,14 @@ The `compose-remote-layout` module provides several core features:
     - Map JSON definitions to custom UI elements
     - Pass custom parameters and handle specific logic
 
-6. **iOS Support**
+6. **Animation Support** ✨ NEW
+    - Implement Compose animations via Custom Nodes
+    - AnimatedVisibility for show/hide animations
+    - AnimatedContent for state transitions
+    - Control animations remotely through JSON
+    - [See Animation Documentation](docs/03-json-structure/08-animations.md)
+
+7. **iOS Support**
     - Independent iOS implementation using SwiftUI
     - Swift Package Manager integration
 
