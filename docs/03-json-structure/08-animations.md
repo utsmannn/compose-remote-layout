@@ -715,4 +715,4 @@ Now that you understand animations, you can:
 For more information on other features, see:
 - [Layout JSON Structure](06-layout-json-structure.md)
 - [Custom Nodes](../02-setup/05a-custom-node.md)
-- [Value Binding](../02-setup/04-binds-value.md)
+- [Value Binding](../02-setup/04-bind-values.md)

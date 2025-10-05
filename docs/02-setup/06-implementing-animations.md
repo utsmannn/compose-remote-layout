@@ -11,7 +11,7 @@ Animations can be implemented by registering custom nodes that wrap Compose's an
 Before implementing animations, make sure you're familiar with:
 
 - [Custom Nodes](05a-custom-node.md) - Understanding how to create custom components
-- [Value Binding](04-binds-value.md) - How to bind dynamic values
+- [Value Binding](04-bind-values.md) - How to bind dynamic values
 - Compose Animation APIs - Basic understanding of Compose animations
 
 ## Implementing AnimatedVisibility
@@ -339,6 +339,8 @@ fun registerAdvancedAnimatedVisibility() {
 
 ## Complete Implementation Example
 
+For a production-ready implementation that you can copy directly into your project, see the [AnimationNodes.kt example](../examples/AnimationNodes.kt).
+
 Here's a complete example showing how to set up animations in your app:
 
 ```kotlin
@@ -562,5 +564,5 @@ Now that you've implemented animations:
 
 For more information:
 - [Custom Nodes Documentation](05a-custom-node.md)
-- [Value Binding](04-binds-value.md)
+- [Value Binding](04-bind-values.md)
 - [JSON Structure](../03-json-structure/06-layout-json-structure.md)
