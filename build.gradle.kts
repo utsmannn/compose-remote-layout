@@ -6,3 +6,12 @@ plugins {
     alias(libs.plugins.kotlinCocoapods).apply(false)
     id("com.google.gms.google-services") version "4.4.2" apply false
 }
+
+allprojects {
+    configurations.all {
+        resolutionStrategy {
+            force("org.jetbrains.kotlin:kotlin-stdlib:2.1.0")
+            force("org.jetbrains.kotlin:kotlin-stdlib-common:2.1.0")
+        }
+    }
+}
