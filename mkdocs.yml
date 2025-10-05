@@ -56,9 +56,12 @@ nav:
       - Bind Values: 02-setup/04-bind-values.md
       - Bind Actions: 02-setup/05-bind-actions.md
       - Custom Compose Component: 02-setup/05a-custom-node.md
+      - Implementing Animations: 02-setup/06-implementing-animations.md
+      - Quick Start - Animations: 02-setup/06a-quick-start-animations.md
   - JSON Layout Structure:
       - Understanding JSON Layout Structure: 03-json-structure/06-layout-json-structure.md
       - Live editor: 03-json-structure/07-live-editor.md
+      - Animations: 03-json-structure/08-animations.md
   - Navigation and Routing:
       - Router Overview: 04-router/08-router-overview.md
       - Installation and Basic Usage: 04-router/09-router-installation-and-basic-usage.md
