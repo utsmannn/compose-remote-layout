@@ -51,6 +51,7 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.ui)
             implementation(compose.material)
+            implementation(compose.materialIconsExtended)
             implementation(projects.composeRemoteLayout)
             implementation(projects.composeRemoteLayoutRouter)
             implementation(projects.samples.sharedCompose)
