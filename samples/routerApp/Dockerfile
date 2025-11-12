@@ -1,7 +1,10 @@
 FROM node:18-alpine
 
-# Install live-server globally
-RUN npm install -g live-server
+# Install http-server globally (more reliable than live-server)
+RUN npm install -g http-server
+
+# Install bash for debugging
+RUN apk add --no-cache bash
 
 # Set the working directory
 WORKDIR /app
@@ -9,22 +12,18 @@ WORKDIR /app
 # Copy application files
 COPY /wasmJsDist /app
 
-# Create middleware directory
-RUN mkdir -p /app/.live-server
-
-# Create middleware file for correct MIME types
-RUN echo 'module.exports = function(req, res, next) {' > /app/.live-server/middleware.js && \
-    echo '  if (req.url.endsWith(".js")) {' >> /app/.live-server/middleware.js && \
-    echo '    res.setHeader("Content-Type", "application/javascript");' >> /app/.live-server/middleware.js && \
-    echo '  } else if (req.url.endsWith(".wasm")) {' >> /app/.live-server/middleware.js && \
-    echo '    res.setHeader("Content-Type", "application/wasm");' >> /app/.live-server/middleware.js && \
-    echo '  }' >> /app/.live-server/middleware.js && \
-    echo '  res.setHeader("Access-Control-Allow-Origin", "*");' >> /app/.live-server/middleware.js && \
-    echo '  next();' >> /app/.live-server/middleware.js && \
-    echo '};' >> /app/.live-server/middleware.js
+# Create a startup script with debugging
+RUN echo '#!/bin/bash' > /app/start.sh && \
+    echo 'echo "Container starting..."' >> /app/start.sh && \
+    echo 'echo "Current directory: $(pwd)"' >> /app/start.sh && \
+    echo 'echo "Directory contents:"' >> /app/start.sh && \
+    echo 'ls -la /app' >> /app/start.sh && \
+    echo 'echo "Starting HTTP server on port 8080..."' >> /app/start.sh && \
+    echo 'exec http-server /app -p 8080 --cors -c-1 -a 0.0.0.0 -e js=application/javascript -e wasm=application/wasm' >> /app/start.sh && \
+    chmod +x /app/start.sh
 
 # Expose the server port
 EXPOSE 8080
 
-# Run the server - NOTE: Fixed path issues
-CMD ["live-server", "--cors", "--port=8080", "--host=0.0.0.0", "--no-browser", "--middleware=/app/.live-server/middleware.js"]
+# Run the server with the startup script
+CMD ["/app/start.sh"]
