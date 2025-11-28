@@ -3,12 +3,12 @@ FROM node:18-alpine
 # Install live-server globally
 RUN npm install -g live-server
 
+# Install bash
 RUN apk add --no-cache bash
 
 # Set the working directory
 WORKDIR /app
 
-# Copy application files
 COPY /wasmJsDist /app
 
 # Create middleware directory
@@ -21,12 +21,11 @@ RUN echo 'module.exports = function(req, res, next) {' > /app/.live-server/middl
     echo '  } else if (req.url.endsWith(".wasm")) {' >> /app/.live-server/middleware.js && \
     echo '    res.setHeader("Content-Type", "application/wasm");' >> /app/.live-server/middleware.js && \
     echo '  }' >> /app/.live-server/middleware.js && \
-    echo '  res.setHeader("Access-Control-Allow-Origin", "*");' >> /app/.live-server/middleware.js && \
     echo '  next();' >> /app/.live-server/middleware.js && \
     echo '};' >> /app/.live-server/middleware.js
 
-# Expose the server port
+# Expose the default port
 EXPOSE 8080
 
-# Run the server - NOTE: Fixed path issues
-CMD ["live-server", "--cors", "--port=8080", "--host=0.0.0.0", "--no-browser", "--middleware=/app/.live-server/middleware.js"]
+# Run live-server directly
+CMD ["live-server", "--cors", "--mount=/:/app/wasmJsDist", "--middleware=/app/.live-server/middleware.js"]
