@@ -8,6 +8,10 @@
 Article published
 on [Medium](https://medium.com/@utsmannn/server-driven-ui-with-compose-remote-layout-bdc902d973f8)
 
+## Documentation
+
+All documentation is available in the [docs](https://utsmannn.github.io/compose-remote-layout/)
+
 ## Background and Motivation
 
 In modern app development, the ability to update UI components without deploying new app versions is
@@ -59,10 +63,6 @@ The `compose-remote-layout` module provides several core features:
 ### Demo Video
 
 https://github.com/user-attachments/assets/6479f0c1-338e-4d1e-90e9-25c2ebf72395
-
-## Usage Guide
-
-All documentation is available in the [docs](https://utsmannn.github.io/compose-remote-layout/)
 
 ## Download
 
