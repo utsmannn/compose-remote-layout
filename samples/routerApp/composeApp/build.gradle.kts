@@ -16,7 +16,6 @@ kotlin {
     jvm()
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
-        moduleName = "sampleRouterApp"
         browser {
             val rootDirPath = project.rootDir.path
             val projectDirPath = project.projectDir.path
@@ -106,7 +105,7 @@ tasks.register<Copy>("copyWasmJsToRoot") {
     }
 
     println("Copying wasmJs build output to wasmJsDist directory ...")
-    from("$buildDir/dist/wasmJs/developmentExecutable")
+    from("${layout.buildDirectory.get().asFile}/dist/wasmJs/developmentExecutable")
     into(destFolder)
 }
 
