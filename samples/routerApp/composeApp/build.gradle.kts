@@ -16,7 +16,6 @@ kotlin {
     jvm()
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
-        moduleName = "sampleRouterApp"
         browser {
             val rootDirPath = project.rootDir.path
             val projectDirPath = project.projectDir.path
@@ -52,6 +51,7 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.ui)
             implementation(compose.material)
+            implementation(compose.materialIconsExtended)
             implementation(projects.composeRemoteLayout)
             implementation(projects.composeRemoteLayoutRouter)
             implementation(projects.samples.sharedCompose)
@@ -69,7 +69,7 @@ kotlin {
 
 android {
     namespace = "router.app"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 21
@@ -106,7 +106,7 @@ tasks.register<Copy>("copyWasmJsToRoot") {
     }
 
     println("Copying wasmJs build output to wasmJsDist directory ...")
-    from("$buildDir/dist/wasmJs/developmentExecutable")
+    from("${layout.buildDirectory.get().asFile}/dist/wasmJs/developmentExecutable")
     into(destFolder)
 }
 

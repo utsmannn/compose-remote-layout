@@ -18,7 +18,6 @@ kotlin {
     js { browser() }
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
-        moduleName = "sharedCompose"
         browser {
             val rootDirPath = project.rootDir.path
             val projectDirPath = project.projectDir.path
@@ -61,7 +60,7 @@ kotlin {
 
 android {
     namespace = "sample.sharedcompose"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 21
